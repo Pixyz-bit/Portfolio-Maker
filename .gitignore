@@ -1,0 +1,56 @@
+## Visual Studio / .NET .gitignore
+
+# User-specific files
+*.rsuser
+*.suo
+*.user
+*.userosscache
+*.sln.docstates
+
+# User-specific files (MonoDevelop / Xamarin Studio)
+*.userprefs
+
+# Mono / VS Code
+.vscode/
+
+# Build results
+[Dd]ebug/
+[Dd]ebugPublic/
+[Rr]elease/
+[Rr]eleases/
+x64/
+x86/
+[Aa][Rr][Mm]/
+[Aa][Rr][Mm]64/
+bld/
+[Bb]in/
+[Oo]bj/
+[Ll]og/
+[Ll]ogs/
+
+# Visual Studio 2015/2017/2019/2022 cache/options directory
+.vs/
+
+# NuGet Packages
+*.nupkg
+*.snupkg
+**/packages/*
+!**/packages/build/
+packages/
+
+# ASP.NET temporary files
+[Tt]emp/
+[Tt]emporary ASP.NET Files/
+
+# Windows desktop ini files
+Thumbs.db
+ehthumbs.db
+ehthumbs_vista.db
+[Dd]esktop.ini
+
+# Others
+*.dbmdl
+*.jfm
+*.pfx
+*.publishsettings
+node_modules/

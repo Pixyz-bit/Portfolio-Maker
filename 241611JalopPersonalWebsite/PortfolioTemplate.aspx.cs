@@ -1,9 +1,6 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Web;
 using System.Web.UI;
-using System.Web.UI.WebControls;
+using _241611JalopPersonalWebsite.Repository;
 
 namespace _241611JalopPersonalWebsite
 {
@@ -11,7 +8,19 @@ namespace _241611JalopPersonalWebsite
     {
         protected void Page_Load(object sender, EventArgs e)
         {
-
+            if (!IsPostBack)
+            {
+                if (DatabaseConnection.TestConnection(out string message))
+                {
+                    // JavaScript alert popup with success message
+                    ClientScript.RegisterStartupScript(this.GetType(), "dbTest", $"alert('{message}');", true);
+                }
+                else
+                {
+                    // JavaScript alert popup with error details
+                    ClientScript.RegisterStartupScript(this.GetType(), "dbTest", $"alert('{message.Replace("'", "\\'")}');", true);
+                }
+            }
         }
     }
 }

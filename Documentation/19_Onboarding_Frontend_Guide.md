@@ -8,7 +8,7 @@ It collects and synchronizes all primary personal, academic, technical, organiza
 Following the project's signature monochromatic dotted-grid design:
 - **Canvas Background**: High-contrast pure white (`#ffffff`) with subtle radial dot grid (`radial-gradient(#cbd5e1 1.2px, transparent 1.2px) 16px 16px`).
 - **Cards & Outlines**: Clean 2.5px solid black border (`border: 2.5px solid #000000; border-radius: 20px;`) with matching internal dot matrix.
-- **Progress Tracker**: 5-step numbered progress bar (1 to 5) with connected progress line and active/completed states.
+- **Progress Tracker**: 5-step numbered progress bar (1 to 5) with segmented connector lines strictly bounded between circle bubbles (preventing any line from exceeding or overflowing past the circles).
 - **Controls & Inputs**: 2px solid black borders (`border: 2px solid #000000; border-radius: 10px;`), high-contrast typography, and smooth transitions.
 - **Profile Photo Upload**: Dedicated preview box and file uploader saving to `~/Uploads/Profiles/`.
 
@@ -85,3 +85,11 @@ Following the project's signature monochromatic dotted-grid design:
 3. **Image Upload**: Saves incoming file to `~/Uploads/Profiles/` with a sanitized GUID filename and stores the virtual path in `UserProfile.ProfileImagePath`.
 4. **Clean Updates**: Calls `UserProfileRepository.Update` (or `Create` if first time). Refreshes child tables (`Educations`, `Skills`, `Affiliations`, `Hobbies`, `SocialLinks`) cleanly using their respective repository `Delete` and `Create` methods.
 5. **Success Handling**: Displays feedback and redirects the user to `Dashboard.aspx`.
+
+---
+
+## 6. Save & Exit Flexibility
+Users are not required to complete all 5 steps in one sitting:
+- **"Save & Exit"**: Available in the footer of every step (Steps 1 through 5). Persists all entered data across all sections directly to the SQL Server database and immediately redirects the user to their Dashboard (`Dashboard.aspx`).
+- **"Complete & Launch Portfolio" (Step 5)**: The final submission action that finishes onboarding and redirects to the portfolio dashboard.
+

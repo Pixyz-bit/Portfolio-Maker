@@ -58,13 +58,16 @@
             background-size: 16px 16px;
             border: 2.5px solid var(--border-black);
             border-radius: var(--radius-card);
-            padding: 44px 40px 40px;
+            padding: 40px 36px 36px;
             box-shadow: 0 6px 24px rgba(0, 0, 0, 0.05);
         }
 
-        .card-header {
-            text-align: center;
-            margin-bottom: 28px;
+        /* Top Action Bar */
+        .top-action-bar {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 14px;
         }
 
         .badge-tag {
@@ -77,7 +80,33 @@
             color: #ffffff;
             padding: 4px 12px;
             border-radius: 999px;
-            margin-bottom: 12px;
+        }
+
+        .quick-view-btn {
+            background-color: #ffffff;
+            border: 2px solid var(--border-black);
+            border-radius: var(--radius-btn);
+            color: var(--text-black);
+            font-family: inherit;
+            font-size: 0.85rem;
+            font-weight: 800;
+            padding: 6px 14px;
+            cursor: pointer;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            transition: var(--transition);
+        }
+
+        .quick-view-btn:hover {
+            background-color: #000000;
+            color: #ffffff;
+        }
+
+        .card-header {
+            text-align: center;
+            margin-bottom: 26px;
         }
 
         .card-title {
@@ -98,38 +127,13 @@
         /* Step Progress Wizard Bar */
         .step-indicator {
             display: flex;
+            align-items: flex-start;
             justify-content: space-between;
-            align-items: center;
-            position: relative;
-            margin-bottom: 36px;
-            padding: 0 10px;
-        }
-
-        .step-indicator::before {
-            content: '';
-            position: absolute;
-            top: 18px;
-            left: 20px;
-            right: 20px;
-            height: 2px;
-            background-color: #e2e8f0;
-            z-index: 1;
-        }
-
-        .step-progress-fill {
-            position: absolute;
-            top: 18px;
-            left: 20px;
-            height: 2px;
-            background-color: #000000;
-            z-index: 2;
-            transition: width 0.3s ease;
-            width: 0%;
+            margin-bottom: 34px;
+            padding: 0 4px;
         }
 
         .step-item {
-            position: relative;
-            z-index: 3;
             display: flex;
             flex-direction: column;
             align-items: center;
@@ -137,6 +141,24 @@
             cursor: pointer;
             background: transparent;
             border: none;
+            flex-shrink: 0;
+            padding: 0;
+            z-index: 2;
+        }
+
+        /* Connecting Lines strictly between bubbles - NEVER exceeds outer circles */
+        .step-line {
+            flex: 1;
+            height: 2.5px;
+            background-color: #e2e8f0;
+            margin-top: 18px; /* Aligned with the center of the 38px bubble */
+            margin-left: 6px;
+            margin-right: 6px;
+            transition: background-color 0.25s ease;
+        }
+
+        .step-line.active {
+            background-color: #000000;
         }
 
         .step-bubble {
@@ -349,7 +371,7 @@
             font-family: 'Inter', sans-serif;
         }
 
-        /* Section Item Box (for items like secondary education, multiple skills) */
+        /* Section Item Box */
         .item-card {
             background-color: #ffffff;
             border: 2px solid var(--border-black);
@@ -376,13 +398,28 @@
             margin-top: 36px;
             padding-top: 24px;
             border-top: 2px solid var(--border-black);
+            gap: 12px;
+            flex-wrap: wrap;
+        }
+
+        .footer-actions-left {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .footer-actions-right {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            flex-wrap: wrap;
         }
 
         .btn {
             height: 48px;
-            padding: 0 28px;
+            padding: 0 24px;
             font-family: inherit;
-            font-size: 1rem;
+            font-size: 0.95rem;
             font-weight: 800;
             letter-spacing: -0.01em;
             border-radius: var(--radius-btn);
@@ -392,6 +429,7 @@
             align-items: center;
             justify-content: center;
             gap: 8px;
+            text-decoration: none;
         }
 
         .btn-outline {
@@ -421,7 +459,7 @@
 
         @media (max-width: 640px) {
             .card {
-                padding: 28px 18px 24px;
+                padding: 26px 18px 24px;
             }
             .form-row-dual {
                 grid-template-columns: 1fr;
@@ -435,9 +473,13 @@
             }
             .wizard-footer {
                 flex-direction: column;
-                gap: 12px;
+                align-items: stretch;
             }
-            .wizard-footer .btn {
+            .footer-actions-right, .footer-actions-left {
+                width: 100%;
+                flex-direction: column;
+            }
+            .btn {
                 width: 100%;
             }
         }
@@ -446,14 +488,13 @@
 <body>
     <div class="onboarding-container">
         <div class="card">
-            <!-- Header -->
-            <div class="card-header">
-                <span class="badge-tag">Portfolio Creator</span>
-                <h1 class="card-title">Profile Onboarding</h1>
-                <p class="card-subtitle">Complete your personal details to automatically power your portfolio website.</p>
-            </div>
-
             <form id="onboardingForm" runat="server" enctype="multipart/form-data">
+                <div class="card-header">
+                    <span class="badge-tag">Portfolio Creator</span>
+                    <h1 class="card-title">Profile Onboarding</h1>
+                    <p class="card-subtitle">Fill in your information at your own pace. Save & Exit anytime to view your portfolio.</p>
+                </div>
+
                 <!-- Status Alerts -->
                 <asp:Panel ID="pnlError" runat="server" Visible="false" CssClass="alert-box alert-danger">
                     <asp:Label ID="lblErrorMessage" runat="server" />
@@ -463,29 +504,31 @@
                     <asp:Label ID="lblSuccessMessage" runat="server" />
                 </asp:Panel>
 
-                <!-- 5-Step Progress Bar -->
+                <!-- 5-Step Progress Bar with Segmented Connectors -->
                 <div class="step-indicator">
-                    <div class="step-progress-fill" id="stepProgressFill"></div>
-                    
                     <button type="button" class="step-item active" id="indicator1" onclick="jumpToStep(1);">
                         <div class="step-bubble">1</div>
                         <span class="step-label">Profile</span>
                     </button>
+                    <div class="step-line" id="line1"></div>
 
                     <button type="button" class="step-item" id="indicator2" onclick="jumpToStep(2);">
                         <div class="step-bubble">2</div>
                         <span class="step-label">Education</span>
                     </button>
+                    <div class="step-line" id="line2"></div>
 
                     <button type="button" class="step-item" id="indicator3" onclick="jumpToStep(3);">
                         <div class="step-bubble">3</div>
                         <span class="step-label">Skills</span>
                     </button>
+                    <div class="step-line" id="line3"></div>
 
                     <button type="button" class="step-item" id="indicator4" onclick="jumpToStep(4);">
                         <div class="step-bubble">4</div>
                         <span class="step-label">Affiliations & Hobbies</span>
                     </button>
+                    <div class="step-line" id="line4"></div>
 
                     <button type="button" class="step-item" id="indicator5" onclick="jumpToStep(5);">
                         <div class="step-bubble">5</div>
@@ -523,11 +566,11 @@
                         <div class="form-row-dual">
                             <div class="form-group">
                                 <label for="txtFirstName" class="form-label">First Name *</label>
-                                <asp:TextBox ID="txtFirstName" runat="server" CssClass="form-input" MaxLength="50" required="required" placeholder="e.g. John" />
+                                <asp:TextBox ID="txtFirstName" runat="server" CssClass="form-input" MaxLength="50" placeholder="e.g. John" />
                             </div>
                             <div class="form-group">
                                 <label for="txtLastName" class="form-label">Last Name *</label>
-                                <asp:TextBox ID="txtLastName" runat="server" CssClass="form-input" MaxLength="50" required="required" placeholder="e.g. Doe" />
+                                <asp:TextBox ID="txtLastName" runat="server" CssClass="form-input" MaxLength="50" placeholder="e.g. Doe" />
                             </div>
                         </div>
 
@@ -563,8 +606,11 @@
                     </div>
 
                     <div class="wizard-footer">
-                        <div></div>
-                        <button type="button" class="btn btn-solid" onclick="nextStep(1);">Continue to Education &rarr;</button>
+                        <div class="footer-actions-left"></div>
+                        <div class="footer-actions-right">
+                            <asp:Button ID="btnSaveStep1" runat="server" Text="Save & Exit" CssClass="btn btn-outline" OnClick="btnSaveChanges_Click" CausesValidation="false" />
+                            <button type="button" class="btn btn-solid" onclick="nextStep(1);">Continue</button>
+                        </div>
                     </div>
                 </div>
 
@@ -626,8 +672,13 @@
                     </div>
 
                     <div class="wizard-footer">
-                        <button type="button" class="btn btn-outline" onclick="prevStep(2);">&larr; Back</button>
-                        <button type="button" class="btn btn-solid" onclick="nextStep(2);">Continue to Skills &rarr;</button>
+                        <div class="footer-actions-left">
+                            <button type="button" class="btn btn-outline" onclick="prevStep(2);">Back</button>
+                        </div>
+                        <div class="footer-actions-right">
+                            <asp:Button ID="btnSaveStep2" runat="server" Text="Save & Exit" CssClass="btn btn-outline" OnClick="btnSaveChanges_Click" CausesValidation="false" />
+                            <button type="button" class="btn btn-solid" onclick="nextStep(2);">Continue</button>
+                        </div>
                     </div>
                 </div>
 
@@ -695,8 +746,13 @@
                     </div>
 
                     <div class="wizard-footer">
-                        <button type="button" class="btn btn-outline" onclick="prevStep(3);">&larr; Back</button>
-                        <button type="button" class="btn btn-solid" onclick="nextStep(3);">Continue to Affiliations & Hobbies &rarr;</button>
+                        <div class="footer-actions-left">
+                            <button type="button" class="btn btn-outline" onclick="prevStep(3);">Back</button>
+                        </div>
+                        <div class="footer-actions-right">
+                            <asp:Button ID="btnSaveStep3" runat="server" Text="Save & Exit" CssClass="btn btn-outline" OnClick="btnSaveChanges_Click" CausesValidation="false" />
+                            <button type="button" class="btn btn-solid" onclick="nextStep(3);">Continue</button>
+                        </div>
                     </div>
                 </div>
 
@@ -788,8 +844,13 @@
                     </div>
 
                     <div class="wizard-footer">
-                        <button type="button" class="btn btn-outline" onclick="prevStep(4);">&larr; Back</button>
-                        <button type="button" class="btn btn-solid" onclick="nextStep(4);">Continue to Social Links &rarr;</button>
+                        <div class="footer-actions-left">
+                            <button type="button" class="btn btn-outline" onclick="prevStep(4);">Back</button>
+                        </div>
+                        <div class="footer-actions-right">
+                            <asp:Button ID="btnSaveStep4" runat="server" Text="Save & Exit" CssClass="btn btn-outline" OnClick="btnSaveChanges_Click" CausesValidation="false" />
+                            <button type="button" class="btn btn-solid" onclick="nextStep(4);">Continue</button>
+                        </div>
                     </div>
                 </div>
 
@@ -835,8 +896,13 @@
                     </div>
 
                     <div class="wizard-footer">
-                        <button type="button" class="btn btn-outline" onclick="prevStep(5);">&larr; Back</button>
-                        <asp:Button ID="btnCompleteOnboarding" runat="server" Text="Complete & Launch Portfolio" CssClass="btn btn-solid" OnClick="btnCompleteOnboarding_Click" />
+                        <div class="footer-actions-left">
+                            <button type="button" class="btn btn-outline" onclick="prevStep(5);">Back</button>
+                        </div>
+                        <div class="footer-actions-right">
+                            <asp:Button ID="btnSaveStep5" runat="server" Text="Save & Exit" CssClass="btn btn-outline" OnClick="btnSaveChanges_Click" CausesValidation="false" />
+                            <asp:Button ID="btnCompleteOnboarding" runat="server" Text="Complete & Launch Portfolio" CssClass="btn btn-solid" OnClick="btnCompleteOnboarding_Click" />
+                        </div>
                     </div>
                 </div>
             </form>
@@ -870,10 +936,17 @@
             if (activeSec) activeSec.classList.add('active-step');
             if (activeInd) activeInd.classList.add('active');
 
-            // Update progress line fill percentage
-            var progressPercent = ((step - 1) / (totalSteps - 1)) * 100;
-            var fill = document.getElementById('stepProgressFill');
-            if (fill) fill.style.width = progressPercent + '%';
+            // Update connector lines between bubbles
+            for (var j = 1; j < totalSteps; j++) {
+                var line = document.getElementById('line' + j);
+                if (line) {
+                    if (j < step) {
+                        line.classList.add('active');
+                    } else {
+                        line.classList.remove('active');
+                    }
+                }
+            }
 
             window.scrollTo({ top: 0, behavior: 'smooth' });
         }
@@ -893,10 +966,8 @@
         }
 
         function jumpToStep(step) {
-            // Allow jumping back to earlier steps or current step anytime
-            if (step <= currentStep || validateStep(currentStep)) {
-                setStep(step);
-            }
+            // Allow jumping freely between steps
+            setStep(step);
         }
 
         function validateStep(step) {
@@ -904,7 +975,7 @@
                 var fn = document.getElementById('<%= txtFirstName.ClientID %>').value.trim();
                 var ln = document.getElementById('<%= txtLastName.ClientID %>').value.trim();
                 if (!fn || !ln) {
-                    alert('Please provide your First Name and Last Name to proceed.');
+                    alert('Please enter your First Name and Last Name to continue.');
                     return false;
                 }
             }

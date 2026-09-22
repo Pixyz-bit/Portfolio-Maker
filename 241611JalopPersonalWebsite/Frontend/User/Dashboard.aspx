@@ -164,7 +164,7 @@
             </div>
 
             <div class="btn-group">
-                <a href="Onboarding.aspx" class="btn btn-solid">&larr; Edit Onboarding Portfolio Details</a>
+                <a href="Onboarding.aspx" class="btn btn-solid">Edit Onboarding Portfolio Details</a>
                 <a href="../Login/Login.aspx?action=logout" class="btn btn-outline">Sign Out</a>
             </div>
         </div>

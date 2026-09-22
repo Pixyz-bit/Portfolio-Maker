@@ -92,6 +92,11 @@ namespace _241611JalopPersonalWebsite.Frontend.User
         protected global::System.Web.UI.WebControls.TextBox txtDescription;
 
         /// <summary>
+        /// btnSaveStep1 control.
+        /// </summary>
+        protected global::System.Web.UI.WebControls.Button btnSaveStep1;
+
+        /// <summary>
         /// txtCourse1 control.
         /// </summary>
         protected global::System.Web.UI.WebControls.TextBox txtCourse1;
@@ -132,6 +137,11 @@ namespace _241611JalopPersonalWebsite.Frontend.User
         protected global::System.Web.UI.WebControls.TextBox txtEduEndYear2;
 
         /// <summary>
+        /// btnSaveStep2 control.
+        /// </summary>
+        protected global::System.Web.UI.WebControls.Button btnSaveStep2;
+
+        /// <summary>
         /// txtSkill1 control.
         /// </summary>
         protected global::System.Web.UI.WebControls.TextBox txtSkill1;
@@ -170,6 +180,11 @@ namespace _241611JalopPersonalWebsite.Frontend.User
         /// txtSkillDesc4 control.
         /// </summary>
         protected global::System.Web.UI.WebControls.TextBox txtSkillDesc4;
+
+        /// <summary>
+        /// btnSaveStep3 control.
+        /// </summary>
+        protected global::System.Web.UI.WebControls.Button btnSaveStep3;
 
         /// <summary>
         /// txtOrg1 control.
@@ -232,6 +247,11 @@ namespace _241611JalopPersonalWebsite.Frontend.User
         protected global::System.Web.UI.WebControls.TextBox txtHobbyDesc2;
 
         /// <summary>
+        /// btnSaveStep4 control.
+        /// </summary>
+        protected global::System.Web.UI.WebControls.Button btnSaveStep4;
+
+        /// <summary>
         /// txtGithubLink control.
         /// </summary>
         protected global::System.Web.UI.WebControls.TextBox txtGithubLink;
@@ -255,6 +275,11 @@ namespace _241611JalopPersonalWebsite.Frontend.User
         /// txtOtherSocialLink control.
         /// </summary>
         protected global::System.Web.UI.WebControls.TextBox txtOtherSocialLink;
+
+        /// <summary>
+        /// btnSaveStep5 control.
+        /// </summary>
+        protected global::System.Web.UI.WebControls.Button btnSaveStep5;
 
         /// <summary>
         /// btnCompleteOnboarding control.

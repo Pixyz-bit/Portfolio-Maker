@@ -36,7 +36,6 @@ namespace _241611JalopPersonalWebsite.Frontend.User
                 return userId;
             }
 
-            // Fallback for development if session expired or direct page launch
             return 0;
         }
 
@@ -152,7 +151,22 @@ namespace _241611JalopPersonalWebsite.Frontend.User
             }
         }
 
+        // =========================================================================
+        // Event Handlers
+        // =========================================================================
+        protected void btnSaveChanges_Click(object sender, EventArgs e)
+        {
+            // Save progress and redirect to Dashboard (Save & Exit)
+            SavePortfolioData(redirectToDashboard: true);
+        }
+
         protected void btnCompleteOnboarding_Click(object sender, EventArgs e)
+        {
+            // Final submission action (Save & Launch Portfolio)
+            SavePortfolioData(redirectToDashboard: true);
+        }
+
+        private void SavePortfolioData(bool redirectToDashboard)
         {
             pnlError.Visible = false;
             pnlSuccess.Visible = false;
@@ -164,12 +178,23 @@ namespace _241611JalopPersonalWebsite.Frontend.User
                 return;
             }
 
-            // Validate required personal info
+            // Validate personal info (fallback to session if empty)
             string firstName = txtFirstName.Text.Trim();
             string lastName = txtLastName.Text.Trim();
+
+            if (string.IsNullOrWhiteSpace(firstName) && Session["FirstName"] != null)
+            {
+                firstName = Session["FirstName"].ToString();
+            }
+
+            if (string.IsNullOrWhiteSpace(lastName) && Session["LastName"] != null)
+            {
+                lastName = Session["LastName"].ToString();
+            }
+
             if (string.IsNullOrWhiteSpace(firstName) || string.IsNullOrWhiteSpace(lastName))
             {
-                ShowError("First Name and Last Name are required.");
+                ShowError("Please enter your First Name and Last Name on Step 1 to save your portfolio.");
                 hfCurrentStep.Value = "1";
                 return;
             }
@@ -187,14 +212,12 @@ namespace _241611JalopPersonalWebsite.Frontend.User
                     if (fileExt != ".jpg" && fileExt != ".jpeg" && fileExt != ".png" && fileExt != ".webp")
                     {
                         ShowError("Please upload a valid image file (.jpg, .jpeg, .png, or .webp).");
-                        hfCurrentStep.Value = "1";
                         return;
                     }
 
                     if (fileProfileImage.PostedFile.ContentLength > 2 * 1024 * 1024)
                     {
                         ShowError("Profile picture size must be less than 2MB.");
-                        hfCurrentStep.Value = "1";
                         return;
                     }
 
@@ -209,6 +232,8 @@ namespace _241611JalopPersonalWebsite.Frontend.User
                     fileProfileImage.SaveAs(fullPath);
 
                     profileImagePath = $"~/Uploads/Profiles/{uniqueFileName}";
+                    hfExistingImagePath.Value = profileImagePath;
+                    imgProfilePreview.ImageUrl = ResolveUrl(profileImagePath);
                 }
 
                 // =========================================================================
@@ -260,7 +285,7 @@ namespace _241611JalopPersonalWebsite.Frontend.User
                     }
                 }
 
-                // Update Session names
+                // Update Session state
                 Session["FirstName"] = firstName;
                 Session["LastName"] = lastName;
                 Session["FullName"] = $"{firstName} {lastName}".Trim();
@@ -277,7 +302,6 @@ namespace _241611JalopPersonalWebsite.Frontend.User
                     }
                 }
 
-                // Primary Education
                 if (!string.IsNullOrWhiteSpace(txtCourse1.Text) && !string.IsNullOrWhiteSpace(txtUniversity1.Text))
                 {
                     Education edu1 = new Education
@@ -291,7 +315,6 @@ namespace _241611JalopPersonalWebsite.Frontend.User
                     EducationRepository.Create(edu1, out _);
                 }
 
-                // Secondary Education (Optional)
                 if (!string.IsNullOrWhiteSpace(txtCourse2.Text) && !string.IsNullOrWhiteSpace(txtUniversity2.Text))
                 {
                     Education edu2 = new Education
@@ -371,14 +394,20 @@ namespace _241611JalopPersonalWebsite.Frontend.User
                 SaveSocialLinkIfNotEmpty(userId, "Instagram", txtOtherSocialLink.Text);
 
                 // =========================================================================
-                // 8. Completed Successfully
+                // 8. Result Handling
                 // =========================================================================
                 pnlSuccess.Visible = true;
-                lblSuccessMessage.Text = "Your portfolio information has been successfully saved! Redirecting...";
 
-                // Redirect to user dashboard or portfolio
-                string redirectScript = "setTimeout(function(){ window.location.href = 'Dashboard.aspx'; }, 2000);";
-                ClientScript.RegisterStartupScript(this.GetType(), "OnboardingCompleteRedirect", redirectScript, true);
+                if (redirectToDashboard)
+                {
+                    lblSuccessMessage.Text = "Portfolio details successfully saved! Redirecting to your dashboard...";
+                    string redirectScript = "setTimeout(function(){ window.location.href = 'Dashboard.aspx'; }, 1500);";
+                    ClientScript.RegisterStartupScript(this.GetType(), "OnboardingRedirect", redirectScript, true);
+                }
+                else
+                {
+                    lblSuccessMessage.Text = "Changes saved successfully! Your portfolio data has been updated in the database.";
+                }
             }
             catch (Exception ex)
             {

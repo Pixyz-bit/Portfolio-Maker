@@ -67,36 +67,61 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
-    <Content Include="Database\Migration\01_Schema.sql" />
-    <Content Include="Database\Migration\02_Alter_Profile_Affiliations_SocialLinks.sql" />
-    <Content Include="PortfolioTemplate.aspx" />
+    <Content Include="Backend\Database\Migration\01_Schema.sql" />
+    <Content Include="Backend\Database\Migration\02_Alter_Profile_Affiliations_SocialLinks.sql" />
+    <Content Include="Default.aspx" />
+    <Content Include="Frontend\Login\Login.aspx" />
+    <Content Include="Frontend\Login\Signup.aspx" />
+    <Content Include="Frontend\User\Dashboard.aspx" />
+    <Content Include="Frontend\User\Onboarding.aspx" />
     <Content Include="Web.config" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="PortfolioTemplate.aspx.cs">
-      <DependentUpon>PortfolioTemplate.aspx</DependentUpon>
+    <Compile Include="Frontend\Login\Login.aspx.cs">
+      <DependentUpon>Login.aspx</DependentUpon>
       <SubType>ASPXCodeBehind</SubType>
     </Compile>
-    <Compile Include="PortfolioTemplate.aspx.designer.cs">
-      <DependentUpon>PortfolioTemplate.aspx</DependentUpon>
+    <Compile Include="Frontend\Login\Login.aspx.designer.cs">
+      <DependentUpon>Login.aspx</DependentUpon>
     </Compile>
-    <Compile Include="Model\Affiliation.cs" />
-    <Compile Include="Model\DashboardAnalytics.cs" />
-    <Compile Include="Model\Education.cs" />
-    <Compile Include="Model\Hobby.cs" />
-    <Compile Include="Model\Skill.cs" />
-    <Compile Include="Model\SocialLink.cs" />
-    <Compile Include="Model\UserLogin.cs" />
-    <Compile Include="Model\UserProfile.cs" />
-    <Compile Include="Repository\AffiliationRepository.cs" />
-    <Compile Include="Repository\DashboardAnalyticsRepository.cs" />
-    <Compile Include="Repository\DatabaseConnection.cs" />
-    <Compile Include="Repository\EducationRepository.cs" />
-    <Compile Include="Repository\HobbyRepository.cs" />
-    <Compile Include="Repository\SkillRepository.cs" />
-    <Compile Include="Repository\SocialLinkRepository.cs" />
-    <Compile Include="Repository\UserProfileRepository.cs" />
-    <Compile Include="Repository\UserRepository.cs" />
+    <Compile Include="Frontend\Login\Signup.aspx.cs">
+      <DependentUpon>Signup.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="Frontend\Login\Signup.aspx.designer.cs">
+      <DependentUpon>Signup.aspx</DependentUpon>
+    </Compile>
+    <Compile Include="Frontend\User\Dashboard.aspx.cs">
+      <DependentUpon>Dashboard.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="Frontend\User\Dashboard.aspx.designer.cs">
+      <DependentUpon>Dashboard.aspx</DependentUpon>
+    </Compile>
+    <Compile Include="Frontend\User\Onboarding.aspx.cs">
+      <DependentUpon>Onboarding.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="Frontend\User\Onboarding.aspx.designer.cs">
+      <DependentUpon>Onboarding.aspx</DependentUpon>
+    </Compile>
+    <Compile Include="Backend\Model\Affiliation.cs" />
+    <Compile Include="Backend\Model\DashboardAnalytics.cs" />
+    <Compile Include="Backend\Model\Education.cs" />
+    <Compile Include="Backend\Model\Hobby.cs" />
+    <Compile Include="Backend\Model\Skill.cs" />
+    <Compile Include="Backend\Model\SocialLink.cs" />
+    <Compile Include="Backend\Model\UserLogin.cs" />
+    <Compile Include="Backend\Model\UserProfile.cs" />
+    <Compile Include="Backend\Repository\AffiliationRepository.cs" />
+    <Compile Include="Backend\Repository\DashboardAnalyticsRepository.cs" />
+    <Compile Include="Backend\Repository\DatabaseConnection.cs" />
+    <Compile Include="Backend\Repository\EducationRepository.cs" />
+    <Compile Include="Backend\Repository\HobbyRepository.cs" />
+    <Compile Include="Backend\Repository\SkillRepository.cs" />
+    <Compile Include="Backend\Repository\SocialLinkRepository.cs" />
+    <Compile Include="Backend\Repository\UserProfileRepository.cs" />
+    <Compile Include="Backend\Repository\UserRepository.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
@@ -109,13 +134,11 @@
     </None>
   </ItemGroup>
   <ItemGroup>
-    <Folder Include="Admin\" />
-    <Folder Include="Database\Commands\" />
-    <Folder Include="Model\" />
-    <Folder Include="Repository\" />
-    <Folder Include="Script\Admin\" />
-    <Folder Include="Script\User\" />
-    <Folder Include="User\" />
+    <Folder Include="Backend\Database\Commands\" />
+    <Folder Include="Frontend\Admin\" />
+    <Folder Include="Frontend\Login\" />
+    <Folder Include="Frontend\Script\" />
+    <Folder Include="Frontend\User\" />
   </ItemGroup>
   <PropertyGroup>
     <VisualStudioVersion Condition="'$(VisualStudioVersion)' == ''">10.0</VisualStudioVersion>

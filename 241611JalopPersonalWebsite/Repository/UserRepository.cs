@@ -10,7 +10,7 @@ namespace _241611JalopPersonalWebsite.Repository
 {
     public static class UserRepository
     {
-
+        
         public static bool Create(
             UserLogin user, 
             string confirmPassword, 
@@ -75,7 +75,6 @@ namespace _241611JalopPersonalWebsite.Repository
                 {
                     conn.Open();
 
-                    // Check if Email already exists in dbo.Users
                     string checkEmailQuery = "SELECT COUNT(1) FROM dbo.Users WHERE Email = @Email";
                     using (SqlCommand checkCmd = new SqlCommand(checkEmailQuery, conn))
                     {
@@ -89,10 +88,8 @@ namespace _241611JalopPersonalWebsite.Repository
                         }
                     }
 
-                    // Hash password using SHA-256
                     string hashedPassword = HashPassword(user.Password);
 
-                    // Begin Transaction for atomic insert into Users and UserProfiles
                     using (SqlTransaction transaction = conn.BeginTransaction())
                     {
                         int newUserId = 0;
@@ -135,7 +132,6 @@ namespace _241611JalopPersonalWebsite.Repository
 
                             transaction.Commit();
 
-                            // Assign generated ID back to the model
                             user.UserID = newUserId;
                             return true;
                         }
@@ -154,7 +150,6 @@ namespace _241611JalopPersonalWebsite.Repository
                 return false;
             }
         }
-
 
         public static bool Login(
             string email, 
@@ -225,7 +220,6 @@ namespace _241611JalopPersonalWebsite.Repository
                                 return false;
                             }
 
-                            // Populate and return the UserLogin model
                             authenticatedUser = new UserLogin
                             {
                                 UserID = userId,
@@ -246,6 +240,185 @@ namespace _241611JalopPersonalWebsite.Repository
             }
         }
 
+       
+        public static bool ChangePassword(
+            int userId, 
+            string currentPassword, 
+            string newPassword, 
+            string confirmNewPassword, 
+            out string errorMessage)
+        {
+            errorMessage = string.Empty;
+
+            if (userId <= 0)
+            {
+                errorMessage = "Invalid UserID.";
+                return false;
+            }
+
+            if (string.IsNullOrWhiteSpace(currentPassword))
+            {
+                errorMessage = "Current password is required.";
+                return false;
+            }
+
+            if (string.IsNullOrWhiteSpace(newPassword))
+            {
+                errorMessage = "New password is required.";
+                return false;
+            }
+
+            if (newPassword.Length < 6)
+            {
+                errorMessage = "New password must be at least 6 characters long.";
+                return false;
+            }
+
+            if (newPassword != confirmNewPassword)
+            {
+                errorMessage = "New password and confirmation do not match.";
+                return false;
+            }
+
+            try
+            {
+                using (SqlConnection conn = DatabaseConnection.GetConnection())
+                {
+                    conn.Open();
+
+                    // Step A: Verify current password
+                    string checkQuery = "SELECT PasswordHash FROM dbo.Users WHERE UserID = @UserID";
+                    using (SqlCommand checkCmd = new SqlCommand(checkQuery, conn))
+                    {
+                        checkCmd.Parameters.Add("@UserID", SqlDbType.Int).Value = userId;
+                        object result = checkCmd.ExecuteScalar();
+
+                        if (result == null)
+                        {
+                            errorMessage = "User account not found.";
+                            return false;
+                        }
+
+                        string dbHash = result.ToString();
+                        string currentHash = HashPassword(currentPassword);
+                        bool isCurrentValid = string.Equals(dbHash, currentHash, StringComparison.OrdinalIgnoreCase)
+                                           || string.Equals(dbHash, currentPassword, StringComparison.Ordinal);
+
+                        if (!isCurrentValid)
+                        {
+                            errorMessage = "Incorrect current password.";
+                            return false;
+                        }
+                    }
+
+                    // Step B: Update to new hashed password
+                    string updateQuery = @"
+                        UPDATE dbo.Users
+                        SET PasswordHash = @NewPasswordHash,
+                            UpdatedAt = SYSUTCDATETIME()
+                        WHERE UserID = @UserID";
+
+                    using (SqlCommand updateCmd = new SqlCommand(updateQuery, conn))
+                    {
+                        updateCmd.Parameters.Add("@UserID", SqlDbType.Int).Value = userId;
+                        updateCmd.Parameters.Add("@NewPasswordHash", SqlDbType.NVarChar, 255).Value = HashPassword(newPassword);
+
+                        int rows = updateCmd.ExecuteNonQuery();
+                        if (rows > 0)
+                        {
+                            return true;
+                        }
+                        else
+                        {
+                            errorMessage = "Failed to update password.";
+                            return false;
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                errorMessage = $"Database error: {ex.Message}";
+                return false;
+            }
+        }
+
+        // =========================================================================
+        // 4. UPDATE / EDIT: Change User Login Email
+        // =========================================================================
+        public static bool UpdateEmail(
+            int userId, 
+            string newEmail, 
+            out string errorMessage)
+        {
+            errorMessage = string.Empty;
+
+            if (userId <= 0)
+            {
+                errorMessage = "Invalid UserID.";
+                return false;
+            }
+
+            if (string.IsNullOrWhiteSpace(newEmail))
+            {
+                errorMessage = "New email is required.";
+                return false;
+            }
+
+            if (!Regex.IsMatch(newEmail.Trim(), @"^[^@\s]+@[^@\s]+\.[^@\s]+$"))
+            {
+                errorMessage = "Please enter a valid email address.";
+                return false;
+            }
+
+            try
+            {
+                using (SqlConnection conn = DatabaseConnection.GetConnection())
+                {
+                    conn.Open();
+
+                    // Check if new email is already taken by another user
+                    string checkQuery = "SELECT COUNT(1) FROM dbo.Users WHERE Email = @Email AND UserID <> @UserID";
+                    using (SqlCommand checkCmd = new SqlCommand(checkQuery, conn))
+                    {
+                        checkCmd.Parameters.Add("@Email", SqlDbType.NVarChar, 255).Value = newEmail.Trim();
+                        checkCmd.Parameters.Add("@UserID", SqlDbType.Int).Value = userId;
+
+                        int count = Convert.ToInt32(checkCmd.ExecuteScalar());
+                        if (count > 0)
+                        {
+                            errorMessage = "An account with this email already exists.";
+                            return false;
+                        }
+                    }
+
+                    // Update email
+                    string updateQuery = @"
+                        UPDATE dbo.Users
+                        SET Email = @Email,
+                            UpdatedAt = SYSUTCDATETIME()
+                        WHERE UserID = @UserID";
+
+                    using (SqlCommand updateCmd = new SqlCommand(updateQuery, conn))
+                    {
+                        updateCmd.Parameters.Add("@Email", SqlDbType.NVarChar, 255).Value = newEmail.Trim();
+                        updateCmd.Parameters.Add("@UserID", SqlDbType.Int).Value = userId;
+
+                        int rows = updateCmd.ExecuteNonQuery();
+                        return rows > 0;
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                errorMessage = $"Database error: {ex.Message}";
+                return false;
+            }
+        }
+
+        // =========================================================================
+        // 5. HELPER: SHA-256 Password Hashing
+        // =========================================================================
         public static string HashPassword(string plainTextPassword)
         {
             if (string.IsNullOrEmpty(plainTextPassword))

@@ -80,9 +80,11 @@
     <Compile Include="PortfolioTemplate.aspx.designer.cs">
       <DependentUpon>PortfolioTemplate.aspx</DependentUpon>
     </Compile>
+    <Compile Include="Model\SocialLink.cs" />
     <Compile Include="Model\UserLogin.cs" />
     <Compile Include="Model\UserProfile.cs" />
     <Compile Include="Repository\DatabaseConnection.cs" />
+    <Compile Include="Repository\SocialLinkRepository.cs" />
     <Compile Include="Repository\UserProfileRepository.cs" />
     <Compile Include="Repository\UserRepository.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

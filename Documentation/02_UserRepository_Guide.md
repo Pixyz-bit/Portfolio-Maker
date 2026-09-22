@@ -22,16 +22,16 @@ Instead of passing 5 or 6 separate parameters (`firstName`, `lastName`, `email`,
 ## 3. Data Flow Architecture
 
 ```text
-[ Web Form (Register.aspx / Login.aspx) ]
-                   │
-                   ▼  (Bundles inputs into UserLogin model)
-         [ UserLogin Model ]
-                   │
-                   ▼  (Passes model to repository)
-       [ UserRepository.cs ]
-                   │
-                   ▼  (SQL queries & transactions)
-      [ Database: dbo.Users & dbo.UserProfiles ]
+[ Web Form (Register.aspx / Login.aspx / ChangePassword.aspx) ]
+                             │
+                             ▼  (Bundles inputs into UserLogin model)
+                   [ UserLogin Model ]
+                             │
+                             ▼  (Passes model / parameters to repository)
+                 [ UserRepository.cs ]
+                             │
+                             ▼  (SQL queries & transactions)
+                [ Database: dbo.Users & dbo.UserProfiles ]
 ```
 
 ---
@@ -58,22 +58,7 @@ public static bool Create(
     string confirmPassword, 
     out string errorMessage)
 ```
-- **Inputs**:
-  - `UserLogin user`: Model object containing `FirstName`, `LastName`, `Email`, and `Password`.
-  - `string confirmPassword`: Password confirmation string to verify against `user.Password`.
-  - `out string errorMessage`: Outputs validation or database errors if the operation fails.
-- **Workflow**:
-  1. Validates that `user` is not null and none of its properties (`FirstName`, `LastName`, `Email`, `Password`) are empty.
-  2. Confirms valid email format using Regex.
-  3. Verifies `user.Password == confirmPassword`.
-  4. Checks if `user.Email` already exists in `dbo.Users`.
-  5. Hashes `user.Password` using SHA-256.
-  6. Starts a `SqlTransaction`.
-  7. Inserts credentials into `dbo.Users` and retrieves the generated `UserID` via `SCOPE_IDENTITY()`.
-  8. Inserts `user.FirstName` and `user.LastName` into `dbo.UserProfiles` linked to the new `UserID`.
-  9. Commits the transaction and sets `user.UserID = newUserId`.
-
----
+Inserts credentials into `dbo.Users` and profile details into `dbo.UserProfiles` inside a `SqlTransaction`.
 
 ### Function 2: `Login(...)` (Authenticate & Return `UserLogin` Model)
 ```csharp
@@ -83,17 +68,27 @@ public static bool Login(
     out UserLogin authenticatedUser, 
     out string errorMessage)
 ```
-- **Inputs**:
-  - `string email`: Login email.
-  - `string password`: Plain-text password entered by the user.
-  - `out UserLogin authenticatedUser`: Output parameter populated with `UserID`, `FirstName`, `LastName`, and `Email` if login succeeds; otherwise `null`.
-  - `out string errorMessage`: Outputs an error description if credentials do not match or the account is deactivated.
-- **Workflow**:
-  1. Validates that `email` and `password` are provided.
-  2. Queries `dbo.Users` joined with `dbo.UserProfiles` matching the email.
-  3. Checks if the account exists and if `IsActive == 1`.
-  4. Hashes the entered password and compares it to `dbo.Users.PasswordHash`.
-  5. Upon success, creates and returns a populated `UserLogin` model.
+Validates credentials against `dbo.Users` and returns a populated `UserLogin` model.
+
+### Function 3: `ChangePassword(...)` (Update / Edit User Password)
+```csharp
+public static bool ChangePassword(
+    int userId, 
+    string currentPassword, 
+    string newPassword, 
+    string confirmNewPassword, 
+    out string errorMessage)
+```
+Verifies the user's current password against the stored hash in `dbo.Users`, and updates it with the new SHA-256 hashed password.
+
+### Function 4: `UpdateEmail(...)` (Update / Edit Login Email)
+```csharp
+public static bool UpdateEmail(
+    int userId, 
+    string newEmail, 
+    out string errorMessage)
+```
+Validates format, checks for duplicates, and updates `dbo.Users.Email`.
 
 ---
 
@@ -115,7 +110,7 @@ namespace _241611JalopPersonalWebsite.Repository
     public static class UserRepository
     {
         // =========================================================================
-        // 1. CREATE (Sign Up New User using the UserLogin Model)
+        // 1. CREATE: Inserts into dbo.Users and dbo.UserProfiles with Transaction
         // =========================================================================
         public static bool Create(
             UserLogin user, 
@@ -124,7 +119,6 @@ namespace _241611JalopPersonalWebsite.Repository
         {
             errorMessage = string.Empty;
 
-            // Step 1: Model & Input Validation
             if (user == null)
             {
                 errorMessage = "User details cannot be empty.";
@@ -167,21 +161,18 @@ namespace _241611JalopPersonalWebsite.Repository
                 return false;
             }
 
-            // Check if Password and Confirm Password match
             if (user.Password != confirmPassword)
             {
                 errorMessage = "Passwords do not match.";
                 return false;
             }
 
-            // Step 2: Database Operations
             try
             {
                 using (SqlConnection conn = DatabaseConnection.GetConnection())
                 {
                     conn.Open();
 
-                    // Check if Email already exists in dbo.Users
                     string checkEmailQuery = "SELECT COUNT(1) FROM dbo.Users WHERE Email = @Email";
                     using (SqlCommand checkCmd = new SqlCommand(checkEmailQuery, conn))
                     {
@@ -195,17 +186,14 @@ namespace _241611JalopPersonalWebsite.Repository
                         }
                     }
 
-                    // Hash password using SHA-256
                     string hashedPassword = HashPassword(user.Password);
 
-                    // Begin Transaction for atomic insert into Users and UserProfiles
                     using (SqlTransaction transaction = conn.BeginTransaction())
                     {
                         int newUserId = 0;
 
                         try
                         {
-                            // 2A. Insert into dbo.Users
                             string insertUserQuery = @"
                                 INSERT INTO dbo.Users (Email, PasswordHash, Role, IsActive, CreatedAt, UpdatedAt)
                                 VALUES (@Email, @PasswordHash, 'User', 1, SYSUTCDATETIME(), SYSUTCDATETIME());
@@ -225,7 +213,6 @@ namespace _241611JalopPersonalWebsite.Repository
                                 }
                             }
 
-                            // 2B. Insert into dbo.UserProfiles
                             string insertProfileQuery = @"
                                 INSERT INTO dbo.UserProfiles (UserID, FirstName, LastName, UpdatedAt)
                                 VALUES (@UserID, @FirstName, @LastName, SYSUTCDATETIME());";
@@ -241,7 +228,6 @@ namespace _241611JalopPersonalWebsite.Repository
 
                             transaction.Commit();
 
-                            // Assign generated ID back to the model
                             user.UserID = newUserId;
                             return true;
                         }
@@ -262,7 +248,7 @@ namespace _241611JalopPersonalWebsite.Repository
         }
 
         // =========================================================================
-        // 2. LOGIN (Authenticate User Credentials & Return UserLogin Model)
+        // 2. LOGIN: Queries database and outputs a populated UserLogin model
         // =========================================================================
         public static bool Login(
             string email, 
@@ -333,7 +319,6 @@ namespace _241611JalopPersonalWebsite.Repository
                                 return false;
                             }
 
-                            // Populate and return the UserLogin model
                             authenticatedUser = new UserLogin
                             {
                                 UserID = userId,
@@ -355,7 +340,173 @@ namespace _241611JalopPersonalWebsite.Repository
         }
 
         // =========================================================================
-        // 3. HELPER: SHA-256 Password Hashing
+        // 3. UPDATE / EDIT: Change User Password
+        // =========================================================================
+        public static bool ChangePassword(
+            int userId, 
+            string currentPassword, 
+            string newPassword, 
+            string confirmNewPassword, 
+            out string errorMessage)
+        {
+            errorMessage = string.Empty;
+
+            if (userId <= 0)
+            {
+                errorMessage = "Invalid UserID.";
+                return false;
+            }
+
+            if (string.IsNullOrWhiteSpace(currentPassword))
+            {
+                errorMessage = "Current password is required.";
+                return false;
+            }
+
+            if (string.IsNullOrWhiteSpace(newPassword))
+            {
+                errorMessage = "New password is required.";
+                return false;
+            }
+
+            if (newPassword.Length < 6)
+            {
+                errorMessage = "New password must be at least 6 characters long.";
+                return false;
+            }
+
+            if (newPassword != confirmNewPassword)
+            {
+                errorMessage = "New password and confirmation do not match.";
+                return false;
+            }
+
+            try
+            {
+                using (SqlConnection conn = DatabaseConnection.GetConnection())
+                {
+                    conn.Open();
+
+                    string checkQuery = "SELECT PasswordHash FROM dbo.Users WHERE UserID = @UserID";
+                    using (SqlCommand checkCmd = new SqlCommand(checkQuery, conn))
+                    {
+                        checkCmd.Parameters.Add("@UserID", SqlDbType.Int).Value = userId;
+                        object result = checkCmd.ExecuteScalar();
+
+                        if (result == null)
+                        {
+                            errorMessage = "User account not found.";
+                            return false;
+                        }
+
+                        string dbHash = result.ToString();
+                        string currentHash = HashPassword(currentPassword);
+                        bool isCurrentValid = string.Equals(dbHash, currentHash, StringComparison.OrdinalIgnoreCase)
+                                           || string.Equals(dbHash, currentPassword, StringComparison.Ordinal);
+
+                        if (!isCurrentValid)
+                        {
+                            errorMessage = "Incorrect current password.";
+                            return false;
+                        }
+                    }
+
+                    string updateQuery = @"
+                        UPDATE dbo.Users
+                        SET PasswordHash = @NewPasswordHash,
+                            UpdatedAt = SYSUTCDATETIME()
+                        WHERE UserID = @UserID";
+
+                    using (SqlCommand updateCmd = new SqlCommand(updateQuery, conn))
+                    {
+                        updateCmd.Parameters.Add("@UserID", SqlDbType.Int).Value = userId;
+                        updateCmd.Parameters.Add("@NewPasswordHash", SqlDbType.NVarChar, 255).Value = HashPassword(newPassword);
+
+                        int rows = updateCmd.ExecuteNonQuery();
+                        return rows > 0;
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                errorMessage = $"Database error: {ex.Message}";
+                return false;
+            }
+        }
+
+        // =========================================================================
+        // 4. UPDATE / EDIT: Change User Login Email
+        // =========================================================================
+        public static bool UpdateEmail(
+            int userId, 
+            string newEmail, 
+            out string errorMessage)
+        {
+            errorMessage = string.Empty;
+
+            if (userId <= 0)
+            {
+                errorMessage = "Invalid UserID.";
+                return false;
+            }
+
+            if (string.IsNullOrWhiteSpace(newEmail))
+            {
+                errorMessage = "New email is required.";
+                return false;
+            }
+
+            if (!Regex.IsMatch(newEmail.Trim(), @"^[^@\s]+@[^@\s]+\.[^@\s]+$"))
+            {
+                errorMessage = "Please enter a valid email address.";
+                return false;
+            }
+
+            try
+            {
+                using (SqlConnection conn = DatabaseConnection.GetConnection())
+                {
+                    conn.Open();
+
+                    string checkQuery = "SELECT COUNT(1) FROM dbo.Users WHERE Email = @Email AND UserID <> @UserID";
+                    using (SqlCommand checkCmd = new SqlCommand(checkQuery, conn))
+                    {
+                        checkCmd.Parameters.Add("@Email", SqlDbType.NVarChar, 255).Value = newEmail.Trim();
+                        checkCmd.Parameters.Add("@UserID", SqlDbType.Int).Value = userId;
+
+                        int count = Convert.ToInt32(checkCmd.ExecuteScalar());
+                        if (count > 0)
+                        {
+                            errorMessage = "An account with this email already exists.";
+                            return false;
+                        }
+                    }
+
+                    string updateQuery = @"
+                        UPDATE dbo.Users
+                        SET Email = @Email,
+                            UpdatedAt = SYSUTCDATETIME()
+                        WHERE UserID = @UserID";
+
+                    using (SqlCommand updateCmd = new SqlCommand(updateQuery, conn))
+                    {
+                        updateCmd.Parameters.Add("@Email", SqlDbType.NVarChar, 255).Value = newEmail.Trim();
+                        updateCmd.Parameters.Add("@UserID", SqlDbType.Int).Value = userId;
+
+                        int rows = updateCmd.ExecuteNonQuery();
+                        return rows > 0;
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                errorMessage = $"Database error: {ex.Message}";
+                return false;
+            }
+        }
+
+        // =========================================================================
+        // 5. HELPER: SHA-256 Password Hashing
         // =========================================================================
         public static string HashPassword(string plainTextPassword)
         {
@@ -379,81 +530,90 @@ namespace _241611JalopPersonalWebsite.Repository
 
 ---
 
-## 7. Step-by-Step Usage in Web Forms
+## 7. Instructions: How to Use Each Function in Code-Behind
 
-### A. Sign Up Page (`Register.aspx.cs`)
+### Instruction 1: Sign Up (`UserRepository.Create`)
 ```csharp
-using System;
-using System.Web.UI;
-using _241611JalopPersonalWebsite.Model;
-using _241611JalopPersonalWebsite.Repository;
-
-namespace _241611JalopPersonalWebsite.User
+protected void btnSignUp_Click(object sender, EventArgs e)
 {
-    public partial class Register : Page
+    UserLogin newUser = new UserLogin
     {
-        protected void btnSignUp_Click(object sender, EventArgs e)
-        {
-            // Step 1: Bundle form inputs into the UserLogin model
-            UserLogin newUser = new UserLogin
-            {
-                FirstName = txtFirstName.Text.Trim(),
-                LastName = txtLastName.Text.Trim(),
-                Email = txtEmail.Text.Trim(),
-                Password = txtPassword.Text
-            };
+        FirstName = txtFirstName.Text.Trim(),
+        LastName = txtLastName.Text.Trim(),
+        Email = txtEmail.Text.Trim(),
+        Password = txtPassword.Text
+    };
 
-            string confirmPassword = txtConfirmPassword.Text;
+    string confirmPassword = txtConfirmPassword.Text;
 
-            // Step 2: Pass model to repository
-            if (UserRepository.Create(newUser, confirmPassword, out string error))
-            {
-                // Successful registration; newUser.UserID is now populated!
-                Response.Redirect("Login.aspx");
-            }
-            else
-            {
-                // Display validation or database error
-                lblErrorMessage.Text = error;
-            }
-        }
+    if (UserRepository.Create(newUser, confirmPassword, out string error))
+    {
+        Response.Redirect("Login.aspx");
+    }
+    else
+    {
+        lblErrorMessage.Text = error;
     }
 }
 ```
 
-### B. Sign In Page (`Login.aspx.cs`)
+### Instruction 2: Sign In (`UserRepository.Login`)
 ```csharp
-using System;
-using System.Web.UI;
-using _241611JalopPersonalWebsite.Model;
-using _241611JalopPersonalWebsite.Repository;
-
-namespace _241611JalopPersonalWebsite.User
+protected void btnLogin_Click(object sender, EventArgs e)
 {
-    public partial class Login : Page
+    string email = txtEmail.Text.Trim();
+    string password = txtPassword.Text;
+
+    if (UserRepository.Login(email, password, out UserLogin user, out string error))
     {
-        protected void btnLogin_Click(object sender, EventArgs e)
-        {
-            string email = txtEmail.Text.Trim();
-            string password = txtPassword.Text;
+        Session["UserID"] = user.UserID;
+        Session["UserEmail"] = user.Email;
+        Session["UserName"] = $"{user.FirstName} {user.LastName}";
 
-            // Step 1: Call repository and receive populated UserLogin model
-            if (UserRepository.Login(email, password, out UserLogin user, out string error))
-            {
-                // Step 2: Store user data in Session from the model
-                Session["UserID"] = user.UserID;
-                Session["UserEmail"] = user.Email;
-                Session["UserName"] = $"{user.FirstName} {user.LastName}";
+        Response.Redirect("~/PortfolioTemplate.aspx");
+    }
+    else
+    {
+        lblErrorMessage.Text = error;
+    }
+}
+```
 
-                // Step 3: Redirect to home or dashboard
-                Response.Redirect("~/PortfolioTemplate.aspx");
-            }
-            else
-            {
-                // Display login failure
-                lblErrorMessage.Text = error;
-            }
-        }
+### Instruction 3: Change Password (`UserRepository.ChangePassword`)
+```csharp
+protected void btnChangePassword_Click(object sender, EventArgs e)
+{
+    int userId = Convert.ToInt32(Session["UserID"]);
+    string currentPass = txtCurrentPassword.Text;
+    string newPass = txtNewPassword.Text;
+    string confirmPass = txtConfirmNewPassword.Text;
+
+    if (UserRepository.ChangePassword(userId, currentPass, newPass, confirmPass, out string error))
+    {
+        lblStatus.Text = "Password changed successfully!";
+    }
+    else
+    {
+        lblStatus.Text = error;
+    }
+}
+```
+
+### Instruction 4: Update Email (`UserRepository.UpdateEmail`)
+```csharp
+protected void btnUpdateEmail_Click(object sender, EventArgs e)
+{
+    int userId = Convert.ToInt32(Session["UserID"]);
+    string newEmail = txtNewEmail.Text.Trim();
+
+    if (UserRepository.UpdateEmail(userId, newEmail, out string error))
+    {
+        Session["UserEmail"] = newEmail;
+        lblStatus.Text = "Email updated successfully!";
+    }
+    else
+    {
+        lblStatus.Text = error;
     }
 }
 ```
@@ -461,5 +621,9 @@ namespace _241611JalopPersonalWebsite.User
 ---
 
 ## 8. Sequential Documentation Index
-- `01_Models_Guide.md`: Model definition, properties, and constructors.
-- `02_UserRepository_Guide.md`: User repository, model data flow, registration with transactions, and login verification.
+- `01_Models_Guide.md`: Model architecture and `UserLogin` model.
+- `02_UserRepository_Guide.md`: User repository (`Create`, `Login`, `ChangePassword`, `UpdateEmail`).
+- `03_UserProfile_Guide.md`: Personal profile model and SQL schema mapping.
+- `04_UserProfileRepository_Guide.md`: User profile repository (`Create`, `Update`, `GetByUserId`, `GetByProfileId`).
+- `05_SocialLink_Model_Guide.md`: Social links model and web form walkthrough.
+- `06_SocialLinkRepository_Guide.md`: Social links repository (full CRUD operations).

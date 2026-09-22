@@ -42,114 +42,39 @@ namespace _241611JalopPersonalWebsite.Frontend.User
         protected global::System.Web.UI.WebControls.HyperLink lnkEditPortfolio;
 
         /// <summary>
-        /// litFullName control.
+        /// ucHero control.
         /// </summary>
-        protected global::System.Web.UI.WebControls.Literal litFullName;
+        protected global::_241611JalopPersonalWebsite.Frontend.User.Controls.HeroSection ucHero;
 
         /// <summary>
-        /// rowAddress control.
+        /// ucSummary control.
         /// </summary>
-        protected global::System.Web.UI.WebControls.Panel rowAddress;
+        protected global::_241611JalopPersonalWebsite.Frontend.User.Controls.SummarySection ucSummary;
 
         /// <summary>
-        /// litAddress control.
+        /// ucEducation control.
         /// </summary>
-        protected global::System.Web.UI.WebControls.Literal litAddress;
+        protected global::_241611JalopPersonalWebsite.Frontend.User.Controls.EducationSection ucEducation;
 
         /// <summary>
-        /// rowEmail control.
+        /// ucSkills control.
         /// </summary>
-        protected global::System.Web.UI.WebControls.Panel rowEmail;
+        protected global::_241611JalopPersonalWebsite.Frontend.User.Controls.SkillsSection ucSkills;
 
         /// <summary>
-        /// litEmail control.
+        /// ucAffiliations control.
         /// </summary>
-        protected global::System.Web.UI.WebControls.Literal litEmail;
+        protected global::_241611JalopPersonalWebsite.Frontend.User.Controls.AffiliationsSection ucAffiliations;
 
         /// <summary>
-        /// rowContact control.
+        /// ucHobbies control.
         /// </summary>
-        protected global::System.Web.UI.WebControls.Panel rowContact;
+        protected global::_241611JalopPersonalWebsite.Frontend.User.Controls.HobbiesSection ucHobbies;
 
         /// <summary>
-        /// litContact control.
+        /// ucSocialLinks control.
         /// </summary>
-        protected global::System.Web.UI.WebControls.Literal litContact;
-
-        /// <summary>
-        /// rowBirthday control.
-        /// </summary>
-        protected global::System.Web.UI.WebControls.Panel rowBirthday;
-
-        /// <summary>
-        /// litBirthday control.
-        /// </summary>
-        protected global::System.Web.UI.WebControls.Literal litBirthday;
-
-        /// <summary>
-        /// imgAvatar control.
-        /// </summary>
-        protected global::System.Web.UI.WebControls.Image imgAvatar;
-
-        /// <summary>
-        /// pnlSummary control.
-        /// </summary>
-        protected global::System.Web.UI.WebControls.Panel pnlSummary;
-
-        /// <summary>
-        /// litSummary control.
-        /// </summary>
-        protected global::System.Web.UI.WebControls.Literal litSummary;
-
-        /// <summary>
-        /// pnlConnect control.
-        /// </summary>
-        protected global::System.Web.UI.WebControls.Panel pnlConnect;
-
-        /// <summary>
-        /// rptSocialLinks control.
-        /// </summary>
-        protected global::System.Web.UI.WebControls.Repeater rptSocialLinks;
-
-        /// <summary>
-        /// rptEducation control.
-        /// </summary>
-        protected global::System.Web.UI.WebControls.Repeater rptEducation;
-
-        /// <summary>
-        /// pnlNoEducation control.
-        /// </summary>
-        protected global::System.Web.UI.WebControls.Panel pnlNoEducation;
-
-        /// <summary>
-        /// rptSkills control.
-        /// </summary>
-        protected global::System.Web.UI.WebControls.Repeater rptSkills;
-
-        /// <summary>
-        /// pnlNoSkills control.
-        /// </summary>
-        protected global::System.Web.UI.WebControls.Panel pnlNoSkills;
-
-        /// <summary>
-        /// rptAffiliations control.
-        /// </summary>
-        protected global::System.Web.UI.WebControls.Repeater rptAffiliations;
-
-        /// <summary>
-        /// pnlNoAffiliations control.
-        /// </summary>
-        protected global::System.Web.UI.WebControls.Panel pnlNoAffiliations;
-
-        /// <summary>
-        /// rptHobbies control.
-        /// </summary>
-        protected global::System.Web.UI.WebControls.Repeater rptHobbies;
-
-        /// <summary>
-        /// pnlNoHobbies control.
-        /// </summary>
-        protected global::System.Web.UI.WebControls.Panel pnlNoHobbies;
+        protected global::_241611JalopPersonalWebsite.Frontend.User.Controls.SocialLinksSection ucSocialLinks;
 
         /// <summary>
         /// litFooterName control.

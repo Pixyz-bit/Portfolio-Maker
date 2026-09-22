@@ -75,6 +75,13 @@
     <Content Include="Frontend\User\Dashboard.aspx" />
     <Content Include="Frontend\User\Onboarding.aspx" />
     <Content Include="Frontend\User\Portfolio.aspx" />
+    <Content Include="Frontend\User\Controls\HeroSection.ascx" />
+    <Content Include="Frontend\User\Controls\SummarySection.ascx" />
+    <Content Include="Frontend\User\Controls\EducationSection.ascx" />
+    <Content Include="Frontend\User\Controls\SkillsSection.ascx" />
+    <Content Include="Frontend\User\Controls\AffiliationsSection.ascx" />
+    <Content Include="Frontend\User\Controls\HobbiesSection.ascx" />
+    <Content Include="Frontend\User\Controls\SocialLinksSection.ascx" />
     <Content Include="Web.config" />
   </ItemGroup>
   <ItemGroup>
@@ -112,6 +119,55 @@
     </Compile>
     <Compile Include="Frontend\User\Portfolio.aspx.designer.cs">
       <DependentUpon>Portfolio.aspx</DependentUpon>
+    </Compile>
+    <Compile Include="Frontend\User\Controls\HeroSection.ascx.cs">
+      <DependentUpon>HeroSection.ascx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="Frontend\User\Controls\HeroSection.ascx.designer.cs">
+      <DependentUpon>HeroSection.ascx</DependentUpon>
+    </Compile>
+    <Compile Include="Frontend\User\Controls\SummarySection.ascx.cs">
+      <DependentUpon>SummarySection.ascx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="Frontend\User\Controls\SummarySection.ascx.designer.cs">
+      <DependentUpon>SummarySection.ascx</DependentUpon>
+    </Compile>
+    <Compile Include="Frontend\User\Controls\EducationSection.ascx.cs">
+      <DependentUpon>EducationSection.ascx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="Frontend\User\Controls\EducationSection.ascx.designer.cs">
+      <DependentUpon>EducationSection.ascx</DependentUpon>
+    </Compile>
+    <Compile Include="Frontend\User\Controls\SkillsSection.ascx.cs">
+      <DependentUpon>SkillsSection.ascx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="Frontend\User\Controls\SkillsSection.ascx.designer.cs">
+      <DependentUpon>SkillsSection.ascx</DependentUpon>
+    </Compile>
+    <Compile Include="Frontend\User\Controls\AffiliationsSection.ascx.cs">
+      <DependentUpon>AffiliationsSection.ascx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="Frontend\User\Controls\AffiliationsSection.ascx.designer.cs">
+      <DependentUpon>AffiliationsSection.ascx</DependentUpon>
+    </Compile>
+    <Compile Include="Frontend\User\Controls\HobbiesSection.ascx.cs">
+      <DependentUpon>HobbiesSection.ascx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="Frontend\User\Controls\HobbiesSection.ascx.designer.cs">
+      <DependentUpon>HobbiesSection.ascx</DependentUpon>
+    </Compile>
+    <Compile Include="Frontend\User\Controls\SocialLinksSection.ascx.cs">
+      <DependentUpon>SocialLinksSection.ascx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="Frontend\User\Controls\SocialLinksSection.ascx.designer.cs">
+      <DependentUpon>SocialLinksSection.ascx</DependentUpon>
     </Compile>
     <Compile Include="Backend\Model\Affiliation.cs" />
     <Compile Include="Backend\Model\DashboardAnalytics.cs" />

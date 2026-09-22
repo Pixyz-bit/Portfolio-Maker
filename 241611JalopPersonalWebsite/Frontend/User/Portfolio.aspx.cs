@@ -134,149 +134,38 @@ namespace _241611JalopPersonalWebsite.Frontend.User
                 string fullName = profile.FullName;
                 litPageTitle.Text = $"{fullName} | Personal Portfolio";
                 litBrandName.Text = fullName;
-                litFullName.Text = fullName;
                 litFooterName.Text = fullName;
 
                 if (!string.IsNullOrWhiteSpace(profile.FirstName))
                 {
                     litBrandInitials.Text = profile.FirstName.Substring(0, 1).ToUpper();
                 }
-
-                // Summary / Bio
-                if (!string.IsNullOrWhiteSpace(profile.Description))
-                {
-                    pnlSummary.Visible = true;
-                    litSummary.Text = Server.HtmlEncode(profile.Description);
-                }
-                else
-                {
-                    pnlSummary.Visible = false;
-                }
-
-                if (!string.IsNullOrWhiteSpace(profile.ProfileImagePath))
-                {
-                    imgAvatar.ImageUrl = ResolveUrl(profile.ProfileImagePath);
-                }
-
-                // Address
-                if (!string.IsNullOrWhiteSpace(profile.Address))
-                {
-                    rowAddress.Visible = true;
-                    litAddress.Text = Server.HtmlEncode(profile.Address);
-                }
-                else
-                {
-                    rowAddress.Visible = false;
-                }
-
-                // Contact Email
-                if (!string.IsNullOrWhiteSpace(profile.ContactEmail))
-                {
-                    rowEmail.Visible = true;
-                    litEmail.Text = $"<a href=\"mailto:{Server.HtmlEncode(profile.ContactEmail)}\">{Server.HtmlEncode(profile.ContactEmail)}</a>";
-                }
-                else
-                {
-                    rowEmail.Visible = false;
-                }
-
-                // Contact Number
-                if (!string.IsNullOrWhiteSpace(profile.ContactNum))
-                {
-                    rowContact.Visible = true;
-                    litContact.Text = Server.HtmlEncode(profile.ContactNum);
-                }
-                else
-                {
-                    rowContact.Visible = false;
-                }
-
-                // Birthday
-                if (profile.Birthday.HasValue)
-                {
-                    rowBirthday.Visible = true;
-                    litBirthday.Text = profile.Birthday.Value.ToString("MMMM d, yyyy");
-                }
-                else
-                {
-                    rowBirthday.Visible = false;
-                }
             }
             else
             {
                 litPageTitle.Text = "Portfolio";
-                litFullName.Text = "Profile Not Found";
-                pnlSummary.Visible = false;
-                rowAddress.Visible = false;
-                rowEmail.Visible = false;
-                rowContact.Visible = false;
-                rowBirthday.Visible = false;
+                litBrandName.Text = "Portfolio";
+                litFooterName.Text = "Portfolio";
             }
 
-            // 3. Load Educations via EducationRepository
+            // 3. Delegate to modular user controls
+            ucHero.BindProfile(profile);
+            ucSummary.BindSummary(profile != null ? profile.Description : null);
+
             List<Education> educations = EducationRepository.GetByUserId(userId, out _);
-            if (educations != null && educations.Count > 0)
-            {
-                rptEducation.DataSource = educations;
-                rptEducation.DataBind();
-                pnlNoEducation.Visible = false;
-            }
-            else
-            {
-                pnlNoEducation.Visible = true;
-            }
+            ucEducation.BindEducation(educations);
 
-            // 4. Load Skills via SkillRepository
             List<Skill> skills = SkillRepository.GetByUserId(userId, out _);
-            if (skills != null && skills.Count > 0)
-            {
-                rptSkills.DataSource = skills;
-                rptSkills.DataBind();
-                pnlNoSkills.Visible = false;
-            }
-            else
-            {
-                pnlNoSkills.Visible = true;
-            }
+            ucSkills.BindSkills(skills);
 
-            // 5. Load Affiliations via AffiliationRepository
             List<Affiliation> affiliations = AffiliationRepository.GetByUserId(userId, out _);
-            if (affiliations != null && affiliations.Count > 0)
-            {
-                rptAffiliations.DataSource = affiliations;
-                rptAffiliations.DataBind();
-                pnlNoAffiliations.Visible = false;
-            }
-            else
-            {
-                pnlNoAffiliations.Visible = true;
-            }
+            ucAffiliations.BindAffiliations(affiliations);
 
-            // 6. Load Hobbies via HobbyRepository
             List<Hobby> hobbies = HobbyRepository.GetByUserId(userId, out _);
-            if (hobbies != null && hobbies.Count > 0)
-            {
-                rptHobbies.DataSource = hobbies;
-                rptHobbies.DataBind();
-                pnlNoHobbies.Visible = false;
-            }
-            else
-            {
-                pnlNoHobbies.Visible = true;
-            }
+            ucHobbies.BindHobbies(hobbies);
 
-            // 7. Load Social Links via SocialLinkRepository
             List<SocialLink> socialLinks = SocialLinkRepository.GetByUserId(userId, out _);
-            if (socialLinks != null && socialLinks.Count > 0)
-            {
-                pnlConnect.Visible = true;
-                rptSocialLinks.DataSource = socialLinks;
-                rptSocialLinks.DataBind();
-            }
-            else
-            {
-                pnlConnect.Visible = false;
-            }
+            ucSocialLinks.BindSocialLinks(socialLinks);
         }
     }
 }

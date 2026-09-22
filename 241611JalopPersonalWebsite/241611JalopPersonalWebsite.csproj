@@ -74,6 +74,7 @@
     <Content Include="Frontend\Login\Signup.aspx" />
     <Content Include="Frontend\User\Dashboard.aspx" />
     <Content Include="Frontend\User\Onboarding.aspx" />
+    <Content Include="Frontend\User\Portfolio.aspx" />
     <Content Include="Web.config" />
   </ItemGroup>
   <ItemGroup>
@@ -104,6 +105,13 @@
     </Compile>
     <Compile Include="Frontend\User\Onboarding.aspx.designer.cs">
       <DependentUpon>Onboarding.aspx</DependentUpon>
+    </Compile>
+    <Compile Include="Frontend\User\Portfolio.aspx.cs">
+      <DependentUpon>Portfolio.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="Frontend\User\Portfolio.aspx.designer.cs">
+      <DependentUpon>Portfolio.aspx</DependentUpon>
     </Compile>
     <Compile Include="Backend\Model\Affiliation.cs" />
     <Compile Include="Backend\Model\DashboardAnalytics.cs" />

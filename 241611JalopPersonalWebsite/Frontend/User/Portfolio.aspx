@@ -6,6 +6,7 @@
 <%@ Register Src="~/Frontend/User/Controls/AffiliationsSection.ascx" TagPrefix="uc" TagName="AffiliationsSection" %>
 <%@ Register Src="~/Frontend/User/Controls/HobbiesSection.ascx" TagPrefix="uc" TagName="HobbiesSection" %>
 <%@ Register Src="~/Frontend/User/Controls/SocialLinksSection.ascx" TagPrefix="uc" TagName="SocialLinksSection" %>
+<%@ Register Src="~/Frontend/User/Controls/UserMenu.ascx" TagPrefix="uc" TagName="UserMenu" %>
 
 <!DOCTYPE html>
 <html lang="en">
@@ -207,12 +208,7 @@
                 </a>
 
                 <div class="bar-actions">
-                    <asp:HyperLink ID="lnkDashboard" runat="server" NavigateUrl="Dashboard.aspx" CssClass="btn-top-link" Visible="false">
-                        Dashboard
-                    </asp:HyperLink>
-                    <asp:HyperLink ID="lnkEditPortfolio" runat="server" NavigateUrl="Onboarding.aspx" CssClass="btn-top-action" Visible="false">
-                        Edit Portfolio
-                    </asp:HyperLink>
+                    <uc:UserMenu ID="ucUserMenu" runat="server" />
                 </div>
             </div>
         </header>

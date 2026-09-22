@@ -117,15 +117,8 @@ namespace _241611JalopPersonalWebsite.Frontend.User
 
         private void LoadPortfolio(int userId)
         {
-            // 1. Check if logged in user is the owner
-            if (Session["UserID"] != null && int.TryParse(Session["UserID"].ToString(), out int loggedInUserId))
-            {
-                if (loggedInUserId == userId)
-                {
-                    lnkDashboard.Visible = true;
-                    lnkEditPortfolio.Visible = true;
-                }
-            }
+            // 1. Resolve user for top-right user menu
+            int activeMenuUserId = (Session["UserID"] != null && int.TryParse(Session["UserID"].ToString(), out int sUserId)) ? sUserId : userId;
 
             // 2. Load UserProfile via dedicated UserProfileRepository
             UserProfile profile = UserProfileRepository.GetByUserId(userId, out string profileError);
@@ -147,6 +140,11 @@ namespace _241611JalopPersonalWebsite.Frontend.User
                 litBrandName.Text = "Portfolio";
                 litFooterName.Text = "Portfolio";
             }
+
+            // Bind Top-Right User Menu
+            UserProfile menuProfile = (activeMenuUserId == userId) ? profile : UserProfileRepository.GetByUserId(activeMenuUserId, out _);
+            string menuEmail = Session["UserEmail"]?.ToString() ?? (menuProfile != null ? menuProfile.ContactEmail : string.Empty);
+            ucUserMenu.BindUser(menuProfile, menuEmail);
 
             // 3. Delegate to modular user controls
             ucHero.BindProfile(profile);

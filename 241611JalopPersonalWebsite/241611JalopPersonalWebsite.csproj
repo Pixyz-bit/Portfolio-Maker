@@ -82,6 +82,7 @@
     <Content Include="Frontend\User\Controls\AffiliationsSection.ascx" />
     <Content Include="Frontend\User\Controls\HobbiesSection.ascx" />
     <Content Include="Frontend\User\Controls\SocialLinksSection.ascx" />
+    <Content Include="Frontend\User\Controls\UserMenu.ascx" />
     <Content Include="Web.config" />
   </ItemGroup>
   <ItemGroup>
@@ -168,6 +169,13 @@
     </Compile>
     <Compile Include="Frontend\User\Controls\SocialLinksSection.ascx.designer.cs">
       <DependentUpon>SocialLinksSection.ascx</DependentUpon>
+    </Compile>
+    <Compile Include="Frontend\User\Controls\UserMenu.ascx.cs">
+      <DependentUpon>UserMenu.ascx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="Frontend\User\Controls\UserMenu.ascx.designer.cs">
+      <DependentUpon>UserMenu.ascx</DependentUpon>
     </Compile>
     <Compile Include="Backend\Model\Affiliation.cs" />
     <Compile Include="Backend\Model\DashboardAnalytics.cs" />

@@ -105,10 +105,10 @@ CREATE NONCLUSTERED INDEX IX_Hobbies_UserID ON dbo.Hobbies (UserID ASC);
 CREATE NONCLUSTERED INDEX IX_Skills_UserID ON dbo.Skills (UserID ASC);
 GO
 
--- 9. Seed an initial Admin user (PasswordHash represents a pre-hashed string)
+-- 9. Seed an initial Admin user (SHA-256 for password 'admin123')
 IF NOT EXISTS (SELECT 1 FROM dbo.Users WHERE Email = N'admin@iptwebsite.com')
 BEGIN
     INSERT INTO dbo.Users (Email, PasswordHash, Role, IsActive)
-    VALUES (N'admin@iptwebsite.com', N'$2a$12$e86gLzR67V0J7z7d5yHwU.2Jt18G41m9sZ9wK/72pE9b1GZ9u5BWe', N'Admin', 1);
+    VALUES (N'admin@iptwebsite.com', N'240be518fabd2724ddb6f04eeb1da5967448d7e831c08c8fa822809f74c720a9', N'Admin', 1);
 END
 GO

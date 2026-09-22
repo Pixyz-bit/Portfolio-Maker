@@ -15,6 +15,30 @@ namespace _241611JalopPersonalWebsite.Frontend.Login
                 pnlError.Visible = false;
                 pnlSuccess.Visible = false;
 
+                // Handle sign-out / logout action
+                if (string.Equals(Request.QueryString["action"], "logout", StringComparison.OrdinalIgnoreCase))
+                {
+                    Session.Clear();
+                    Session.Abandon();
+
+                    if (Request.Cookies["RememberedEmail"] != null)
+                    {
+                        HttpCookie expiredCookie = new HttpCookie("RememberedEmail")
+                        {
+                            Expires = DateTime.UtcNow.AddDays(-1)
+                        };
+                        Response.Cookies.Add(expiredCookie);
+                    }
+
+                    txtEmail.Text = string.Empty;
+                    txtPassword.Text = string.Empty;
+                    chkRememberMe.Checked = false;
+
+                    pnlSuccess.Visible = true;
+                    lblSuccessMessage.Text = "You have been successfully signed out.";
+                    return;
+                }
+
                 // Pre-fill email if remembered from cookie
                 if (Request.Cookies["RememberedEmail"] != null)
                 {
@@ -60,11 +84,11 @@ namespace _241611JalopPersonalWebsite.Frontend.Login
                     Response.Cookies.Add(expiredCookie);
                 }
 
-                // 4. Show success and redirect to User Dashboard
+                // 4. Show success and redirect immediately to Portfolio
                 pnlSuccess.Visible = true;
-                lblSuccessMessage.Text = $"Welcome back, {authenticatedUser.FirstName}! Login successful. Redirecting to dashboard...";
+                lblSuccessMessage.Text = $"Welcome back, {authenticatedUser.FirstName}! Login successful. Redirecting to your portfolio...";
 
-                string redirectScript = "setTimeout(function(){ window.location.href = '../User/Dashboard.aspx'; }, 1500);";
+                string redirectScript = $"setTimeout(function(){{ window.location.href = '../User/Portfolio.aspx?userId={authenticatedUser.UserID}'; }}, 1000);";
                 ClientScript.RegisterStartupScript(this.GetType(), "LoginRedirect", redirectScript, true);
             }
             else

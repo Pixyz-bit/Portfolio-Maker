@@ -199,7 +199,7 @@ namespace _241611JalopPersonalWebsite.Repository
 
                             int userId = reader.GetInt32(reader.GetOrdinal("UserID"));
                             string dbEmail = reader.GetString(reader.GetOrdinal("Email"));
-                            string dbPasswordHash = reader.GetString(reader.GetOrdinal("PasswordHash"));
+                            string dbPasswordHash = (reader.GetString(reader.GetOrdinal("PasswordHash")) ?? string.Empty).Trim();
                             bool isActive = reader.GetBoolean(reader.GetOrdinal("IsActive"));
                             string firstName = reader.IsDBNull(reader.GetOrdinal("FirstName")) ? "" : reader.GetString(reader.GetOrdinal("FirstName"));
                             string lastName = reader.IsDBNull(reader.GetOrdinal("LastName")) ? "" : reader.GetString(reader.GetOrdinal("LastName"));
@@ -210,9 +210,9 @@ namespace _241611JalopPersonalWebsite.Repository
                                 return false;
                             }
 
-                            string enteredPasswordHash = HashPassword(password);
+                            string enteredPasswordHash = HashPassword(password).Trim();
                             bool passwordMatches = string.Equals(dbPasswordHash, enteredPasswordHash, StringComparison.OrdinalIgnoreCase)
-                                                || string.Equals(dbPasswordHash, password, StringComparison.Ordinal);
+                                                || string.Equals(dbPasswordHash, password.Trim(), StringComparison.Ordinal);
 
                             if (!passwordMatches)
                             {

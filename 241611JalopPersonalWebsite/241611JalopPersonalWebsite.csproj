@@ -81,7 +81,9 @@
       <DependentUpon>PortfolioTemplate.aspx</DependentUpon>
     </Compile>
     <Compile Include="Model\UserLogin.cs" />
+    <Compile Include="Model\UserProfile.cs" />
     <Compile Include="Repository\DatabaseConnection.cs" />
+    <Compile Include="Repository\UserProfileRepository.cs" />
     <Compile Include="Repository\UserRepository.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>

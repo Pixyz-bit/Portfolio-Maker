@@ -164,7 +164,12 @@
             </div>
 
             <div class="btn-group">
-                <a href="Portfolio.aspx" class="btn btn-solid">View Live Portfolio</a>
+                <asp:HyperLink ID="lnkAdminDashboard" runat="server" NavigateUrl="~/Frontend/Admin/Dashboard.aspx" CssClass="btn btn-solid" Visible="false">
+                    ⚡ Admin Dashboard
+                </asp:HyperLink>
+                <asp:HyperLink ID="lnkViewPortfolio" runat="server" NavigateUrl="Portfolio.aspx" CssClass="btn btn-solid">
+                    View Live Portfolio
+                </asp:HyperLink>
                 <a href="Onboarding.aspx" class="btn btn-outline">Edit Onboarding Portfolio Details</a>
                 <a href="../Login/Login.aspx?action=logout" class="btn btn-outline">Sign Out</a>
             </div>

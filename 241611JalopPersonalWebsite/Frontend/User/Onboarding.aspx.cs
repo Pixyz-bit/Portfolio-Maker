@@ -400,8 +400,8 @@ namespace _241611JalopPersonalWebsite.Frontend.User
 
                 if (redirectToDashboard)
                 {
-                    lblSuccessMessage.Text = "Portfolio details successfully saved! Redirecting to your dashboard...";
-                    string redirectScript = "setTimeout(function(){ window.location.href = 'Dashboard.aspx'; }, 1500);";
+                    lblSuccessMessage.Text = "Portfolio details successfully saved! Redirecting to your portfolio...";
+                    string redirectScript = "setTimeout(function(){ window.location.href = 'Portfolio.aspx'; }, 1500);";
                     ClientScript.RegisterStartupScript(this.GetType(), "OnboardingRedirect", redirectScript, true);
                 }
                 else

@@ -70,6 +70,7 @@
     <Content Include="Backend\Database\Migration\01_Schema.sql" />
     <Content Include="Backend\Database\Migration\02_Alter_Profile_Affiliations_SocialLinks.sql" />
     <Content Include="Default.aspx" />
+    <Content Include="Frontend\Admin\Dashboard.aspx" />
     <Content Include="Frontend\Login\Login.aspx" />
     <Content Include="Frontend\Login\Signup.aspx" />
     <Content Include="Frontend\User\Dashboard.aspx" />
@@ -86,6 +87,13 @@
     <Content Include="Web.config" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Frontend\Admin\Dashboard.aspx.cs">
+      <DependentUpon>Dashboard.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="Frontend\Admin\Dashboard.aspx.designer.cs">
+      <DependentUpon>Dashboard.aspx</DependentUpon>
+    </Compile>
     <Compile Include="Frontend\Login\Login.aspx.cs">
       <DependentUpon>Login.aspx</DependentUpon>
       <SubType>ASPXCodeBehind</SubType>

@@ -30,5 +30,15 @@ namespace _241611JalopPersonalWebsite.Frontend.User
         /// litBio control.
         /// </summary>
         protected global::System.Web.UI.WebControls.Literal litBio;
+
+        /// <summary>
+        /// lnkAdminDashboard control.
+        /// </summary>
+        protected global::System.Web.UI.WebControls.HyperLink lnkAdminDashboard;
+
+        /// <summary>
+        /// lnkViewPortfolio control.
+        /// </summary>
+        protected global::System.Web.UI.WebControls.HyperLink lnkViewPortfolio;
     }
 }

@@ -65,6 +65,7 @@ namespace _241611JalopPersonalWebsite.Frontend.Login
                 Session["FirstName"] = authenticatedUser.FirstName;
                 Session["LastName"] = authenticatedUser.LastName;
                 Session["FullName"] = $"{authenticatedUser.FirstName} {authenticatedUser.LastName}".Trim();
+                Session["Role"] = authenticatedUser.Role;
 
                 // 3. Handle Remember Me cookie
                 if (chkRememberMe.Checked)
@@ -84,12 +85,22 @@ namespace _241611JalopPersonalWebsite.Frontend.Login
                     Response.Cookies.Add(expiredCookie);
                 }
 
-                // 4. Show success and redirect immediately to Portfolio
+                // 4. Show success and redirect based on role
                 pnlSuccess.Visible = true;
-                lblSuccessMessage.Text = $"Welcome back, {authenticatedUser.FirstName}! Login successful. Redirecting to your portfolio...";
+                bool isAdmin = string.Equals(authenticatedUser.Role, "Admin", StringComparison.OrdinalIgnoreCase);
 
-                string redirectScript = $"setTimeout(function(){{ window.location.href = '../User/Portfolio.aspx?userId={authenticatedUser.UserID}'; }}, 1000);";
-                ClientScript.RegisterStartupScript(this.GetType(), "LoginRedirect", redirectScript, true);
+                if (isAdmin)
+                {
+                    lblSuccessMessage.Text = $"Welcome back, Administrator {authenticatedUser.FirstName}! Login successful. Redirecting to Admin Console...";
+                    string redirectScript = $"setTimeout(function(){{ window.location.href = '../Admin/Dashboard.aspx'; }}, 1000);";
+                    ClientScript.RegisterStartupScript(this.GetType(), "LoginRedirect", redirectScript, true);
+                }
+                else
+                {
+                    lblSuccessMessage.Text = $"Welcome back, {authenticatedUser.FirstName}! Login successful. Redirecting to your portfolio...";
+                    string redirectScript = $"setTimeout(function(){{ window.location.href = '../User/Portfolio.aspx?userId={authenticatedUser.UserID}'; }}, 1000);";
+                    ClientScript.RegisterStartupScript(this.GetType(), "LoginRedirect", redirectScript, true);
+                }
             }
             else
             {

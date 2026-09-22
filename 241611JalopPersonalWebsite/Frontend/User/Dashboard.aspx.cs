@@ -38,6 +38,17 @@ namespace _241611JalopPersonalWebsite.Frontend.User
                     litFullName.Text = Session["FullName"].ToString();
                     litEmail.Text = Session["UserEmail"]?.ToString() ?? string.Empty;
                 }
+
+                bool isAdmin = string.Equals(Session["Role"]?.ToString(), "Admin", StringComparison.OrdinalIgnoreCase);
+                lnkAdminDashboard.Visible = isAdmin;
+                if (isAdmin)
+                {
+                    lnkViewPortfolio.CssClass = "btn btn-outline";
+                }
+                else
+                {
+                    lnkViewPortfolio.CssClass = "btn btn-solid";
+                }
             }
         }
     }

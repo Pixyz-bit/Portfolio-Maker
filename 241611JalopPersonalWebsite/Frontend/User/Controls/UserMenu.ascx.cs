@@ -30,6 +30,25 @@ namespace _241611JalopPersonalWebsite.Frontend.User.Controls
             }
 
             lnkEditDetails.NavigateUrl = "~/Frontend/User/Onboarding.aspx";
+            lnkSignOut.NavigateUrl = "~/Frontend/Login/Login.aspx?action=logout";
+
+            bool isAdmin = string.Equals(Session["Role"]?.ToString(), "Admin", StringComparison.OrdinalIgnoreCase);
+            if (isAdmin)
+            {
+                lnkDashboard.NavigateUrl = "~/Frontend/Admin/Dashboard.aspx";
+                lnkDashboard.Text = "Admin Dashboard";
+                lnkDashboard.Visible = true;
+                lnkEditDetails.Visible = true;
+                lnkEditDetails.Text = "Edit Onboarding Portfolio Details";
+            }
+            else
+            {
+                // User role: hide user dashboard button, replace with Edit Account
+                lnkDashboard.NavigateUrl = "~/Frontend/User/Onboarding.aspx";
+                lnkDashboard.Text = "Edit Account";
+                lnkDashboard.Visible = true;
+                lnkEditDetails.Visible = false;
+            }
         }
     }
 }

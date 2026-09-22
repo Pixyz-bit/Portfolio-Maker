@@ -12,19 +12,17 @@ namespace _241611JalopPersonalWebsite.Model
         public string LastName { get; set; }
         public string Email { get; set; }
         public string Password { get; set; }
+        public string Role { get; set; } = "User";
+        public bool IsActive { get; set; } = true;
+        public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
 
-    //    // Parameterless constructor
-    //     public UserLogin()
-    //     {
-    //     }
-
-    //     // Overloaded constructor for convenience
-    //     public UserLogin(string firstName, string lastName, string email, string password)
-    //     {
-    //         FirstName = firstName;
-    //         LastName = lastName;
-    //         Email = email;
-    //         Password = password;
-    //     }
+        public string FullName
+        {
+            get
+            {
+                string name = $"{FirstName} {LastName}".Trim();
+                return string.IsNullOrWhiteSpace(name) ? Email : name;
+            }
+        }
     }
 }

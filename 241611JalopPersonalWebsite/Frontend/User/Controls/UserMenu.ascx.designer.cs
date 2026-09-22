@@ -29,6 +29,11 @@ namespace _241611JalopPersonalWebsite.Frontend.User.Controls
         protected global::System.Web.UI.WebControls.Literal litBio;
 
         /// <summary>
+        /// lnkDashboard control.
+        /// </summary>
+        protected global::System.Web.UI.WebControls.HyperLink lnkDashboard;
+
+        /// <summary>
         /// lnkViewPortfolio control.
         /// </summary>
         protected global::System.Web.UI.WebControls.HyperLink lnkViewPortfolio;
@@ -37,5 +42,10 @@ namespace _241611JalopPersonalWebsite.Frontend.User.Controls
         /// lnkEditDetails control.
         /// </summary>
         protected global::System.Web.UI.WebControls.HyperLink lnkEditDetails;
+
+        /// <summary>
+        /// lnkSignOut control.
+        /// </summary>
+        protected global::System.Web.UI.WebControls.HyperLink lnkSignOut;
     }
 }

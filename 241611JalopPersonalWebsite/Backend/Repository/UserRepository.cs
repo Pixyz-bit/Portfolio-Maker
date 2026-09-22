@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Data;
 using System.Data.SqlClient;
 using System.Security.Cryptography;
@@ -179,7 +180,7 @@ namespace _241611JalopPersonalWebsite.Repository
                     conn.Open();
 
                     string query = @"
-                        SELECT u.UserID, u.Email, u.PasswordHash, u.IsActive, 
+                        SELECT u.UserID, u.Email, u.PasswordHash, u.Role, u.IsActive, u.CreatedAt,
                                p.FirstName, p.LastName
                         FROM dbo.Users u
                         LEFT JOIN dbo.UserProfiles p ON u.UserID = p.UserID
@@ -200,7 +201,9 @@ namespace _241611JalopPersonalWebsite.Repository
                             int userId = reader.GetInt32(reader.GetOrdinal("UserID"));
                             string dbEmail = reader.GetString(reader.GetOrdinal("Email"));
                             string dbPasswordHash = (reader.GetString(reader.GetOrdinal("PasswordHash")) ?? string.Empty).Trim();
+                            string role = reader.IsDBNull(reader.GetOrdinal("Role")) ? "User" : reader.GetString(reader.GetOrdinal("Role"));
                             bool isActive = reader.GetBoolean(reader.GetOrdinal("IsActive"));
+                            DateTime createdAt = reader.IsDBNull(reader.GetOrdinal("CreatedAt")) ? DateTime.UtcNow : reader.GetDateTime(reader.GetOrdinal("CreatedAt"));
                             string firstName = reader.IsDBNull(reader.GetOrdinal("FirstName")) ? "" : reader.GetString(reader.GetOrdinal("FirstName"));
                             string lastName = reader.IsDBNull(reader.GetOrdinal("LastName")) ? "" : reader.GetString(reader.GetOrdinal("LastName"));
 
@@ -225,7 +228,10 @@ namespace _241611JalopPersonalWebsite.Repository
                                 UserID = userId,
                                 FirstName = firstName,
                                 LastName = lastName,
-                                Email = dbEmail
+                                Email = dbEmail,
+                                Role = role,
+                                IsActive = isActive,
+                                CreatedAt = createdAt
                             };
 
                             return true;
@@ -412,6 +418,582 @@ namespace _241611JalopPersonalWebsite.Repository
             catch (Exception ex)
             {
                 errorMessage = $"Database error: {ex.Message}";
+                return false;
+            }
+        }
+
+        // =========================================================================
+        // ADMIN METHODS
+        // =========================================================================
+
+        public static List<UserLogin> GetAllUsers(
+            string searchKeyword, 
+            string statusFilter, 
+            string roleFilter, 
+            out string errorMessage)
+        {
+            errorMessage = string.Empty;
+            List<UserLogin> userList = new List<UserLogin>();
+
+            try
+            {
+                using (SqlConnection conn = DatabaseConnection.GetConnection())
+                {
+                    conn.Open();
+
+                    StringBuilder queryBuilder = new StringBuilder(@"
+                        SELECT u.UserID, u.Email, u.Role, u.IsActive, u.CreatedAt,
+                               ISNULL(p.FirstName, '') AS FirstName,
+                               ISNULL(p.LastName, '') AS LastName
+                        FROM dbo.Users u
+                        LEFT JOIN dbo.UserProfiles p ON u.UserID = p.UserID
+                        WHERE 1=1 ");
+
+                    if (!string.IsNullOrWhiteSpace(searchKeyword))
+                    {
+                        queryBuilder.Append(@"
+                            AND (u.Email LIKE @Search 
+                                 OR p.FirstName LIKE @Search 
+                                 OR p.LastName LIKE @Search 
+                                 OR (p.FirstName + ' ' + p.LastName) LIKE @Search) ");
+                    }
+
+                    if (string.Equals(statusFilter, "Active", StringComparison.OrdinalIgnoreCase))
+                    {
+                        queryBuilder.Append(" AND u.IsActive = 1 ");
+                    }
+                    else if (string.Equals(statusFilter, "Inactive", StringComparison.OrdinalIgnoreCase))
+                    {
+                        queryBuilder.Append(" AND u.IsActive = 0 ");
+                    }
+
+                    if (string.Equals(roleFilter, "Admin", StringComparison.OrdinalIgnoreCase))
+                    {
+                        queryBuilder.Append(" AND u.Role = 'Admin' ");
+                    }
+                    else if (string.Equals(roleFilter, "User", StringComparison.OrdinalIgnoreCase))
+                    {
+                        queryBuilder.Append(" AND u.Role = 'User' ");
+                    }
+
+                    queryBuilder.Append(" ORDER BY u.UserID DESC;");
+
+                    using (SqlCommand cmd = new SqlCommand(queryBuilder.ToString(), conn))
+                    {
+                        if (!string.IsNullOrWhiteSpace(searchKeyword))
+                        {
+                            cmd.Parameters.Add("@Search", SqlDbType.NVarChar, 255).Value = "%" + searchKeyword.Trim() + "%";
+                        }
+
+                        using (SqlDataReader reader = cmd.ExecuteReader())
+                        {
+                            while (reader.Read())
+                            {
+                                userList.Add(new UserLogin
+                                {
+                                    UserID = reader.GetInt32(reader.GetOrdinal("UserID")),
+                                    Email = reader.GetString(reader.GetOrdinal("Email")),
+                                    Role = reader.IsDBNull(reader.GetOrdinal("Role")) ? "User" : reader.GetString(reader.GetOrdinal("Role")),
+                                    IsActive = reader.GetBoolean(reader.GetOrdinal("IsActive")),
+                                    CreatedAt = reader.IsDBNull(reader.GetOrdinal("CreatedAt")) ? DateTime.UtcNow : reader.GetDateTime(reader.GetOrdinal("CreatedAt")),
+                                    FirstName = reader.GetString(reader.GetOrdinal("FirstName")),
+                                    LastName = reader.GetString(reader.GetOrdinal("LastName"))
+                                });
+                            }
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                errorMessage = $"Error retrieving user directory: {ex.Message}";
+            }
+
+            return userList;
+        }
+
+        public static UserLogin GetUserById(int userId, out string errorMessage)
+        {
+            errorMessage = string.Empty;
+
+            if (userId <= 0)
+            {
+                errorMessage = "Invalid User ID.";
+                return null;
+            }
+
+            try
+            {
+                using (SqlConnection conn = DatabaseConnection.GetConnection())
+                {
+                    conn.Open();
+
+                    string query = @"
+                        SELECT u.UserID, u.Email, u.Role, u.IsActive, u.CreatedAt,
+                               ISNULL(p.FirstName, '') AS FirstName,
+                               ISNULL(p.LastName, '') AS LastName
+                        FROM dbo.Users u
+                        LEFT JOIN dbo.UserProfiles p ON u.UserID = p.UserID
+                        WHERE u.UserID = @UserID;";
+
+                    using (SqlCommand cmd = new SqlCommand(query, conn))
+                    {
+                        cmd.Parameters.Add("@UserID", SqlDbType.Int).Value = userId;
+
+                        using (SqlDataReader reader = cmd.ExecuteReader())
+                        {
+                            if (reader.Read())
+                            {
+                                return new UserLogin
+                                {
+                                    UserID = reader.GetInt32(reader.GetOrdinal("UserID")),
+                                    Email = reader.GetString(reader.GetOrdinal("Email")),
+                                    Role = reader.IsDBNull(reader.GetOrdinal("Role")) ? "User" : reader.GetString(reader.GetOrdinal("Role")),
+                                    IsActive = reader.GetBoolean(reader.GetOrdinal("IsActive")),
+                                    CreatedAt = reader.IsDBNull(reader.GetOrdinal("CreatedAt")) ? DateTime.UtcNow : reader.GetDateTime(reader.GetOrdinal("CreatedAt")),
+                                    FirstName = reader.GetString(reader.GetOrdinal("FirstName")),
+                                    LastName = reader.GetString(reader.GetOrdinal("LastName"))
+                                };
+                            }
+                            else
+                            {
+                                errorMessage = "User account not found.";
+                                return null;
+                            }
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                errorMessage = $"Error retrieving user details: {ex.Message}";
+                return null;
+            }
+        }
+
+        public static bool ToggleUserStatus(int userId, bool isActive, out string errorMessage)
+        {
+            errorMessage = string.Empty;
+
+            if (userId <= 0)
+            {
+                errorMessage = "Invalid User ID.";
+                return false;
+            }
+
+            try
+            {
+                using (SqlConnection conn = DatabaseConnection.GetConnection())
+                {
+                    conn.Open();
+
+                    string query = @"
+                        UPDATE dbo.Users 
+                        SET IsActive = @IsActive, 
+                            UpdatedAt = SYSUTCDATETIME()
+                        WHERE UserID = @UserID;";
+
+                    using (SqlCommand cmd = new SqlCommand(query, conn))
+                    {
+                        cmd.Parameters.Add("@UserID", SqlDbType.Int).Value = userId;
+                        cmd.Parameters.Add("@IsActive", SqlDbType.Bit).Value = isActive;
+
+                        int rows = cmd.ExecuteNonQuery();
+                        if (rows > 0)
+                        {
+                            return true;
+                        }
+                        else
+                        {
+                            errorMessage = "User record not found.";
+                            return false;
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                errorMessage = $"Error changing user status: {ex.Message}";
+                return false;
+            }
+        }
+
+        public static bool UpdateUserRole(int userId, string newRole, out string errorMessage)
+        {
+            errorMessage = string.Empty;
+
+            if (userId <= 0)
+            {
+                errorMessage = "Invalid User ID.";
+                return false;
+            }
+
+            if (string.IsNullOrWhiteSpace(newRole) || (newRole != "Admin" && newRole != "User"))
+            {
+                errorMessage = "Role must be either 'Admin' or 'User'.";
+                return false;
+            }
+
+            try
+            {
+                using (SqlConnection conn = DatabaseConnection.GetConnection())
+                {
+                    conn.Open();
+
+                    string query = @"
+                        UPDATE dbo.Users 
+                        SET Role = @Role, 
+                            UpdatedAt = SYSUTCDATETIME()
+                        WHERE UserID = @UserID;";
+
+                    using (SqlCommand cmd = new SqlCommand(query, conn))
+                    {
+                        cmd.Parameters.Add("@UserID", SqlDbType.Int).Value = userId;
+                        cmd.Parameters.Add("@Role", SqlDbType.NVarChar, 20).Value = newRole;
+
+                        int rows = cmd.ExecuteNonQuery();
+                        return rows > 0;
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                errorMessage = $"Error updating user role: {ex.Message}";
+                return false;
+            }
+        }
+
+        public static bool AdminCreateUser(
+            string firstName,
+            string lastName,
+            string email,
+            string password,
+            string role,
+            bool isActive,
+            out string errorMessage)
+        {
+            errorMessage = string.Empty;
+
+            if (string.IsNullOrWhiteSpace(firstName))
+            {
+                errorMessage = "First Name is required.";
+                return false;
+            }
+
+            if (string.IsNullOrWhiteSpace(lastName))
+            {
+                errorMessage = "Last Name is required.";
+                return false;
+            }
+
+            if (string.IsNullOrWhiteSpace(email) || !Regex.IsMatch(email.Trim(), @"^[^@\s]+@[^@\s]+\.[^@\s]+$"))
+            {
+                errorMessage = "Please enter a valid email address.";
+                return false;
+            }
+
+            if (string.IsNullOrWhiteSpace(password) || password.Length < 6)
+            {
+                errorMessage = "Password must be at least 6 characters long.";
+                return false;
+            }
+
+            string targetRole = string.Equals(role, "Admin", StringComparison.OrdinalIgnoreCase) ? "Admin" : "User";
+
+            try
+            {
+                using (SqlConnection conn = DatabaseConnection.GetConnection())
+                {
+                    conn.Open();
+
+                    // Check existing email
+                    string checkQuery = "SELECT COUNT(1) FROM dbo.Users WHERE Email = @Email;";
+                    using (SqlCommand checkCmd = new SqlCommand(checkQuery, conn))
+                    {
+                        checkCmd.Parameters.Add("@Email", SqlDbType.NVarChar, 255).Value = email.Trim();
+                        int exists = Convert.ToInt32(checkCmd.ExecuteScalar());
+                        if (exists > 0)
+                        {
+                            errorMessage = "An account with this email address already exists.";
+                            return false;
+                        }
+                    }
+
+                    string hashedPassword = HashPassword(password);
+
+                    using (SqlTransaction tran = conn.BeginTransaction())
+                    {
+                        int newUserId = 0;
+                        try
+                        {
+                            string insertUserQuery = @"
+                                INSERT INTO dbo.Users (Email, PasswordHash, Role, IsActive, CreatedAt, UpdatedAt)
+                                VALUES (@Email, @PasswordHash, @Role, @IsActive, SYSUTCDATETIME(), SYSUTCDATETIME());
+                                SELECT SCOPE_IDENTITY();";
+
+                            using (SqlCommand cmdUser = new SqlCommand(insertUserQuery, conn, tran))
+                            {
+                                cmdUser.Parameters.Add("@Email", SqlDbType.NVarChar, 255).Value = email.Trim();
+                                cmdUser.Parameters.Add("@PasswordHash", SqlDbType.NVarChar, 255).Value = hashedPassword;
+                                cmdUser.Parameters.Add("@Role", SqlDbType.NVarChar, 20).Value = targetRole;
+                                cmdUser.Parameters.Add("@IsActive", SqlDbType.Bit).Value = isActive;
+
+                                object result = cmdUser.ExecuteScalar();
+                                if (result == null || !int.TryParse(result.ToString(), out newUserId))
+                                {
+                                    tran.Rollback();
+                                    errorMessage = "Failed to create user record.";
+                                    return false;
+                                }
+                            }
+
+                            string insertProfileQuery = @"
+                                INSERT INTO dbo.UserProfiles (UserID, FirstName, LastName, UpdatedAt)
+                                VALUES (@UserID, @FirstName, @LastName, SYSUTCDATETIME());";
+
+                            using (SqlCommand cmdProfile = new SqlCommand(insertProfileQuery, conn, tran))
+                            {
+                                cmdProfile.Parameters.Add("@UserID", SqlDbType.Int).Value = newUserId;
+                                cmdProfile.Parameters.Add("@FirstName", SqlDbType.NVarChar, 50).Value = firstName.Trim();
+                                cmdProfile.Parameters.Add("@LastName", SqlDbType.NVarChar, 50).Value = lastName.Trim();
+
+                                cmdProfile.ExecuteNonQuery();
+                            }
+
+                            tran.Commit();
+                            return true;
+                        }
+                        catch (Exception ex)
+                        {
+                            tran.Rollback();
+                            errorMessage = $"Error creating account: {ex.Message}";
+                            return false;
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                errorMessage = $"Database error: {ex.Message}";
+                return false;
+            }
+        }
+
+        public static bool AdminUpdateUser(
+            int userId,
+            string firstName,
+            string lastName,
+            string email,
+            string role,
+            bool isActive,
+            out string errorMessage)
+        {
+            errorMessage = string.Empty;
+
+            if (userId <= 0)
+            {
+                errorMessage = "Invalid User ID.";
+                return false;
+            }
+
+            if (string.IsNullOrWhiteSpace(firstName))
+            {
+                errorMessage = "First Name is required.";
+                return false;
+            }
+
+            if (string.IsNullOrWhiteSpace(lastName))
+            {
+                errorMessage = "Last Name is required.";
+                return false;
+            }
+
+            if (string.IsNullOrWhiteSpace(email) || !Regex.IsMatch(email.Trim(), @"^[^@\s]+@[^@\s]+\.[^@\s]+$"))
+            {
+                errorMessage = "Please enter a valid email address.";
+                return false;
+            }
+
+            string targetRole = string.Equals(role, "Admin", StringComparison.OrdinalIgnoreCase) ? "Admin" : "User";
+
+            try
+            {
+                using (SqlConnection conn = DatabaseConnection.GetConnection())
+                {
+                    conn.Open();
+
+                    // Check email uniqueness excluding self
+                    string checkQuery = "SELECT COUNT(1) FROM dbo.Users WHERE Email = @Email AND UserID <> @UserID;";
+                    using (SqlCommand checkCmd = new SqlCommand(checkQuery, conn))
+                    {
+                        checkCmd.Parameters.Add("@Email", SqlDbType.NVarChar, 255).Value = email.Trim();
+                        checkCmd.Parameters.Add("@UserID", SqlDbType.Int).Value = userId;
+
+                        int exists = Convert.ToInt32(checkCmd.ExecuteScalar());
+                        if (exists > 0)
+                        {
+                            errorMessage = "The specified email is already in use by another user.";
+                            return false;
+                        }
+                    }
+
+                    using (SqlTransaction tran = conn.BeginTransaction())
+                    {
+                        try
+                        {
+                            string updateUserQuery = @"
+                                UPDATE dbo.Users 
+                                SET Email = @Email, 
+                                    Role = @Role, 
+                                    IsActive = @IsActive, 
+                                    UpdatedAt = SYSUTCDATETIME()
+                                WHERE UserID = @UserID;";
+
+                            using (SqlCommand cmdUser = new SqlCommand(updateUserQuery, conn, tran))
+                            {
+                                cmdUser.Parameters.Add("@UserID", SqlDbType.Int).Value = userId;
+                                cmdUser.Parameters.Add("@Email", SqlDbType.NVarChar, 255).Value = email.Trim();
+                                cmdUser.Parameters.Add("@Role", SqlDbType.NVarChar, 20).Value = targetRole;
+                                cmdUser.Parameters.Add("@IsActive", SqlDbType.Bit).Value = isActive;
+
+                                cmdUser.ExecuteNonQuery();
+                            }
+
+                            string updateProfileQuery = @"
+                                IF EXISTS (SELECT 1 FROM dbo.UserProfiles WHERE UserID = @UserID)
+                                BEGIN
+                                    UPDATE dbo.UserProfiles 
+                                    SET FirstName = @FirstName, 
+                                        LastName = @LastName, 
+                                        UpdatedAt = SYSUTCDATETIME()
+                                    WHERE UserID = @UserID;
+                                END
+                                ELSE
+                                BEGIN
+                                    INSERT INTO dbo.UserProfiles (UserID, FirstName, LastName, UpdatedAt)
+                                    VALUES (@UserID, @FirstName, @LastName, SYSUTCDATETIME());
+                                END";
+
+                            using (SqlCommand cmdProfile = new SqlCommand(updateProfileQuery, conn, tran))
+                            {
+                                cmdProfile.Parameters.Add("@UserID", SqlDbType.Int).Value = userId;
+                                cmdProfile.Parameters.Add("@FirstName", SqlDbType.NVarChar, 50).Value = firstName.Trim();
+                                cmdProfile.Parameters.Add("@LastName", SqlDbType.NVarChar, 50).Value = lastName.Trim();
+
+                                cmdProfile.ExecuteNonQuery();
+                            }
+
+                            tran.Commit();
+                            return true;
+                        }
+                        catch (Exception ex)
+                        {
+                            tran.Rollback();
+                            errorMessage = $"Error updating user details: {ex.Message}";
+                            return false;
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                errorMessage = $"Database error: {ex.Message}";
+                return false;
+            }
+        }
+
+        public static bool AdminResetPassword(int userId, string newPassword, out string errorMessage)
+        {
+            errorMessage = string.Empty;
+
+            if (userId <= 0)
+            {
+                errorMessage = "Invalid User ID.";
+                return false;
+            }
+
+            if (string.IsNullOrWhiteSpace(newPassword) || newPassword.Length < 6)
+            {
+                errorMessage = "New password must be at least 6 characters long.";
+                return false;
+            }
+
+            try
+            {
+                using (SqlConnection conn = DatabaseConnection.GetConnection())
+                {
+                    conn.Open();
+
+                    string query = @"
+                        UPDATE dbo.Users 
+                        SET PasswordHash = @PasswordHash, 
+                            UpdatedAt = SYSUTCDATETIME()
+                        WHERE UserID = @UserID;";
+
+                    using (SqlCommand cmd = new SqlCommand(query, conn))
+                    {
+                        cmd.Parameters.Add("@UserID", SqlDbType.Int).Value = userId;
+                        cmd.Parameters.Add("@PasswordHash", SqlDbType.NVarChar, 255).Value = HashPassword(newPassword);
+
+                        int rows = cmd.ExecuteNonQuery();
+                        if (rows > 0)
+                        {
+                            return true;
+                        }
+                        else
+                        {
+                            errorMessage = "User record not found.";
+                            return false;
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                errorMessage = $"Error resetting password: {ex.Message}";
+                return false;
+            }
+        }
+
+        public static bool DeleteUser(int userId, out string errorMessage)
+        {
+            errorMessage = string.Empty;
+
+            if (userId <= 0)
+            {
+                errorMessage = "Invalid User ID.";
+                return false;
+            }
+
+            try
+            {
+                using (SqlConnection conn = DatabaseConnection.GetConnection())
+                {
+                    conn.Open();
+
+                    // Schema defines cascading deletes on child tables
+                    string query = "DELETE FROM dbo.Users WHERE UserID = @UserID;";
+
+                    using (SqlCommand cmd = new SqlCommand(query, conn))
+                    {
+                        cmd.Parameters.Add("@UserID", SqlDbType.Int).Value = userId;
+
+                        int rows = cmd.ExecuteNonQuery();
+                        if (rows > 0)
+                        {
+                            return true;
+                        }
+                        else
+                        {
+                            errorMessage = "User not found or already deleted.";
+                            return false;
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                errorMessage = $"Error deleting user: {ex.Message}";
                 return false;
             }
         }

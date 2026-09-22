@@ -181,15 +181,18 @@
         </div>
 
         <div class="menu-actions">
-            <asp:HyperLink ID="lnkViewPortfolio" runat="server" NavigateUrl="Portfolio.aspx" CssClass="menu-btn menu-btn-solid">
+            <asp:HyperLink ID="lnkDashboard" runat="server" NavigateUrl="~/Frontend/Admin/Dashboard.aspx" CssClass="menu-btn menu-btn-solid">
+                Admin Dashboard
+            </asp:HyperLink>
+            <asp:HyperLink ID="lnkViewPortfolio" runat="server" NavigateUrl="Portfolio.aspx" CssClass="menu-btn menu-btn-outline">
                 View Live Portfolio
             </asp:HyperLink>
             <asp:HyperLink ID="lnkEditDetails" runat="server" NavigateUrl="Onboarding.aspx" CssClass="menu-btn menu-btn-outline">
                 Edit Onboarding Portfolio Details
             </asp:HyperLink>
-            <a href="../Login/Login.aspx?action=logout" class="menu-btn menu-btn-outline">
+            <asp:HyperLink ID="lnkSignOut" runat="server" NavigateUrl="~/Frontend/Login/Login.aspx?action=logout" CssClass="menu-btn menu-btn-outline">
                 Sign Out
-            </a>
+            </asp:HyperLink>
         </div>
     </div>
 </div>

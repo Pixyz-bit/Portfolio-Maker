@@ -49,10 +49,14 @@ namespace _241611JalopPersonalWebsite.Frontend.Admin
         protected global::System.Web.UI.WebControls.Literal litSummaryBio;
         protected global::System.Web.UI.WebControls.Repeater rptSummaryEducations;
         protected global::System.Web.UI.WebControls.Label lblNoEducations;
+        protected global::System.Web.UI.WebControls.Repeater rptSummaryAffiliations;
+        protected global::System.Web.UI.WebControls.Label lblNoAffiliations;
         protected global::System.Web.UI.WebControls.Repeater rptSummarySkills;
         protected global::System.Web.UI.WebControls.Label lblNoSkills;
         protected global::System.Web.UI.WebControls.Repeater rptSummaryHobbies;
         protected global::System.Web.UI.WebControls.Label lblNoHobbies;
+        protected global::System.Web.UI.WebControls.Repeater rptSummarySocialLinks;
+        protected global::System.Web.UI.WebControls.Label lblNoSocialLinks;
         protected global::System.Web.UI.HtmlControls.HtmlButton btnSummaryStatusTrigger;
         protected global::System.Web.UI.WebControls.Literal litSummaryStatusBtnText;
         protected global::System.Web.UI.WebControls.HyperLink lnkSummaryPortfolio;

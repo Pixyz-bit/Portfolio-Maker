@@ -268,7 +268,133 @@
                 font-size: 1.65rem;
             }
         }
+
+        /* Proper Login Loading Modal */
+        .login-modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: rgba(0, 0, 0, 0.65);
+            backdrop-filter: blur(5px);
+            z-index: 10000;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .login-modal-box {
+            background-color: #ffffff;
+            border: 2.5px solid #000000;
+            border-radius: 20px;
+            box-shadow: 8px 8px 0px #000000;
+            width: 100%;
+            max-width: 400px;
+            padding: 38px 30px;
+            text-align: center;
+            position: relative;
+            animation: modalPop 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        @keyframes modalPop {
+            from { opacity: 0; transform: scale(0.92); }
+            to { opacity: 1; transform: scale(1); }
+        }
+
+        .login-modal-icon-wrap {
+            width: 64px;
+            height: 64px;
+            border-radius: 50%;
+            border: 2.5px solid #000000;
+            background-color: #dcfce7;
+            margin: 0 auto 18px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .login-modal-title {
+            font-size: 1.45rem;
+            font-weight: 800;
+            color: #000000;
+            margin-bottom: 6px;
+            letter-spacing: -0.02em;
+        }
+
+        .login-modal-desc {
+            font-size: 0.9rem;
+            color: #52525b;
+            margin-bottom: 22px;
+            line-height: 1.45;
+        }
+
+        .login-progress-track {
+            width: 100%;
+            height: 8px;
+            background-color: #f4f4f5;
+            border: 2px solid #000000;
+            border-radius: 999px;
+            overflow: hidden;
+            margin-bottom: 12px;
+        }
+
+        .login-progress-bar {
+            width: 0%;
+            height: 100%;
+            background-color: #000000;
+            border-radius: 999px;
+            transition: width 1.25s cubic-bezier(0.2, 0.8, 0.2, 1);
+        }
+
+        .login-redirect-text {
+            font-size: 0.78rem;
+            font-weight: 700;
+            color: #71717a;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            display: block;
+        }
     </style>
+
+    <script>
+        function togglePasswordVisibility(inputId, button) {
+            var input = document.getElementById(inputId);
+            if (!input) return;
+
+            if (input.type === "password") {
+                input.type = "text";
+                button.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"></path><line x1="1" y1="1" x2="23" y2="23"></line></svg>';
+            } else {
+                input.type = "password";
+                button.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg>';
+            }
+        }
+
+        window.showLoginSuccessModal = function (userName, redirectUrl) {
+            function executeModal() {
+                var modal = document.getElementById('loginSuccessModal');
+                var userEl = document.getElementById('loginModalUserName');
+                var progressBar = document.getElementById('loginProgressBar');
+                if (userEl) userEl.textContent = userName || 'User';
+                if (modal) modal.style.display = 'flex';
+                setTimeout(function () {
+                    if (progressBar) progressBar.style.width = '100%';
+                }, 50);
+                setTimeout(function () {
+                    window.location.href = redirectUrl;
+                }, 1300);
+            }
+
+            if (document.readyState === 'loading') {
+                document.addEventListener('DOMContentLoaded', executeModal);
+            } else {
+                executeModal();
+            }
+        };
+        var showLoginSuccessModal = window.showLoginSuccessModal;
+    </script>
 </head>
 <body>
     <div class="login-container">
@@ -336,20 +462,29 @@
         </div>
     </div>
 
-    <!-- Password Visibility Toggle Script -->
-    <script>
-        function togglePasswordVisibility(inputId, button) {
-            var input = document.getElementById(inputId);
-            if (!input) return;
+    <!-- PROPER LOGIN SUCCESS & LOADING MODAL -->
+    <div class="login-modal-overlay" id="loginSuccessModal" style="display: none;">
+        <div class="login-modal-box">
+            <div class="login-modal-icon-wrap">
+                <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#16a34a" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
+                    <polyline points="22 4 12 14.01 9 11.01"></polyline>
+                </svg>
+            </div>
 
-            if (input.type === "password") {
-                input.type = "text";
-                button.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"></path><line x1="1" y1="1" x2="23" y2="23"></line></svg>';
-            } else {
-                input.type = "password";
-                button.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg>';
-            }
-        }
-    </script>
+            <h3 class="login-modal-title">Sign In Successful!</h3>
+            <p class="login-modal-desc" id="loginModalSubtitle">
+                Welcome back, <strong id="loginModalUserName">User</strong>! Preparing your workspace...
+            </p>
+
+            <div class="login-progress-track">
+                <div class="login-progress-bar" id="loginProgressBar"></div>
+            </div>
+
+            <span class="login-redirect-text">Redirecting to your dashboard...</span>
+        </div>
+    </div>
+
+    <!-- Scripts are defined in head -->
 </body>
 </html>

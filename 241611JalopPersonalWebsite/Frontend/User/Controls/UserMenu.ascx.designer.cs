@@ -44,8 +44,63 @@ namespace _241611JalopPersonalWebsite.Frontend.User.Controls
         protected global::System.Web.UI.WebControls.HyperLink lnkEditDetails;
 
         /// <summary>
+        /// lnkEditPortfolio control.
+        /// </summary>
+        protected global::System.Web.UI.WebControls.HyperLink lnkEditPortfolio;
+
+        /// <summary>
         /// lnkSignOut control.
         /// </summary>
         protected global::System.Web.UI.WebControls.HyperLink lnkSignOut;
+
+        /// <summary>
+        /// pnlUserAccountModalMsg control.
+        /// </summary>
+        protected global::System.Web.UI.WebControls.Panel pnlUserAccountModalMsg;
+
+        /// <summary>
+        /// litUserAccountModalMsg control.
+        /// </summary>
+        protected global::System.Web.UI.WebControls.Literal litUserAccountModalMsg;
+
+        /// <summary>
+        /// txtAccountFirstName control.
+        /// </summary>
+        protected global::System.Web.UI.WebControls.TextBox txtAccountFirstName;
+
+        /// <summary>
+        /// txtAccountLastName control.
+        /// </summary>
+        protected global::System.Web.UI.WebControls.TextBox txtAccountLastName;
+
+        /// <summary>
+        /// txtAccountEmail control.
+        /// </summary>
+        protected global::System.Web.UI.WebControls.TextBox txtAccountEmail;
+
+        /// <summary>
+        /// ddlAccountRole control.
+        /// </summary>
+        protected global::System.Web.UI.WebControls.DropDownList ddlAccountRole;
+
+        /// <summary>
+        /// chkAccountIsActive control.
+        /// </summary>
+        protected global::System.Web.UI.WebControls.CheckBox chkAccountIsActive;
+
+        /// <summary>
+        /// txtAccountNewPassword control.
+        /// </summary>
+        protected global::System.Web.UI.WebControls.TextBox txtAccountNewPassword;
+
+        /// <summary>
+        /// txtAccountConfirmPassword control.
+        /// </summary>
+        protected global::System.Web.UI.WebControls.TextBox txtAccountConfirmPassword;
+
+        /// <summary>
+        /// btnSaveUserAccount control.
+        /// </summary>
+        protected global::System.Web.UI.WebControls.Button btnSaveUserAccount;
     }
 }

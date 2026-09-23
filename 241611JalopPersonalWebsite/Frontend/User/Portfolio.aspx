@@ -58,9 +58,8 @@
             position: sticky;
             top: 0;
             z-index: 100;
-            background-color: rgba(255, 255, 255, 0.95);
-            backdrop-filter: blur(8px);
-            border-bottom: 2px solid var(--border-black);
+            background-color: #ffffff;
+            border-bottom: 2.5px solid var(--border-black);
             padding: 12px 24px;
         }
 

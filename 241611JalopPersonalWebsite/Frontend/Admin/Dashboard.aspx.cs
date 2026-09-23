@@ -240,6 +240,10 @@ namespace _241611JalopPersonalWebsite.Frontend.Admin
             rptSummaryEducations.DataBind();
             lblNoEducations.Visible = (educations.Count == 0);
 
+            rptSummaryAffiliations.DataSource = affiliations;
+            rptSummaryAffiliations.DataBind();
+            lblNoAffiliations.Visible = (affiliations.Count == 0);
+
             rptSummarySkills.DataSource = skills;
             rptSummarySkills.DataBind();
             lblNoSkills.Visible = (skills.Count == 0);
@@ -247,6 +251,10 @@ namespace _241611JalopPersonalWebsite.Frontend.Admin
             rptSummaryHobbies.DataSource = hobbies;
             rptSummaryHobbies.DataBind();
             lblNoHobbies.Visible = (hobbies.Count == 0);
+
+            rptSummarySocialLinks.DataSource = socialLinks;
+            rptSummarySocialLinks.DataBind();
+            lblNoSocialLinks.Visible = (socialLinks.Count == 0);
 
             // 8. Bind Actions
             lnkSummaryPortfolio.NavigateUrl = $"~/Frontend/User/Portfolio.aspx?userId={userId}";
@@ -427,6 +435,34 @@ namespace _241611JalopPersonalWebsite.Frontend.Admin
             }
 
             return "U";
+        }
+
+        public static string FormatPeriod(object startYear, object endYear)
+        {
+            string start = startYear?.ToString()?.Trim();
+            string end = endYear?.ToString()?.Trim();
+
+            if (string.IsNullOrEmpty(start) && string.IsNullOrEmpty(end))
+                return string.Empty;
+
+            if (string.IsNullOrEmpty(end))
+                return $"{start} - Present";
+
+            if (string.IsNullOrEmpty(start))
+                return end;
+
+            return $"{start} - {end}";
+        }
+
+        public static string FormatSocialUrl(object rawUrl)
+        {
+            string url = rawUrl?.ToString()?.Trim() ?? string.Empty;
+            if (string.IsNullOrEmpty(url)) return "#";
+            if (!url.StartsWith("http://", StringComparison.OrdinalIgnoreCase) && !url.StartsWith("https://", StringComparison.OrdinalIgnoreCase))
+            {
+                return "https://" + url;
+            }
+            return url;
         }
 
         private void ShowSuccess(string message)

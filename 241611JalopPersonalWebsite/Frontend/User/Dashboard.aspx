@@ -165,7 +165,7 @@
 
             <div class="btn-group">
                 <asp:HyperLink ID="lnkAdminDashboard" runat="server" NavigateUrl="~/Frontend/Admin/Dashboard.aspx" CssClass="btn btn-solid" Visible="false">
-                    ⚡ Admin Dashboard
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor" style="display:inline-block; vertical-align:-1px; margin-right:4px;"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/></svg>Admin Dashboard
                 </asp:HyperLink>
                 <asp:HyperLink ID="lnkViewPortfolio" runat="server" NavigateUrl="Portfolio.aspx" CssClass="btn btn-solid">
                     View Live Portfolio

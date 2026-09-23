@@ -58,8 +58,7 @@
             position: sticky;
             top: 0;
             z-index: 100;
-            background-color: rgba(255, 255, 255, 0.96);
-            backdrop-filter: blur(10px);
+            background-color: #ffffff;
             border-bottom: 2.5px solid var(--border-black);
             padding: 14px 28px;
         }
@@ -788,6 +787,21 @@
             font-size: 0.8rem;
             font-weight: 600;
         }
+
+        .summary-pill-link {
+            text-decoration: none;
+            color: var(--text-black);
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            transition: all 0.15s ease;
+        }
+
+        .summary-pill-link:hover {
+            background-color: #000000;
+            color: #ffffff;
+            transform: translateY(-1px);
+        }
     </style>
 </head>
 <body>
@@ -796,15 +810,12 @@
         <nav class="admin-nav">
             <div class="nav-inner">
                 <a href="Dashboard.aspx" class="nav-brand">
-                    <span class="brand-badge">⚡ ADMIN</span>
-                    <span class="brand-title">Portfolio OS Control Center</span>
+                    <span class="brand-badge"><!--<svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor" style="display:inline-block; vertical-align:-1px; margin-right:3px;"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/></svg>-->ADMIN</span>
+                    <span class="brand-title">Dashboard</span>
                 </a>
 
                 <div class="nav-user" style="display: flex; align-items: center; gap: 14px;">
-                    <div class="user-tag">
-                        <span class="user-dot"></span>
-                        <asp:Literal ID="litAdminName" runat="server" Text="Administrator" />
-                    </div>
+                    <asp:Literal ID="litAdminName" runat="server" Visible="false" />
                     <asp:HyperLink ID="lnkViewPublicPortfolio" runat="server" NavigateUrl="../User/Portfolio.aspx" Target="_blank" CssClass="btn btn-outline btn-sm" Visible="false">
                         View Portfolio
                     </asp:HyperLink>
@@ -848,9 +859,9 @@
                 <div class="metric-card">
                     <div class="metric-top">
                         <span class="metric-label">Total Registered</span>
-                        <div class="metric-icon">
+                        <!--<div class="metric-icon">
                             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#000" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M23 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path></svg>
-                        </div>
+                        </div>-->
                     </div>
                     <div class="metric-value">
                         <asp:Literal ID="litTotalUsers" runat="server" Text="0" />
@@ -862,9 +873,9 @@
                 <div class="metric-card">
                     <div class="metric-top">
                         <span class="metric-label">Active Users</span>
-                        <div class="metric-icon" style="background-color: #dcfce7;">
+                        <!--<div class="metric-icon" style="background-color: #dcfce7;">
                             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#15803d" stroke-width="2.5"><polyline points="20 6 9 17 4 12"></polyline></svg>
-                        </div>
+                        </div>-->
                     </div>
                     <div class="metric-value" style="color: #15803d;">
                         <asp:Literal ID="litTotalActive" runat="server" Text="0" />
@@ -876,9 +887,9 @@
                 <div class="metric-card">
                     <div class="metric-top">
                         <span class="metric-label">Deactivated Users</span>
-                        <div class="metric-icon" style="background-color: #fee2e2;">
+                        <!--<div class="metric-icon" style="background-color: #fee2e2;">
                             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#b91c1c" stroke-width="2.5"><circle cx="12" cy="12" r="10"></circle><line x1="4.93" y1="4.93" x2="19.07" y2="19.07"></line></svg>
-                        </div>
+                        </div>-->
                     </div>
                     <div class="metric-value" style="color: #b91c1c;">
                         <asp:Literal ID="litTotalInactive" runat="server" Text="0" />
@@ -1117,9 +1128,25 @@
                     <asp:Label ID="lblNoEducations" runat="server" Text="No education history recorded." Visible="false" ForeColor="#64748b" style="font-size: 0.85rem;" />
                 </div>
 
+                <!-- Organizations & Affiliations Details -->
+                <div class="summary-section-box">
+                    <div class="summary-section-title">Organizations & Affiliations</div>
+                    <asp:Repeater ID="rptSummaryAffiliations" runat="server">
+                        <HeaderTemplate><ul style="padding-left: 18px; font-size: 0.88rem;"></HeaderTemplate>
+                        <ItemTemplate>
+                            <li style="margin-bottom: 4px;">
+                                <strong><%# Eval("Position") %></strong> at <%# Eval("OrganizationName") %> 
+                                <span style="color: var(--text-muted);">(<%# FormatPeriod(Eval("StartYear"), Eval("EndYear")) %>)</span>
+                            </li>
+                        </ItemTemplate>
+                        <FooterTemplate></ul></FooterTemplate>
+                    </asp:Repeater>
+                    <asp:Label ID="lblNoAffiliations" runat="server" Text="No organization affiliations recorded." Visible="false" ForeColor="#64748b" style="font-size: 0.85rem;" />
+                </div>
+
                 <!-- Skills & Hobbies List -->
-                <div class="form-row" style="margin-bottom: 0;">
-                    <div class="summary-section-box">
+                <div class="form-row" style="margin-bottom: 14px;">
+                    <div class="summary-section-box" style="margin-bottom: 0;">
                         <div class="summary-section-title">Skills</div>
                         <div class="summary-pill-list">
                             <asp:Repeater ID="rptSummarySkills" runat="server">
@@ -1131,7 +1158,7 @@
                         </div>
                     </div>
 
-                    <div class="summary-section-box">
+                    <div class="summary-section-box" style="margin-bottom: 0;">
                         <div class="summary-section-title">Hobbies</div>
                         <div class="summary-pill-list">
                             <asp:Repeater ID="rptSummaryHobbies" runat="server">
@@ -1141,6 +1168,22 @@
                             </asp:Repeater>
                             <asp:Label ID="lblNoHobbies" runat="server" Text="No hobbies listed." Visible="false" ForeColor="#64748b" style="font-size: 0.85rem;" />
                         </div>
+                    </div>
+                </div>
+
+                <!-- Social Links Details -->
+                <div class="summary-section-box" style="margin-bottom: 0;">
+                    <div class="summary-section-title">Social Links & Profiles</div>
+                    <div class="summary-pill-list">
+                        <asp:Repeater ID="rptSummarySocialLinks" runat="server">
+                            <ItemTemplate>
+                                <a href='<%# FormatSocialUrl(Eval("Link")) %>' target="_blank" rel="noopener noreferrer" class="summary-pill summary-pill-link" title='<%# Eval("Link") %>'>
+                                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path><polyline points="15 3 21 3 21 9"></polyline><line x1="10" y1="14" x2="21" y2="3"></line></svg>
+                                    <span><%# Eval("SocialLinkName") %></span>
+                                </a>
+                            </ItemTemplate>
+                        </asp:Repeater>
+                        <asp:Label ID="lblNoSocialLinks" runat="server" Text="No social links connected." Visible="false" ForeColor="#64748b" style="font-size: 0.85rem;" />
                     </div>
                 </div>
 

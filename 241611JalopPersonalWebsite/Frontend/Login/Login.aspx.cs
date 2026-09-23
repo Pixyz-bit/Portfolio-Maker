@@ -1,4 +1,6 @@
 using System;
+using System.Data.SqlClient;
+using System.Diagnostics;
 using System.Web;
 using System.Web.UI;
 using _241611JalopPersonalWebsite.Model;
@@ -14,6 +16,9 @@ namespace _241611JalopPersonalWebsite.Frontend.Login
             {
                 pnlError.Visible = false;
                 pnlSuccess.Visible = false;
+
+                // Connection indicator: runs every time Login.aspx is loaded/run
+                LogConnectionStatus();
 
                 // Handle sign-out / logout action
                 if (string.Equals(Request.QueryString["action"], "logout", StringComparison.OrdinalIgnoreCase))
@@ -85,22 +90,20 @@ namespace _241611JalopPersonalWebsite.Frontend.Login
                     Response.Cookies.Add(expiredCookie);
                 }
 
-                // 4. Show success and redirect based on role
-                pnlSuccess.Visible = true;
+                // 4. Show proper modal and redirect based on role
                 bool isAdmin = string.Equals(authenticatedUser.Role, "Admin", StringComparison.OrdinalIgnoreCase);
+                string welcomeName = !string.IsNullOrWhiteSpace(authenticatedUser.FirstName) 
+                    ? authenticatedUser.FirstName 
+                    : (!string.IsNullOrWhiteSpace(authenticatedUser.FullName) ? authenticatedUser.FullName : "User");
+                string redirectUrl = isAdmin 
+                    ? "../Admin/Dashboard.aspx" 
+                    : $"../User/Portfolio.aspx?userId={authenticatedUser.UserID}";
 
-                if (isAdmin)
-                {
-                    lblSuccessMessage.Text = $"Welcome back, Administrator {authenticatedUser.FirstName}! Login successful. Redirecting to Admin Console...";
-                    string redirectScript = $"setTimeout(function(){{ window.location.href = '../Admin/Dashboard.aspx'; }}, 1000);";
-                    ClientScript.RegisterStartupScript(this.GetType(), "LoginRedirect", redirectScript, true);
-                }
-                else
-                {
-                    lblSuccessMessage.Text = $"Welcome back, {authenticatedUser.FirstName}! Login successful. Redirecting to your portfolio...";
-                    string redirectScript = $"setTimeout(function(){{ window.location.href = '../User/Portfolio.aspx?userId={authenticatedUser.UserID}'; }}, 1000);";
-                    ClientScript.RegisterStartupScript(this.GetType(), "LoginRedirect", redirectScript, true);
-                }
+                string safeWelcomeName = (welcomeName ?? "User").Replace("\\", "\\\\").Replace("'", "\\'").Replace("\"", "\\\"").Replace("\r", "").Replace("\n", "");
+                string safeRedirectUrl = redirectUrl.Replace("\\", "\\\\").Replace("'", "\\'").Replace("\"", "\\\"");
+
+                string modalScript = $"showLoginSuccessModal('{safeWelcomeName}', '{safeRedirectUrl}');";
+                ClientScript.RegisterStartupScript(this.GetType(), "LoginSuccessModal", modalScript, true);
             }
             else
             {
@@ -108,6 +111,80 @@ namespace _241611JalopPersonalWebsite.Frontend.Login
                 pnlError.Visible = true;
                 lblErrorMessage.Text = errorMessage;
             }
+        }
+
+        private void LogConnectionStatus()
+        {
+            string dbName = "IPTPersonalWebsite";
+            string serverName = ".";
+            try
+            {
+                using (SqlConnection conn = DatabaseConnection.GetConnection())
+                {
+                    SqlConnectionStringBuilder builder = new SqlConnectionStringBuilder(conn.ConnectionString);
+                    if (!string.IsNullOrWhiteSpace(builder.InitialCatalog)) dbName = builder.InitialCatalog;
+                    if (!string.IsNullOrWhiteSpace(builder.DataSource)) serverName = builder.DataSource;
+                }
+            }
+            catch
+            {
+                // Fallback to defaults if connection string is unavailable
+            }
+
+            Stopwatch sw = Stopwatch.StartNew();
+            bool isConnected = DatabaseConnection.TestConnection(out string message);
+            sw.Stop();
+
+            long elapsedMs = sw.ElapsedMilliseconds;
+            string timestamp = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss");
+
+            // 1. Output to Server Debug and Console
+            string serverLog = $"[{timestamp}] [DB Connection Indicator] {(isConnected ? "SUCCESS" : "FAILED")} ({elapsedMs}ms) - Database: '{dbName}', Server: '{serverName}' | Result: {message}";
+            Debug.WriteLine(serverLog);
+            Console.WriteLine(serverLog);
+
+            // 2. Output to Browser Developer Console
+            string safeMsg = HttpUtility.JavaScriptStringEncode(message);
+            string safeDb = HttpUtility.JavaScriptStringEncode(dbName);
+            string safeServer = HttpUtility.JavaScriptStringEncode(serverName);
+
+            string script;
+            if (isConnected)
+            {
+                script = $@"
+                    console.log(
+                        '%c[DATABASE STATUS: CONNECTED]%c Database: %c{safeDb}%c | Server: %c{safeServer}%c (%c{elapsedMs}ms%c) • {timestamp}',
+                        'background: #166534; color: #ffffff; font-weight: bold; padding: 3px 8px; border-radius: 4px; font-size: 11px;',
+                        'color: #374151; font-weight: bold; padding-left: 6px;',
+                        'color: #0284c7; font-weight: bold;',
+                        'color: #374151; font-weight: bold;',
+                        'color: #7c3aed; font-weight: bold;',
+                        'color: #6b7280; font-weight: normal;',
+                        'color: #166534; font-weight: 600;',
+                        'color: #6b7280; font-weight: normal;'
+                    );
+                    console.info('%c[Details]%c {safeMsg}', 'font-weight: bold; color: #4b5563;', 'color: #166534; padding-left: 4px;');
+                ";
+            }
+            else
+            {
+                script = $@"
+                    console.error(
+                        '%c[DATABASE STATUS: FAILED]%c Database: %c{safeDb}%c | Server: %c{safeServer}%c (%c{elapsedMs}ms%c) • {timestamp}',
+                        'background: #dc2626; color: #ffffff; font-weight: bold; padding: 3px 8px; border-radius: 4px; font-size: 11px;',
+                        'color: #991b1b; font-weight: bold; padding-left: 6px;',
+                        'color: #dc2626; font-weight: bold;',
+                        'color: #991b1b; font-weight: bold;',
+                        'color: #dc2626; font-weight: bold;',
+                        'color: #6b7280; font-weight: normal;',
+                        'color: #dc2626; font-weight: 600;',
+                        'color: #6b7280; font-weight: normal;'
+                    );
+                    console.error('%c[Details]%c {safeMsg}', 'font-weight: bold; color: #991b1b;', 'color: #dc2626; padding-left: 4px;');
+                ";
+            }
+
+            ClientScript.RegisterStartupScript(this.GetType(), "DbConnectionConsoleIndicator", script, true);
         }
     }
 }

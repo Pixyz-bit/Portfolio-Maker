@@ -1251,9 +1251,9 @@
                         Edit Account
                     </button>
 
-                    <button type="button" class="btn btn-danger btn-sm" onclick="openDeleteModalFromSummary()">
+                    <!--<button type="button" class="btn btn-danger btn-sm" onclick="openDeleteModalFromSummary()">
                         Delete
-                    </button>
+                    </button>-->
                     
                     <asp:Button ID="btnCloseSummary" runat="server" Text="Close Summary" CssClass="btn btn-outline btn-sm" OnClick="btnCloseSummary_Click" />
                 </div>

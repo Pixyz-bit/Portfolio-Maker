@@ -214,7 +214,6 @@
                         <span id="btnShareText">Share</span>
                     </button>
 
-
                     <!-- User Menu (Visible ONLY when logged in) -->
                     <uc:UserMenu ID="ucUserMenu" runat="server" Visible="false" />
 

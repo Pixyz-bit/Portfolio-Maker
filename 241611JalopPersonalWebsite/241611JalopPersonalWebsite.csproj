@@ -85,6 +85,8 @@
     <Content Include="Frontend\User\Controls\SocialLinksSection.ascx" />
     <Content Include="Frontend\User\Controls\UserMenu.ascx" />
     <Content Include="Web.config" />
+    <Content Include="ConnectionStrings.example.config" />
+    <Content Include="ConnectionStrings.config" Condition="Exists('ConnectionStrings.config')" />
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Frontend\Admin\Dashboard.aspx.cs">
@@ -206,6 +208,7 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
+    <None Include="Properties\PublishProfiles\site93345-WebDeploy.pubxml" />
     <None Include="Web.Debug.config">
       <DependentUpon>Web.config</DependentUpon>
     </None>
@@ -215,10 +218,7 @@
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Backend\Database\Commands\" />
-    <Folder Include="Frontend\Admin\" />
-    <Folder Include="Frontend\Login\" />
     <Folder Include="Frontend\Script\" />
-    <Folder Include="Frontend\User\" />
   </ItemGroup>
   <PropertyGroup>
     <VisualStudioVersion Condition="'$(VisualStudioVersion)' == ''">10.0</VisualStudioVersion>

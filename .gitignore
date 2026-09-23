@@ -54,3 +54,11 @@ ehthumbs_vista.db
 *.pfx
 *.publishsettings
 node_modules/
+
+# Connection strings and sensitive configuration files
+**/ConnectionStrings.config
+**/connectionStrings.config
+**/connections.config
+**/*.secret.config
+!**/ConnectionStrings.example.config
+!**/connectionStrings.example.config

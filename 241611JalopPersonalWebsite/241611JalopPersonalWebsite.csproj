@@ -69,6 +69,7 @@
   <ItemGroup>
     <Content Include="Backend\Database\Migration\01_Schema.sql" />
     <Content Include="Backend\Database\Migration\02_Alter_Profile_Affiliations_SocialLinks.sql" />
+    <Content Include="Backend\Database\Migration\03_StoredProcedures.sql" />
     <Content Include="Default.aspx" />
     <Content Include="Frontend\Admin\Dashboard.aspx" />
     <Content Include="Frontend\Login\Login.aspx" />

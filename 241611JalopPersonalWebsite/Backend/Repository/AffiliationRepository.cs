@@ -51,13 +51,10 @@ namespace _241611JalopPersonalWebsite.Repository
                 {
                     conn.Open();
 
-                    string query = @"
-                        INSERT INTO dbo.Affiliations (UserID, OrganizationName, Position, StartYear, EndYear, CreatedAt)
-                        VALUES (@UserID, @OrganizationName, @Position, @StartYear, @EndYear, SYSUTCDATETIME());
-                        SELECT SCOPE_IDENTITY();";
-
-                    using (SqlCommand cmd = new SqlCommand(query, conn))
+                    using (SqlCommand cmd = new SqlCommand("dbo.sp_InsertAffiliation", conn))
                     {
+                        cmd.CommandType = CommandType.StoredProcedure;
+
                         cmd.Parameters.Add("@UserID", SqlDbType.Int).Value = affiliation.UserID;
                         cmd.Parameters.Add("@OrganizationName", SqlDbType.NVarChar, 150).Value = affiliation.OrganizationName.Trim();
                         cmd.Parameters.Add("@Position", SqlDbType.NVarChar, 100).Value = affiliation.Position.Trim();
@@ -106,14 +103,9 @@ namespace _241611JalopPersonalWebsite.Repository
                 {
                     conn.Open();
 
-                    string query = @"
-                        SELECT AffiliationID, UserID, OrganizationName, Position, StartYear, EndYear, CreatedAt
-                        FROM dbo.Affiliations
-                        WHERE UserID = @UserID
-                        ORDER BY CreatedAt ASC";
-
-                    using (SqlCommand cmd = new SqlCommand(query, conn))
+                    using (SqlCommand cmd = new SqlCommand("dbo.sp_GetAffiliationsByUserId", conn))
                     {
+                        cmd.CommandType = CommandType.StoredProcedure;
                         cmd.Parameters.Add("@UserID", SqlDbType.Int).Value = userId;
 
                         using (SqlDataReader reader = cmd.ExecuteReader())
@@ -154,13 +146,9 @@ namespace _241611JalopPersonalWebsite.Repository
                 {
                     conn.Open();
 
-                    string query = @"
-                        SELECT AffiliationID, UserID, OrganizationName, Position, StartYear, EndYear, CreatedAt
-                        FROM dbo.Affiliations
-                        WHERE AffiliationID = @AffiliationID";
-
-                    using (SqlCommand cmd = new SqlCommand(query, conn))
+                    using (SqlCommand cmd = new SqlCommand("dbo.sp_GetAffiliationById", conn))
                     {
+                        cmd.CommandType = CommandType.StoredProcedure;
                         cmd.Parameters.Add("@AffiliationID", SqlDbType.Int).Value = affiliationId;
 
                         using (SqlDataReader reader = cmd.ExecuteReader())
@@ -228,16 +216,10 @@ namespace _241611JalopPersonalWebsite.Repository
                 {
                     conn.Open();
 
-                    string query = @"
-                        UPDATE dbo.Affiliations
-                        SET OrganizationName = @OrganizationName,
-                            Position = @Position,
-                            StartYear = @StartYear,
-                            EndYear = @EndYear
-                        WHERE AffiliationID = @AffiliationID";
-
-                    using (SqlCommand cmd = new SqlCommand(query, conn))
+                    using (SqlCommand cmd = new SqlCommand("dbo.sp_UpdateAffiliation", conn))
                     {
+                        cmd.CommandType = CommandType.StoredProcedure;
+
                         cmd.Parameters.Add("@AffiliationID", SqlDbType.Int).Value = affiliation.AffiliationID;
                         cmd.Parameters.Add("@OrganizationName", SqlDbType.NVarChar, 150).Value = affiliation.OrganizationName.Trim();
                         cmd.Parameters.Add("@Position", SqlDbType.NVarChar, 100).Value = affiliation.Position.Trim();
@@ -284,10 +266,9 @@ namespace _241611JalopPersonalWebsite.Repository
                 {
                     conn.Open();
 
-                    string query = "DELETE FROM dbo.Affiliations WHERE AffiliationID = @AffiliationID";
-
-                    using (SqlCommand cmd = new SqlCommand(query, conn))
+                    using (SqlCommand cmd = new SqlCommand("dbo.sp_DeleteAffiliation", conn))
                     {
+                        cmd.CommandType = CommandType.StoredProcedure;
                         cmd.Parameters.Add("@AffiliationID", SqlDbType.Int).Value = affiliationId;
 
                         int rowsAffected = cmd.ExecuteNonQuery();

@@ -1,4 +1,5 @@
 using System;
+using System.Data;
 using System.Data.SqlClient;
 using _241611JalopPersonalWebsite.Model;
 
@@ -20,15 +21,10 @@ namespace _241611JalopPersonalWebsite.Repository
                 {
                     conn.Open();
 
-                    string query = @"
-                        SELECT 
-                            COUNT(*) AS TotalUsers,
-                            ISNULL(SUM(CASE WHEN IsActive = 1 THEN 1 ELSE 0 END), 0) AS TotalActive,
-                            ISNULL(SUM(CASE WHEN IsActive = 0 THEN 1 ELSE 0 END), 0) AS TotalInactive
-                        FROM dbo.Users;";
-
-                    using (SqlCommand cmd = new SqlCommand(query, conn))
+                    using (SqlCommand cmd = new SqlCommand("dbo.sp_GetDashboardAnalytics", conn))
                     {
+                        cmd.CommandType = CommandType.StoredProcedure;
+
                         using (SqlDataReader reader = cmd.ExecuteReader())
                         {
                             if (reader.Read())
@@ -67,10 +63,10 @@ namespace _241611JalopPersonalWebsite.Repository
                 {
                     conn.Open();
 
-                    string query = "SELECT COUNT(*) FROM dbo.Users;";
-
-                    using (SqlCommand cmd = new SqlCommand(query, conn))
+                    using (SqlCommand cmd = new SqlCommand("dbo.sp_GetTotalUsers", conn))
                     {
+                        cmd.CommandType = CommandType.StoredProcedure;
+
                         object result = cmd.ExecuteScalar();
                         if (result != null && int.TryParse(result.ToString(), out int total))
                         {
@@ -100,10 +96,10 @@ namespace _241611JalopPersonalWebsite.Repository
                 {
                     conn.Open();
 
-                    string query = "SELECT COUNT(*) FROM dbo.Users WHERE IsActive = 1;";
-
-                    using (SqlCommand cmd = new SqlCommand(query, conn))
+                    using (SqlCommand cmd = new SqlCommand("dbo.sp_GetTotalActiveUsers", conn))
                     {
+                        cmd.CommandType = CommandType.StoredProcedure;
+
                         object result = cmd.ExecuteScalar();
                         if (result != null && int.TryParse(result.ToString(), out int activeTotal))
                         {
@@ -133,10 +129,10 @@ namespace _241611JalopPersonalWebsite.Repository
                 {
                     conn.Open();
 
-                    string query = "SELECT COUNT(*) FROM dbo.Users WHERE IsActive = 0;";
-
-                    using (SqlCommand cmd = new SqlCommand(query, conn))
+                    using (SqlCommand cmd = new SqlCommand("dbo.sp_GetTotalInactiveUsers", conn))
                     {
+                        cmd.CommandType = CommandType.StoredProcedure;
+
                         object result = cmd.ExecuteScalar();
                         if (result != null && int.TryParse(result.ToString(), out int inactiveTotal))
                         {

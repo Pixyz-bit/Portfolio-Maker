@@ -39,13 +39,10 @@ namespace _241611JalopPersonalWebsite.Repository
                 {
                     conn.Open();
 
-                    string query = @"
-                        INSERT INTO dbo.Hobbies (UserID, HobbyName, HobbyDescription, CreatedAt)
-                        VALUES (@UserID, @HobbyName, @HobbyDescription, SYSUTCDATETIME());
-                        SELECT SCOPE_IDENTITY();";
-
-                    using (SqlCommand cmd = new SqlCommand(query, conn))
+                    using (SqlCommand cmd = new SqlCommand("dbo.sp_InsertHobby", conn))
                     {
+                        cmd.CommandType = CommandType.StoredProcedure;
+
                         cmd.Parameters.Add("@UserID", SqlDbType.Int).Value = hobby.UserID;
                         cmd.Parameters.Add("@HobbyName", SqlDbType.NVarChar, 100).Value = hobby.HobbyName.Trim();
                         cmd.Parameters.Add("@HobbyDescription", SqlDbType.NVarChar, -1).Value = 
@@ -92,14 +89,9 @@ namespace _241611JalopPersonalWebsite.Repository
                 {
                     conn.Open();
 
-                    string query = @"
-                        SELECT HobbyID, UserID, HobbyName, HobbyDescription, CreatedAt
-                        FROM dbo.Hobbies
-                        WHERE UserID = @UserID
-                        ORDER BY CreatedAt ASC";
-
-                    using (SqlCommand cmd = new SqlCommand(query, conn))
+                    using (SqlCommand cmd = new SqlCommand("dbo.sp_GetHobbiesByUserId", conn))
                     {
+                        cmd.CommandType = CommandType.StoredProcedure;
                         cmd.Parameters.Add("@UserID", SqlDbType.Int).Value = userId;
 
                         using (SqlDataReader reader = cmd.ExecuteReader())
@@ -140,13 +132,9 @@ namespace _241611JalopPersonalWebsite.Repository
                 {
                     conn.Open();
 
-                    string query = @"
-                        SELECT HobbyID, UserID, HobbyName, HobbyDescription, CreatedAt
-                        FROM dbo.Hobbies
-                        WHERE HobbyID = @HobbyID";
-
-                    using (SqlCommand cmd = new SqlCommand(query, conn))
+                    using (SqlCommand cmd = new SqlCommand("dbo.sp_GetHobbyById", conn))
                     {
+                        cmd.CommandType = CommandType.StoredProcedure;
                         cmd.Parameters.Add("@HobbyID", SqlDbType.Int).Value = hobbyId;
 
                         using (SqlDataReader reader = cmd.ExecuteReader())
@@ -202,14 +190,10 @@ namespace _241611JalopPersonalWebsite.Repository
                 {
                     conn.Open();
 
-                    string query = @"
-                        UPDATE dbo.Hobbies
-                        SET HobbyName = @HobbyName,
-                            HobbyDescription = @HobbyDescription
-                        WHERE HobbyID = @HobbyID";
-
-                    using (SqlCommand cmd = new SqlCommand(query, conn))
+                    using (SqlCommand cmd = new SqlCommand("dbo.sp_UpdateHobby", conn))
                     {
+                        cmd.CommandType = CommandType.StoredProcedure;
+
                         cmd.Parameters.Add("@HobbyID", SqlDbType.Int).Value = hobby.HobbyID;
                         cmd.Parameters.Add("@HobbyName", SqlDbType.NVarChar, 100).Value = hobby.HobbyName.Trim();
                         cmd.Parameters.Add("@HobbyDescription", SqlDbType.NVarChar, -1).Value = 
@@ -254,10 +238,9 @@ namespace _241611JalopPersonalWebsite.Repository
                 {
                     conn.Open();
 
-                    string query = "DELETE FROM dbo.Hobbies WHERE HobbyID = @HobbyID";
-
-                    using (SqlCommand cmd = new SqlCommand(query, conn))
+                    using (SqlCommand cmd = new SqlCommand("dbo.sp_DeleteHobby", conn))
                     {
+                        cmd.CommandType = CommandType.StoredProcedure;
                         cmd.Parameters.Add("@HobbyID", SqlDbType.Int).Value = hobbyId;
 
                         int rowsAffected = cmd.ExecuteNonQuery();

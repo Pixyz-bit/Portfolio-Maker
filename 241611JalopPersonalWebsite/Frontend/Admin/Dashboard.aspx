@@ -53,7 +53,6 @@
             font-family: 'Plus Jakarta Sans', sans-serif;
         }
 
-        /* Top Admin Navbar */
         .admin-nav {
             position: sticky;
             top: 0;
@@ -128,7 +127,6 @@
             display: inline-block;
         }
 
-        /* Buttons */
         .btn {
             height: 40px;
             padding: 0 18px;
@@ -147,7 +145,6 @@
             border: 2px solid var(--border-black);
         }
 
-        /* Action Buttons: Explicitly NO box-shadow per user requirement */
         .btn-sm,
         .actions-cell .btn,
         .actions-cell a.btn,
@@ -214,14 +211,12 @@
             background-color: #bbf7d0;
         }
 
-        /* Main Container */
         .admin-main {
             max-width: 1200px;
             margin: 0 auto;
             padding: 32px 24px 60px;
         }
 
-        /* Header Intro */
         .page-header {
             display: flex;
             align-items: center;
@@ -244,7 +239,6 @@
             margin-top: 4px;
         }
 
-        /* Floating Lower-Right Toast Notifications */
         .toast-container {
             position: fixed;
             bottom: 24px;
@@ -350,7 +344,6 @@
             }
         }
 
-        /* Analytics Grid */
         .metrics-grid {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
@@ -415,7 +408,6 @@
             color: var(--text-muted);
         }
 
-        /* Card container */
         .content-card {
             background-color: var(--card-bg);
             border: 2.5px solid var(--border-black);
@@ -424,7 +416,6 @@
             box-shadow: var(--shadow-neo);
         }
 
-        /* Filter & Action Bar */
         .table-toolbar {
             display: flex;
             align-items: center;
@@ -463,7 +454,6 @@
             flex: 1;
         }
 
-        /* Users Table */
         .table-responsive {
             width: 100%;
             overflow-x: auto;
@@ -506,7 +496,6 @@
             background-color: #fafaf9;
         }
 
-        /* User profile cell button */
         .user-cell-btn {
             display: flex;
             align-items: center;
@@ -561,7 +550,6 @@
             line-height: 1.25;
         }
 
-        /* Badges */
         .badge {
             display: inline-flex;
             align-items: center;
@@ -603,7 +591,6 @@
             background-color: currentColor;
         }
 
-        /* Actions Cell */
         .actions-cell {
             display: flex;
             align-items: center;
@@ -621,7 +608,6 @@
             margin-bottom: 12px;
         }
 
-        /* Modal Styles */
         .modal-overlay {
             display: none;
             position: fixed;
@@ -886,7 +872,6 @@
 </head>
 <body>
     <form id="adminForm" runat="server">
-        <!-- Top Navigation Bar -->
         <nav class="admin-nav">
             <div class="nav-inner">
                 <a href="Dashboard.aspx" class="nav-brand">
@@ -904,9 +889,7 @@
             </div>
         </nav>
 
-        <!-- Main Content Area -->
         <main class="admin-main">
-            <!-- Header Intro & Quick Action -->
             <div class="page-header">
                 <div>
                     <h1 class="page-title">System Dashboard & User Directory</h1>
@@ -920,7 +903,6 @@
                 </div>
             </div>
 
-            <!-- Floating Lower-Right Toast Notifications -->
             <div class="toast-container" id="toastContainer">
                 <asp:Panel ID="pnlSuccess" runat="server" Visible="false" CssClass="toast-box toast-success">
                     <div class="toast-icon">
@@ -945,9 +927,7 @@
                 </asp:Panel>
             </div>
 
-            <!-- Metrics Analytics Grid (Populated via DashboardAnalyticsRepository) -->
             <section class="metrics-grid">
-                <!-- Total Registered Users Card -->
                 <div class="metric-card">
                     <div class="metric-top">
                         <span class="metric-label">Total Registered</span>
@@ -961,7 +941,6 @@
                     <div class="metric-desc">Total user accounts in dbo.Users</div>
                 </div>
 
-                <!-- Active Users Card -->
                 <div class="metric-card">
                     <div class="metric-top">
                         <span class="metric-label">Active Users</span>
@@ -975,7 +954,6 @@
                     <div class="metric-desc">Enabled accounts permitted to authenticate</div>
                 </div>
 
-                <!-- Inactive Users Card -->
                 <div class="metric-card">
                     <div class="metric-top">
                         <span class="metric-label">Deactivated Users</span>
@@ -990,9 +968,7 @@
                 </div>
             </section>
 
-            <!-- User Directory Section -->
             <section class="content-card">
-                <!-- Search & Filters Toolbar -->
                 <div class="table-toolbar">
                     <div class="filter-group">
                         <asp:TextBox ID="txtSearch" runat="server" CssClass="input-box search-input" placeholder="Search by name or email address..." />
@@ -1014,7 +990,6 @@
                     </div>
                 </div>
 
-                <!-- Users Grid View / Repeater -->
                 <div class="table-responsive">
                     <asp:Repeater ID="rptUsers" runat="server" OnItemCommand="rptUsers_ItemCommand">
                         <HeaderTemplate>
@@ -1033,7 +1008,6 @@
                         <ItemTemplate>
                             <tr>
                                 <td>
-                                    <!-- Clickable User Profile triggering Summary Modal -->
                                     <asp:LinkButton ID="btnUserClick" runat="server" 
                                         CommandName="ViewSummary" 
                                         CommandArgument='<%# Eval("UserID") %>' 
@@ -1069,24 +1043,22 @@
                                 </td>
                                 <td>
                                     <div class="actions-cell" style="justify-content: flex-end;">
-                                        <!-- Toggle Status Button (Proper Modal Trigger) -->
                                         <button type="button" 
                                             class='<%# (bool)Eval("IsActive") ? "btn btn-danger btn-sm" : "btn btn-success btn-sm" %>'
                                             onclick='openStatusModal(<%# Eval("UserID") %>, "<%# Server.HtmlEncode(Eval("FullName")?.ToString() ?? Eval("FirstName")?.ToString()) %>", "<%# Server.HtmlEncode(Eval("Email")?.ToString()) %>", <%# Eval("IsActive").ToString().ToLower() %>)'>
                                             <%# (bool)Eval("IsActive") ? "Deactivate" : "Activate" %>
                                         </button>
 
-                                        <!-- Edit Account (Credentials & Password) Trigger -->
                                         <button type="button" class="btn btn-outline btn-sm"
                                             onclick='openEditModal(<%# Eval("UserID") %>, "<%# Server.HtmlEncode(Eval("FirstName")?.ToString()) %>", "<%# Server.HtmlEncode(Eval("LastName")?.ToString()) %>", "<%# Server.HtmlEncode(Eval("Email")?.ToString()) %>", "<%# Eval("Role") %>", <%# Eval("IsActive").ToString().ToLower() %>)'>
                                             Edit
                                         </button>
 
-                                        <!-- Delete User Button (Proper Modal Trigger) -->
+                                        <!-- Delete User Button (Proper Modal Trigger) 
                                         <button type="button" class="btn btn-danger btn-sm"
                                             onclick='openDeleteModal(<%# Eval("UserID") %>, "<%# Server.HtmlEncode(Eval("FullName")?.ToString() ?? Eval("FirstName")?.ToString()) %>", "<%# Server.HtmlEncode(Eval("Email")?.ToString()) %>")'>
                                             Delete
-                                        </button>
+                                        </button>-->
                                     </div>
                                 </td>
                             </tr>
@@ -1108,7 +1080,6 @@
             </section>
         </main>
 
-        <!-- USER SUMMARY MODAL -->
         <asp:Panel ID="pnlUserSummaryModal" runat="server" Visible="false" CssClass="modal-overlay active">
             <div class="modal-box modal-box-lg">
                 <asp:LinkButton ID="btnCloseSummaryX" runat="server" CssClass="close-modal-btn" OnClick="btnCloseSummary_Click">&times;</asp:LinkButton>
@@ -1123,7 +1094,6 @@
                 <asp:HiddenField ID="hfSummaryEmailRaw" runat="server" />
                 <asp:HiddenField ID="hfSummaryRoleRaw" runat="server" />
 
-                <!-- Profile Header Card -->
                 <div class="summary-header-card">
                     <div class="summary-avatar">
                         <asp:Literal ID="litSummaryAvatarInitials" runat="server" Text="U" />
@@ -1142,7 +1112,6 @@
                     </div>
                 </div>
 
-                <!-- Activity Statistics Bar -->
                 <div class="summary-stats-bar">
                     <div class="summary-stat-box">
                         <div class="summary-stat-num"><asp:Literal ID="litSummaryEduCount" runat="server" Text="0" /></div>
@@ -1166,7 +1135,6 @@
                     </div>
                 </div>
 
-                <!-- Personal Information Grid -->
                 <div class="summary-details-grid">
                     <div class="summary-item">
                         <div class="summary-item-label">User ID</div>
@@ -1194,7 +1162,6 @@
                     </div>
                 </div>
 
-                <!-- Bio Description -->
                 <div class="summary-section-box">
                     <div class="summary-section-title">Personal Biography & Portfolio Intro</div>
                     <p style="font-size: 0.88rem; color: #334155; line-height: 1.55;">
@@ -1202,7 +1169,6 @@
                     </p>
                 </div>
 
-                <!-- Education Details -->
                 <div class="summary-section-box">
                     <div class="summary-section-title">Educational Attainment</div>
                     <asp:Repeater ID="rptSummaryEducations" runat="server">
@@ -1218,7 +1184,6 @@
                     <asp:Label ID="lblNoEducations" runat="server" Text="No education history recorded." Visible="false" ForeColor="#64748b" style="font-size: 0.85rem;" />
                 </div>
 
-                <!-- Organizations & Affiliations Details -->
                 <div class="summary-section-box">
                     <div class="summary-section-title">Organizations & Affiliations</div>
                     <asp:Repeater ID="rptSummaryAffiliations" runat="server">
@@ -1234,7 +1199,6 @@
                     <asp:Label ID="lblNoAffiliations" runat="server" Text="No organization affiliations recorded." Visible="false" ForeColor="#64748b" style="font-size: 0.85rem;" />
                 </div>
 
-                <!-- Skills & Hobbies List -->
                 <div class="form-row" style="margin-bottom: 14px;">
                     <div class="summary-section-box" style="margin-bottom: 0;">
                         <div class="summary-section-title">Skills</div>
@@ -1261,7 +1225,6 @@
                     </div>
                 </div>
 
-                <!-- Social Links Details -->
                 <div class="summary-section-box" style="margin-bottom: 0;">
                     <div class="summary-section-title">Social Links & Profiles</div>
                     <div class="summary-pill-list">
@@ -1277,24 +1240,19 @@
                     </div>
                 </div>
 
-                <!-- Modal Actions -->
                 <div class="modal-actions" style="margin-top: 18px;">
-                    <!-- Activate / Deactivate toggle button inside modal -->
                     <button type="button" id="btnSummaryStatusTrigger" runat="server" class="btn btn-sm" onclick="openStatusModalFromSummary()">
                         <asp:Literal ID="litSummaryStatusBtnText" runat="server" Text="Deactivate" />
                     </button>
                     
-                    <!-- Only place to view user portfolio -->
                     <asp:HyperLink ID="lnkSummaryPortfolio" runat="server" Target="_blank" CssClass="btn btn-solid btn-sm">
                         View Live Portfolio
                     </asp:HyperLink>
 
-                    <!-- Edit Account & Password Button -->
                     <button type="button" class="btn btn-outline btn-sm" onclick="openEditFromSummary()">
                         Edit Account
                     </button>
 
-                    <!-- Delete Account Button inside modal -->
                     <button type="button" class="btn btn-danger btn-sm" onclick="openDeleteModalFromSummary()">
                         Delete
                     </button>
@@ -1304,7 +1262,6 @@
             </div>
         </asp:Panel>
 
-        <!-- PROPER STATUS CONFIRMATION MODAL (ACTIVATE / DEACTIVATE) -->
         <div class="modal-overlay" id="statusModal">
             <div class="modal-box" style="max-width: 480px; text-align: center;">
                 <button type="button" class="close-modal-btn" onclick="closeStatusModal()">&times;</button>
@@ -1331,7 +1288,6 @@
             </div>
         </div>
 
-        <!-- PROPER DELETE USER CONFIRMATION MODAL -->
         <div class="modal-overlay" id="deleteModal">
             <div class="modal-box" style="max-width: 480px; text-align: center;">
                 <button type="button" class="close-modal-btn" onclick="closeDeleteModal()">&times;</button>
@@ -1368,7 +1324,6 @@
             </div>
         </div>
 
-        <!-- ADD USER MODAL -->
         <div class="modal-overlay" id="addModal">
             <div class="modal-box">
                 <button type="button" class="close-modal-btn" onclick="closeAddModal()">&times;</button>
@@ -1416,7 +1371,6 @@
             </div>
         </div>
 
-        <!-- EDIT USER MODAL -->
         <div class="modal-overlay" id="editModal">
             <div class="modal-box">
                 <button type="button" class="close-modal-btn" onclick="closeEditModal()">&times;</button>
@@ -1454,7 +1408,6 @@
                     Account is active and permitted to login
                 </label>
 
-                <!-- Unified Password Reset Section in the same Edit Modal -->
                 <div style="margin-top: 16px; padding-top: 14px; border-top: 1.5px dashed #cbd5e1;">
                     <label class="form-label" style="display: flex; align-items: center; justify-content: space-between;">
                         <span>Reset / Change Password</span>

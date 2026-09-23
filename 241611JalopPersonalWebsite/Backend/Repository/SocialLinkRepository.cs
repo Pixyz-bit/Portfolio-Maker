@@ -45,13 +45,10 @@ namespace _241611JalopPersonalWebsite.Repository
                 {
                     conn.Open();
 
-                    string query = @"
-                        INSERT INTO dbo.SocialLinks (UserID, SocialLinkName, Link, CreatedAt)
-                        VALUES (@UserID, @SocialLinkName, @Link, SYSUTCDATETIME());
-                        SELECT SCOPE_IDENTITY();";
-
-                    using (SqlCommand cmd = new SqlCommand(query, conn))
+                    using (SqlCommand cmd = new SqlCommand("dbo.sp_InsertSocialLink", conn))
                     {
+                        cmd.CommandType = CommandType.StoredProcedure;
+
                         cmd.Parameters.Add("@UserID", SqlDbType.Int).Value = link.UserID;
                         cmd.Parameters.Add("@SocialLinkName", SqlDbType.NVarChar, 50).Value = link.SocialLinkName.Trim();
                         cmd.Parameters.Add("@Link", SqlDbType.NVarChar, 500).Value = link.Link.Trim();
@@ -97,14 +94,9 @@ namespace _241611JalopPersonalWebsite.Repository
                 {
                     conn.Open();
 
-                    string query = @"
-                        SELECT SocialLinkID, UserID, SocialLinkName, Link, CreatedAt
-                        FROM dbo.SocialLinks
-                        WHERE UserID = @UserID
-                        ORDER BY CreatedAt ASC";
-
-                    using (SqlCommand cmd = new SqlCommand(query, conn))
+                    using (SqlCommand cmd = new SqlCommand("dbo.sp_GetSocialLinksByUserId", conn))
                     {
+                        cmd.CommandType = CommandType.StoredProcedure;
                         cmd.Parameters.Add("@UserID", SqlDbType.Int).Value = userId;
 
                         using (SqlDataReader reader = cmd.ExecuteReader())
@@ -145,13 +137,9 @@ namespace _241611JalopPersonalWebsite.Repository
                 {
                     conn.Open();
 
-                    string query = @"
-                        SELECT SocialLinkID, UserID, SocialLinkName, Link, CreatedAt
-                        FROM dbo.SocialLinks
-                        WHERE SocialLinkID = @SocialLinkID";
-
-                    using (SqlCommand cmd = new SqlCommand(query, conn))
+                    using (SqlCommand cmd = new SqlCommand("dbo.sp_GetSocialLinkById", conn))
                     {
+                        cmd.CommandType = CommandType.StoredProcedure;
                         cmd.Parameters.Add("@SocialLinkID", SqlDbType.Int).Value = socialLinkId;
 
                         using (SqlDataReader reader = cmd.ExecuteReader())
@@ -213,14 +201,10 @@ namespace _241611JalopPersonalWebsite.Repository
                 {
                     conn.Open();
 
-                    string query = @"
-                        UPDATE dbo.SocialLinks
-                        SET SocialLinkName = @SocialLinkName,
-                            Link = @Link
-                        WHERE SocialLinkID = @SocialLinkID";
-
-                    using (SqlCommand cmd = new SqlCommand(query, conn))
+                    using (SqlCommand cmd = new SqlCommand("dbo.sp_UpdateSocialLink", conn))
                     {
+                        cmd.CommandType = CommandType.StoredProcedure;
+
                         cmd.Parameters.Add("@SocialLinkID", SqlDbType.Int).Value = link.SocialLinkID;
                         cmd.Parameters.Add("@SocialLinkName", SqlDbType.NVarChar, 50).Value = link.SocialLinkName.Trim();
                         cmd.Parameters.Add("@Link", SqlDbType.NVarChar, 500).Value = link.Link.Trim();
@@ -264,10 +248,9 @@ namespace _241611JalopPersonalWebsite.Repository
                 {
                     conn.Open();
 
-                    string query = "DELETE FROM dbo.SocialLinks WHERE SocialLinkID = @SocialLinkID";
-
-                    using (SqlCommand cmd = new SqlCommand(query, conn))
+                    using (SqlCommand cmd = new SqlCommand("dbo.sp_DeleteSocialLink", conn))
                     {
+                        cmd.CommandType = CommandType.StoredProcedure;
                         cmd.Parameters.Add("@SocialLinkID", SqlDbType.Int).Value = socialLinkId;
 
                         int rowsAffected = cmd.ExecuteNonQuery();

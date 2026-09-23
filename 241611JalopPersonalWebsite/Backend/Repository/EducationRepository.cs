@@ -51,13 +51,10 @@ namespace _241611JalopPersonalWebsite.Repository
                 {
                     conn.Open();
 
-                    string query = @"
-                        INSERT INTO dbo.Educations (UserID, CourseName, University, StartYear, EndYear, CreatedAt)
-                        VALUES (@UserID, @CourseName, @University, @StartYear, @EndYear, SYSUTCDATETIME());
-                        SELECT SCOPE_IDENTITY();";
-
-                    using (SqlCommand cmd = new SqlCommand(query, conn))
+                    using (SqlCommand cmd = new SqlCommand("dbo.sp_InsertEducation", conn))
                     {
+                        cmd.CommandType = CommandType.StoredProcedure;
+
                         cmd.Parameters.Add("@UserID", SqlDbType.Int).Value = education.UserID;
                         cmd.Parameters.Add("@CourseName", SqlDbType.NVarChar, 150).Value = education.CourseName.Trim();
                         cmd.Parameters.Add("@University", SqlDbType.NVarChar, 150).Value = education.University.Trim();
@@ -106,14 +103,9 @@ namespace _241611JalopPersonalWebsite.Repository
                 {
                     conn.Open();
 
-                    string query = @"
-                        SELECT EducationID, UserID, CourseName, University, StartYear, EndYear, CreatedAt
-                        FROM dbo.Educations
-                        WHERE UserID = @UserID
-                        ORDER BY CreatedAt ASC";
-
-                    using (SqlCommand cmd = new SqlCommand(query, conn))
+                    using (SqlCommand cmd = new SqlCommand("dbo.sp_GetEducationsByUserId", conn))
                     {
+                        cmd.CommandType = CommandType.StoredProcedure;
                         cmd.Parameters.Add("@UserID", SqlDbType.Int).Value = userId;
 
                         using (SqlDataReader reader = cmd.ExecuteReader())
@@ -154,13 +146,9 @@ namespace _241611JalopPersonalWebsite.Repository
                 {
                     conn.Open();
 
-                    string query = @"
-                        SELECT EducationID, UserID, CourseName, University, StartYear, EndYear, CreatedAt
-                        FROM dbo.Educations
-                        WHERE EducationID = @EducationID";
-
-                    using (SqlCommand cmd = new SqlCommand(query, conn))
+                    using (SqlCommand cmd = new SqlCommand("dbo.sp_GetEducationById", conn))
                     {
+                        cmd.CommandType = CommandType.StoredProcedure;
                         cmd.Parameters.Add("@EducationID", SqlDbType.Int).Value = educationId;
 
                         using (SqlDataReader reader = cmd.ExecuteReader())
@@ -228,16 +216,10 @@ namespace _241611JalopPersonalWebsite.Repository
                 {
                     conn.Open();
 
-                    string query = @"
-                        UPDATE dbo.Educations
-                        SET CourseName = @CourseName,
-                            University = @University,
-                            StartYear = @StartYear,
-                            EndYear = @EndYear
-                        WHERE EducationID = @EducationID";
-
-                    using (SqlCommand cmd = new SqlCommand(query, conn))
+                    using (SqlCommand cmd = new SqlCommand("dbo.sp_UpdateEducation", conn))
                     {
+                        cmd.CommandType = CommandType.StoredProcedure;
+
                         cmd.Parameters.Add("@EducationID", SqlDbType.Int).Value = education.EducationID;
                         cmd.Parameters.Add("@CourseName", SqlDbType.NVarChar, 150).Value = education.CourseName.Trim();
                         cmd.Parameters.Add("@University", SqlDbType.NVarChar, 150).Value = education.University.Trim();
@@ -284,10 +266,9 @@ namespace _241611JalopPersonalWebsite.Repository
                 {
                     conn.Open();
 
-                    string query = "DELETE FROM dbo.Educations WHERE EducationID = @EducationID";
-
-                    using (SqlCommand cmd = new SqlCommand(query, conn))
+                    using (SqlCommand cmd = new SqlCommand("dbo.sp_DeleteEducation", conn))
                     {
+                        cmd.CommandType = CommandType.StoredProcedure;
                         cmd.Parameters.Add("@EducationID", SqlDbType.Int).Value = educationId;
 
                         int rowsAffected = cmd.ExecuteNonQuery();

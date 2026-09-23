@@ -39,13 +39,10 @@ namespace _241611JalopPersonalWebsite.Repository
                 {
                     conn.Open();
 
-                    string query = @"
-                        INSERT INTO dbo.Skills (UserID, SkillName, SkillDescription, CreatedAt)
-                        VALUES (@UserID, @SkillName, @SkillDescription, SYSUTCDATETIME());
-                        SELECT SCOPE_IDENTITY();";
-
-                    using (SqlCommand cmd = new SqlCommand(query, conn))
+                    using (SqlCommand cmd = new SqlCommand("dbo.sp_InsertSkill", conn))
                     {
+                        cmd.CommandType = CommandType.StoredProcedure;
+
                         cmd.Parameters.Add("@UserID", SqlDbType.Int).Value = skill.UserID;
                         cmd.Parameters.Add("@SkillName", SqlDbType.NVarChar, 100).Value = skill.SkillName.Trim();
                         cmd.Parameters.Add("@SkillDescription", SqlDbType.NVarChar, -1).Value = 
@@ -92,14 +89,9 @@ namespace _241611JalopPersonalWebsite.Repository
                 {
                     conn.Open();
 
-                    string query = @"
-                        SELECT SkillID, UserID, SkillName, SkillDescription, CreatedAt
-                        FROM dbo.Skills
-                        WHERE UserID = @UserID
-                        ORDER BY CreatedAt ASC";
-
-                    using (SqlCommand cmd = new SqlCommand(query, conn))
+                    using (SqlCommand cmd = new SqlCommand("dbo.sp_GetSkillsByUserId", conn))
                     {
+                        cmd.CommandType = CommandType.StoredProcedure;
                         cmd.Parameters.Add("@UserID", SqlDbType.Int).Value = userId;
 
                         using (SqlDataReader reader = cmd.ExecuteReader())
@@ -140,13 +132,9 @@ namespace _241611JalopPersonalWebsite.Repository
                 {
                     conn.Open();
 
-                    string query = @"
-                        SELECT SkillID, UserID, SkillName, SkillDescription, CreatedAt
-                        FROM dbo.Skills
-                        WHERE SkillID = @SkillID";
-
-                    using (SqlCommand cmd = new SqlCommand(query, conn))
+                    using (SqlCommand cmd = new SqlCommand("dbo.sp_GetSkillById", conn))
                     {
+                        cmd.CommandType = CommandType.StoredProcedure;
                         cmd.Parameters.Add("@SkillID", SqlDbType.Int).Value = skillId;
 
                         using (SqlDataReader reader = cmd.ExecuteReader())
@@ -202,14 +190,10 @@ namespace _241611JalopPersonalWebsite.Repository
                 {
                     conn.Open();
 
-                    string query = @"
-                        UPDATE dbo.Skills
-                        SET SkillName = @SkillName,
-                            SkillDescription = @SkillDescription
-                        WHERE SkillID = @SkillID";
-
-                    using (SqlCommand cmd = new SqlCommand(query, conn))
+                    using (SqlCommand cmd = new SqlCommand("dbo.sp_UpdateSkill", conn))
                     {
+                        cmd.CommandType = CommandType.StoredProcedure;
+
                         cmd.Parameters.Add("@SkillID", SqlDbType.Int).Value = skill.SkillID;
                         cmd.Parameters.Add("@SkillName", SqlDbType.NVarChar, 100).Value = skill.SkillName.Trim();
                         cmd.Parameters.Add("@SkillDescription", SqlDbType.NVarChar, -1).Value = 
@@ -254,10 +238,9 @@ namespace _241611JalopPersonalWebsite.Repository
                 {
                     conn.Open();
 
-                    string query = "DELETE FROM dbo.Skills WHERE SkillID = @SkillID";
-
-                    using (SqlCommand cmd = new SqlCommand(query, conn))
+                    using (SqlCommand cmd = new SqlCommand("dbo.sp_DeleteSkill", conn))
                     {
+                        cmd.CommandType = CommandType.StoredProcedure;
                         cmd.Parameters.Add("@SkillID", SqlDbType.Int).Value = skillId;
 
                         int rowsAffected = cmd.ExecuteNonQuery();

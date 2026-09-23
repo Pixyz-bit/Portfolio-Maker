@@ -76,70 +76,23 @@ namespace _241611JalopPersonalWebsite.Repository
                 {
                     conn.Open();
 
-                    string checkEmailQuery = "SELECT COUNT(1) FROM dbo.Users WHERE Email = @Email";
-                    using (SqlCommand checkCmd = new SqlCommand(checkEmailQuery, conn))
+                    using (SqlCommand cmd = new SqlCommand("dbo.sp_RegisterUser", conn))
                     {
-                        checkCmd.Parameters.Add("@Email", SqlDbType.NVarChar, 255).Value = user.Email.Trim();
-                        int emailCount = Convert.ToInt32(checkCmd.ExecuteScalar());
+                        cmd.CommandType = CommandType.StoredProcedure;
+                        cmd.Parameters.Add("@Email", SqlDbType.NVarChar, 255).Value = user.Email.Trim();
+                        cmd.Parameters.Add("@PasswordHash", SqlDbType.NVarChar, 255).Value = HashPassword(user.Password);
+                        cmd.Parameters.Add("@FirstName", SqlDbType.NVarChar, 50).Value = user.FirstName.Trim();
+                        cmd.Parameters.Add("@LastName", SqlDbType.NVarChar, 50).Value = user.LastName.Trim();
 
-                        if (emailCount > 0)
+                        object result = cmd.ExecuteScalar();
+                        if (result != null && int.TryParse(result.ToString(), out int newUserId))
                         {
-                            errorMessage = "An account with this email already exists.";
-                            return false;
-                        }
-                    }
-
-                    string hashedPassword = HashPassword(user.Password);
-
-                    using (SqlTransaction transaction = conn.BeginTransaction())
-                    {
-                        int newUserId = 0;
-
-                        try
-                        {
-                            // 2A. Insert into dbo.Users
-                            string insertUserQuery = @"
-                                INSERT INTO dbo.Users (Email, PasswordHash, Role, IsActive, CreatedAt, UpdatedAt)
-                                VALUES (@Email, @PasswordHash, 'User', 1, SYSUTCDATETIME(), SYSUTCDATETIME());
-                                SELECT SCOPE_IDENTITY();";
-
-                            using (SqlCommand userCmd = new SqlCommand(insertUserQuery, conn, transaction))
-                            {
-                                userCmd.Parameters.Add("@Email", SqlDbType.NVarChar, 255).Value = user.Email.Trim();
-                                userCmd.Parameters.Add("@PasswordHash", SqlDbType.NVarChar, 255).Value = hashedPassword;
-
-                                object result = userCmd.ExecuteScalar();
-                                if (result == null || !int.TryParse(result.ToString(), out newUserId))
-                                {
-                                    transaction.Rollback();
-                                    errorMessage = "Failed to generate new user ID.";
-                                    return false;
-                                }
-                            }
-
-                            // 2B. Insert into dbo.UserProfiles
-                            string insertProfileQuery = @"
-                                INSERT INTO dbo.UserProfiles (UserID, FirstName, LastName, UpdatedAt)
-                                VALUES (@UserID, @FirstName, @LastName, SYSUTCDATETIME());";
-
-                            using (SqlCommand profileCmd = new SqlCommand(insertProfileQuery, conn, transaction))
-                            {
-                                profileCmd.Parameters.Add("@UserID", SqlDbType.Int).Value = newUserId;
-                                profileCmd.Parameters.Add("@FirstName", SqlDbType.NVarChar, 50).Value = user.FirstName.Trim();
-                                profileCmd.Parameters.Add("@LastName", SqlDbType.NVarChar, 50).Value = user.LastName.Trim();
-
-                                profileCmd.ExecuteNonQuery();
-                            }
-
-                            transaction.Commit();
-
                             user.UserID = newUserId;
                             return true;
                         }
-                        catch (Exception ex)
+                        else
                         {
-                            transaction.Rollback();
-                            errorMessage = $"Error saving registration: {ex.Message}";
+                            errorMessage = "Failed to generate new user ID.";
                             return false;
                         }
                     }
@@ -147,7 +100,7 @@ namespace _241611JalopPersonalWebsite.Repository
             }
             catch (Exception ex)
             {
-                errorMessage = $"Database connection error: {ex.Message}";
+                errorMessage = ex.Message;
                 return false;
             }
         }
@@ -179,15 +132,9 @@ namespace _241611JalopPersonalWebsite.Repository
                 {
                     conn.Open();
 
-                    string query = @"
-                        SELECT u.UserID, u.Email, u.PasswordHash, u.Role, u.IsActive, u.CreatedAt,
-                               p.FirstName, p.LastName
-                        FROM dbo.Users u
-                        LEFT JOIN dbo.UserProfiles p ON u.UserID = p.UserID
-                        WHERE u.Email = @Email";
-
-                    using (SqlCommand cmd = new SqlCommand(query, conn))
+                    using (SqlCommand cmd = new SqlCommand("dbo.sp_GetUserByEmail", conn))
                     {
+                        cmd.CommandType = CommandType.StoredProcedure;
                         cmd.Parameters.Add("@Email", SqlDbType.NVarChar, 255).Value = email.Trim();
 
                         using (SqlDataReader reader = cmd.ExecuteReader())
@@ -293,9 +240,9 @@ namespace _241611JalopPersonalWebsite.Repository
                     conn.Open();
 
                     // Step A: Verify current password
-                    string checkQuery = "SELECT PasswordHash FROM dbo.Users WHERE UserID = @UserID";
-                    using (SqlCommand checkCmd = new SqlCommand(checkQuery, conn))
+                    using (SqlCommand checkCmd = new SqlCommand("dbo.sp_GetUserPasswordHash", conn))
                     {
+                        checkCmd.CommandType = CommandType.StoredProcedure;
                         checkCmd.Parameters.Add("@UserID", SqlDbType.Int).Value = userId;
                         object result = checkCmd.ExecuteScalar();
 
@@ -318,14 +265,9 @@ namespace _241611JalopPersonalWebsite.Repository
                     }
 
                     // Step B: Update to new hashed password
-                    string updateQuery = @"
-                        UPDATE dbo.Users
-                        SET PasswordHash = @NewPasswordHash,
-                            UpdatedAt = SYSUTCDATETIME()
-                        WHERE UserID = @UserID";
-
-                    using (SqlCommand updateCmd = new SqlCommand(updateQuery, conn))
+                    using (SqlCommand updateCmd = new SqlCommand("dbo.sp_UpdateUserPassword", conn))
                     {
+                        updateCmd.CommandType = CommandType.StoredProcedure;
                         updateCmd.Parameters.Add("@UserID", SqlDbType.Int).Value = userId;
                         updateCmd.Parameters.Add("@NewPasswordHash", SqlDbType.NVarChar, 255).Value = HashPassword(newPassword);
 
@@ -383,32 +325,11 @@ namespace _241611JalopPersonalWebsite.Repository
                 {
                     conn.Open();
 
-                    // Check if new email is already taken by another user
-                    string checkQuery = "SELECT COUNT(1) FROM dbo.Users WHERE Email = @Email AND UserID <> @UserID";
-                    using (SqlCommand checkCmd = new SqlCommand(checkQuery, conn))
+                    using (SqlCommand updateCmd = new SqlCommand("dbo.sp_UpdateUserEmail", conn))
                     {
-                        checkCmd.Parameters.Add("@Email", SqlDbType.NVarChar, 255).Value = newEmail.Trim();
-                        checkCmd.Parameters.Add("@UserID", SqlDbType.Int).Value = userId;
-
-                        int count = Convert.ToInt32(checkCmd.ExecuteScalar());
-                        if (count > 0)
-                        {
-                            errorMessage = "An account with this email already exists.";
-                            return false;
-                        }
-                    }
-
-                    // Update email
-                    string updateQuery = @"
-                        UPDATE dbo.Users
-                        SET Email = @Email,
-                            UpdatedAt = SYSUTCDATETIME()
-                        WHERE UserID = @UserID";
-
-                    using (SqlCommand updateCmd = new SqlCommand(updateQuery, conn))
-                    {
-                        updateCmd.Parameters.Add("@Email", SqlDbType.NVarChar, 255).Value = newEmail.Trim();
+                        updateCmd.CommandType = CommandType.StoredProcedure;
                         updateCmd.Parameters.Add("@UserID", SqlDbType.Int).Value = userId;
+                        updateCmd.Parameters.Add("@NewEmail", SqlDbType.NVarChar, 255).Value = newEmail.Trim();
 
                         int rows = updateCmd.ExecuteNonQuery();
                         return rows > 0;
@@ -417,7 +338,7 @@ namespace _241611JalopPersonalWebsite.Repository
             }
             catch (Exception ex)
             {
-                errorMessage = $"Database error: {ex.Message}";
+                errorMessage = ex.Message;
                 return false;
             }
         }
@@ -441,49 +362,15 @@ namespace _241611JalopPersonalWebsite.Repository
                 {
                     conn.Open();
 
-                    StringBuilder queryBuilder = new StringBuilder(@"
-                        SELECT u.UserID, u.Email, u.Role, u.IsActive, u.CreatedAt,
-                               ISNULL(p.FirstName, '') AS FirstName,
-                               ISNULL(p.LastName, '') AS LastName
-                        FROM dbo.Users u
-                        LEFT JOIN dbo.UserProfiles p ON u.UserID = p.UserID
-                        WHERE 1=1 ");
-
-                    if (!string.IsNullOrWhiteSpace(searchKeyword))
+                    using (SqlCommand cmd = new SqlCommand("dbo.sp_GetAllUsers", conn))
                     {
-                        queryBuilder.Append(@"
-                            AND (u.Email LIKE @Search 
-                                 OR p.FirstName LIKE @Search 
-                                 OR p.LastName LIKE @Search 
-                                 OR (p.FirstName + ' ' + p.LastName) LIKE @Search) ");
-                    }
-
-                    if (string.Equals(statusFilter, "Active", StringComparison.OrdinalIgnoreCase))
-                    {
-                        queryBuilder.Append(" AND u.IsActive = 1 ");
-                    }
-                    else if (string.Equals(statusFilter, "Inactive", StringComparison.OrdinalIgnoreCase))
-                    {
-                        queryBuilder.Append(" AND u.IsActive = 0 ");
-                    }
-
-                    if (string.Equals(roleFilter, "Admin", StringComparison.OrdinalIgnoreCase))
-                    {
-                        queryBuilder.Append(" AND u.Role = 'Admin' ");
-                    }
-                    else if (string.Equals(roleFilter, "User", StringComparison.OrdinalIgnoreCase))
-                    {
-                        queryBuilder.Append(" AND u.Role = 'User' ");
-                    }
-
-                    queryBuilder.Append(" ORDER BY u.UserID DESC;");
-
-                    using (SqlCommand cmd = new SqlCommand(queryBuilder.ToString(), conn))
-                    {
-                        if (!string.IsNullOrWhiteSpace(searchKeyword))
-                        {
-                            cmd.Parameters.Add("@Search", SqlDbType.NVarChar, 255).Value = "%" + searchKeyword.Trim() + "%";
-                        }
+                        cmd.CommandType = CommandType.StoredProcedure;
+                        cmd.Parameters.Add("@SearchKeyword", SqlDbType.NVarChar, 100).Value = 
+                            string.IsNullOrWhiteSpace(searchKeyword) ? (object)DBNull.Value : searchKeyword.Trim();
+                        cmd.Parameters.Add("@StatusFilter", SqlDbType.NVarChar, 20).Value = 
+                            string.IsNullOrWhiteSpace(statusFilter) ? (object)DBNull.Value : statusFilter.Trim();
+                        cmd.Parameters.Add("@RoleFilter", SqlDbType.NVarChar, 20).Value = 
+                            string.IsNullOrWhiteSpace(roleFilter) ? (object)DBNull.Value : roleFilter.Trim();
 
                         using (SqlDataReader reader = cmd.ExecuteReader())
                         {
@@ -528,16 +415,9 @@ namespace _241611JalopPersonalWebsite.Repository
                 {
                     conn.Open();
 
-                    string query = @"
-                        SELECT u.UserID, u.Email, u.Role, u.IsActive, u.CreatedAt,
-                               ISNULL(p.FirstName, '') AS FirstName,
-                               ISNULL(p.LastName, '') AS LastName
-                        FROM dbo.Users u
-                        LEFT JOIN dbo.UserProfiles p ON u.UserID = p.UserID
-                        WHERE u.UserID = @UserID;";
-
-                    using (SqlCommand cmd = new SqlCommand(query, conn))
+                    using (SqlCommand cmd = new SqlCommand("dbo.sp_GetUserById", conn))
                     {
+                        cmd.CommandType = CommandType.StoredProcedure;
                         cmd.Parameters.Add("@UserID", SqlDbType.Int).Value = userId;
 
                         using (SqlDataReader reader = cmd.ExecuteReader())
@@ -587,14 +467,9 @@ namespace _241611JalopPersonalWebsite.Repository
                 {
                     conn.Open();
 
-                    string query = @"
-                        UPDATE dbo.Users 
-                        SET IsActive = @IsActive, 
-                            UpdatedAt = SYSUTCDATETIME()
-                        WHERE UserID = @UserID;";
-
-                    using (SqlCommand cmd = new SqlCommand(query, conn))
+                    using (SqlCommand cmd = new SqlCommand("dbo.sp_ToggleUserStatus", conn))
                     {
+                        cmd.CommandType = CommandType.StoredProcedure;
                         cmd.Parameters.Add("@UserID", SqlDbType.Int).Value = userId;
                         cmd.Parameters.Add("@IsActive", SqlDbType.Bit).Value = isActive;
 
@@ -640,14 +515,9 @@ namespace _241611JalopPersonalWebsite.Repository
                 {
                     conn.Open();
 
-                    string query = @"
-                        UPDATE dbo.Users 
-                        SET Role = @Role, 
-                            UpdatedAt = SYSUTCDATETIME()
-                        WHERE UserID = @UserID;";
-
-                    using (SqlCommand cmd = new SqlCommand(query, conn))
+                    using (SqlCommand cmd = new SqlCommand("dbo.sp_UpdateUserRole", conn))
                     {
+                        cmd.CommandType = CommandType.StoredProcedure;
                         cmd.Parameters.Add("@UserID", SqlDbType.Int).Value = userId;
                         cmd.Parameters.Add("@Role", SqlDbType.NVarChar, 20).Value = newRole;
 
@@ -706,67 +576,24 @@ namespace _241611JalopPersonalWebsite.Repository
                 {
                     conn.Open();
 
-                    // Check existing email
-                    string checkQuery = "SELECT COUNT(1) FROM dbo.Users WHERE Email = @Email;";
-                    using (SqlCommand checkCmd = new SqlCommand(checkQuery, conn))
+                    using (SqlCommand cmd = new SqlCommand("dbo.sp_AdminCreateUser", conn))
                     {
-                        checkCmd.Parameters.Add("@Email", SqlDbType.NVarChar, 255).Value = email.Trim();
-                        int exists = Convert.ToInt32(checkCmd.ExecuteScalar());
-                        if (exists > 0)
+                        cmd.CommandType = CommandType.StoredProcedure;
+                        cmd.Parameters.Add("@Email", SqlDbType.NVarChar, 255).Value = email.Trim();
+                        cmd.Parameters.Add("@PasswordHash", SqlDbType.NVarChar, 255).Value = HashPassword(password);
+                        cmd.Parameters.Add("@Role", SqlDbType.NVarChar, 20).Value = targetRole;
+                        cmd.Parameters.Add("@IsActive", SqlDbType.Bit).Value = isActive;
+                        cmd.Parameters.Add("@FirstName", SqlDbType.NVarChar, 50).Value = firstName.Trim();
+                        cmd.Parameters.Add("@LastName", SqlDbType.NVarChar, 50).Value = lastName.Trim();
+
+                        object result = cmd.ExecuteScalar();
+                        if (result != null && int.TryParse(result.ToString(), out int newUserId))
                         {
-                            errorMessage = "An account with this email address already exists.";
-                            return false;
-                        }
-                    }
-
-                    string hashedPassword = HashPassword(password);
-
-                    using (SqlTransaction tran = conn.BeginTransaction())
-                    {
-                        int newUserId = 0;
-                        try
-                        {
-                            string insertUserQuery = @"
-                                INSERT INTO dbo.Users (Email, PasswordHash, Role, IsActive, CreatedAt, UpdatedAt)
-                                VALUES (@Email, @PasswordHash, @Role, @IsActive, SYSUTCDATETIME(), SYSUTCDATETIME());
-                                SELECT SCOPE_IDENTITY();";
-
-                            using (SqlCommand cmdUser = new SqlCommand(insertUserQuery, conn, tran))
-                            {
-                                cmdUser.Parameters.Add("@Email", SqlDbType.NVarChar, 255).Value = email.Trim();
-                                cmdUser.Parameters.Add("@PasswordHash", SqlDbType.NVarChar, 255).Value = hashedPassword;
-                                cmdUser.Parameters.Add("@Role", SqlDbType.NVarChar, 20).Value = targetRole;
-                                cmdUser.Parameters.Add("@IsActive", SqlDbType.Bit).Value = isActive;
-
-                                object result = cmdUser.ExecuteScalar();
-                                if (result == null || !int.TryParse(result.ToString(), out newUserId))
-                                {
-                                    tran.Rollback();
-                                    errorMessage = "Failed to create user record.";
-                                    return false;
-                                }
-                            }
-
-                            string insertProfileQuery = @"
-                                INSERT INTO dbo.UserProfiles (UserID, FirstName, LastName, UpdatedAt)
-                                VALUES (@UserID, @FirstName, @LastName, SYSUTCDATETIME());";
-
-                            using (SqlCommand cmdProfile = new SqlCommand(insertProfileQuery, conn, tran))
-                            {
-                                cmdProfile.Parameters.Add("@UserID", SqlDbType.Int).Value = newUserId;
-                                cmdProfile.Parameters.Add("@FirstName", SqlDbType.NVarChar, 50).Value = firstName.Trim();
-                                cmdProfile.Parameters.Add("@LastName", SqlDbType.NVarChar, 50).Value = lastName.Trim();
-
-                                cmdProfile.ExecuteNonQuery();
-                            }
-
-                            tran.Commit();
                             return true;
                         }
-                        catch (Exception ex)
+                        else
                         {
-                            tran.Rollback();
-                            errorMessage = $"Error creating account: {ex.Message}";
+                            errorMessage = "Failed to create user record.";
                             return false;
                         }
                     }
@@ -774,7 +601,7 @@ namespace _241611JalopPersonalWebsite.Repository
             }
             catch (Exception ex)
             {
-                errorMessage = $"Database error: {ex.Message}";
+                errorMessage = ex.Message;
                 return false;
             }
         }
@@ -822,82 +649,24 @@ namespace _241611JalopPersonalWebsite.Repository
                 {
                     conn.Open();
 
-                    // Check email uniqueness excluding self
-                    string checkQuery = "SELECT COUNT(1) FROM dbo.Users WHERE Email = @Email AND UserID <> @UserID;";
-                    using (SqlCommand checkCmd = new SqlCommand(checkQuery, conn))
+                    using (SqlCommand cmd = new SqlCommand("dbo.sp_AdminUpdateUser", conn))
                     {
-                        checkCmd.Parameters.Add("@Email", SqlDbType.NVarChar, 255).Value = email.Trim();
-                        checkCmd.Parameters.Add("@UserID", SqlDbType.Int).Value = userId;
+                        cmd.CommandType = CommandType.StoredProcedure;
+                        cmd.Parameters.Add("@UserID", SqlDbType.Int).Value = userId;
+                        cmd.Parameters.Add("@Email", SqlDbType.NVarChar, 255).Value = email.Trim();
+                        cmd.Parameters.Add("@Role", SqlDbType.NVarChar, 20).Value = targetRole;
+                        cmd.Parameters.Add("@IsActive", SqlDbType.Bit).Value = isActive;
+                        cmd.Parameters.Add("@FirstName", SqlDbType.NVarChar, 50).Value = firstName.Trim();
+                        cmd.Parameters.Add("@LastName", SqlDbType.NVarChar, 50).Value = lastName.Trim();
 
-                        int exists = Convert.ToInt32(checkCmd.ExecuteScalar());
-                        if (exists > 0)
-                        {
-                            errorMessage = "The specified email is already in use by another user.";
-                            return false;
-                        }
-                    }
-
-                    using (SqlTransaction tran = conn.BeginTransaction())
-                    {
-                        try
-                        {
-                            string updateUserQuery = @"
-                                UPDATE dbo.Users 
-                                SET Email = @Email, 
-                                    Role = @Role, 
-                                    IsActive = @IsActive, 
-                                    UpdatedAt = SYSUTCDATETIME()
-                                WHERE UserID = @UserID;";
-
-                            using (SqlCommand cmdUser = new SqlCommand(updateUserQuery, conn, tran))
-                            {
-                                cmdUser.Parameters.Add("@UserID", SqlDbType.Int).Value = userId;
-                                cmdUser.Parameters.Add("@Email", SqlDbType.NVarChar, 255).Value = email.Trim();
-                                cmdUser.Parameters.Add("@Role", SqlDbType.NVarChar, 20).Value = targetRole;
-                                cmdUser.Parameters.Add("@IsActive", SqlDbType.Bit).Value = isActive;
-
-                                cmdUser.ExecuteNonQuery();
-                            }
-
-                            string updateProfileQuery = @"
-                                IF EXISTS (SELECT 1 FROM dbo.UserProfiles WHERE UserID = @UserID)
-                                BEGIN
-                                    UPDATE dbo.UserProfiles 
-                                    SET FirstName = @FirstName, 
-                                        LastName = @LastName, 
-                                        UpdatedAt = SYSUTCDATETIME()
-                                    WHERE UserID = @UserID;
-                                END
-                                ELSE
-                                BEGIN
-                                    INSERT INTO dbo.UserProfiles (UserID, FirstName, LastName, UpdatedAt)
-                                    VALUES (@UserID, @FirstName, @LastName, SYSUTCDATETIME());
-                                END";
-
-                            using (SqlCommand cmdProfile = new SqlCommand(updateProfileQuery, conn, tran))
-                            {
-                                cmdProfile.Parameters.Add("@UserID", SqlDbType.Int).Value = userId;
-                                cmdProfile.Parameters.Add("@FirstName", SqlDbType.NVarChar, 50).Value = firstName.Trim();
-                                cmdProfile.Parameters.Add("@LastName", SqlDbType.NVarChar, 50).Value = lastName.Trim();
-
-                                cmdProfile.ExecuteNonQuery();
-                            }
-
-                            tran.Commit();
-                            return true;
-                        }
-                        catch (Exception ex)
-                        {
-                            tran.Rollback();
-                            errorMessage = $"Error updating user details: {ex.Message}";
-                            return false;
-                        }
+                        cmd.ExecuteNonQuery();
+                        return true;
                     }
                 }
             }
             catch (Exception ex)
             {
-                errorMessage = $"Database error: {ex.Message}";
+                errorMessage = ex.Message;
                 return false;
             }
         }
@@ -924,16 +693,11 @@ namespace _241611JalopPersonalWebsite.Repository
                 {
                     conn.Open();
 
-                    string query = @"
-                        UPDATE dbo.Users 
-                        SET PasswordHash = @PasswordHash, 
-                            UpdatedAt = SYSUTCDATETIME()
-                        WHERE UserID = @UserID;";
-
-                    using (SqlCommand cmd = new SqlCommand(query, conn))
+                    using (SqlCommand cmd = new SqlCommand("dbo.sp_AdminResetPassword", conn))
                     {
+                        cmd.CommandType = CommandType.StoredProcedure;
                         cmd.Parameters.Add("@UserID", SqlDbType.Int).Value = userId;
-                        cmd.Parameters.Add("@PasswordHash", SqlDbType.NVarChar, 255).Value = HashPassword(newPassword);
+                        cmd.Parameters.Add("@NewPasswordHash", SqlDbType.NVarChar, 255).Value = HashPassword(newPassword);
 
                         int rows = cmd.ExecuteNonQuery();
                         if (rows > 0)
@@ -971,11 +735,9 @@ namespace _241611JalopPersonalWebsite.Repository
                 {
                     conn.Open();
 
-                    // Schema defines cascading deletes on child tables
-                    string query = "DELETE FROM dbo.Users WHERE UserID = @UserID;";
-
-                    using (SqlCommand cmd = new SqlCommand(query, conn))
+                    using (SqlCommand cmd = new SqlCommand("dbo.sp_DeleteUser", conn))
                     {
+                        cmd.CommandType = CommandType.StoredProcedure;
                         cmd.Parameters.Add("@UserID", SqlDbType.Int).Value = userId;
 
                         int rows = cmd.ExecuteNonQuery();

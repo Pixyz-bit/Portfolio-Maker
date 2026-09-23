@@ -42,28 +42,10 @@ namespace _241611JalopPersonalWebsite.Repository
                 {
                     conn.Open();
 
-                    string checkQuery = "SELECT COUNT(1) FROM dbo.UserProfiles WHERE UserID = @UserID";
-                    using (SqlCommand checkCmd = new SqlCommand(checkQuery, conn))
+                    using (SqlCommand cmd = new SqlCommand("dbo.sp_CreateUserProfile", conn))
                     {
-                        checkCmd.Parameters.Add("@UserID", SqlDbType.Int).Value = profile.UserID;
-                        int exists = Convert.ToInt32(checkCmd.ExecuteScalar());
+                        cmd.CommandType = CommandType.StoredProcedure;
 
-                        if (exists > 0)
-                        {
-                            errorMessage = "A profile for this user already exists. Use Update instead.";
-                            return false;
-                        }
-                    }
-
-                    string insertQuery = @"
-                        INSERT INTO dbo.UserProfiles 
-                            (UserID, FirstName, LastName, Birthday, Address, ContactEmail, ContactNum, ProfileImagePath, Description, UpdatedAt)
-                        VALUES 
-                            (@UserID, @FirstName, @LastName, @Birthday, @Address, @ContactEmail, @ContactNum, @ProfileImagePath, @Description, SYSUTCDATETIME());
-                        SELECT SCOPE_IDENTITY();";
-
-                    using (SqlCommand cmd = new SqlCommand(insertQuery, conn))
-                    {
                         cmd.Parameters.Add("@UserID", SqlDbType.Int).Value = profile.UserID;
                         cmd.Parameters.Add("@FirstName", SqlDbType.NVarChar, 50).Value = profile.FirstName.Trim();
                         cmd.Parameters.Add("@LastName", SqlDbType.NVarChar, 50).Value = profile.LastName.Trim();
@@ -142,21 +124,10 @@ namespace _241611JalopPersonalWebsite.Repository
                 {
                     conn.Open();
 
-                    string updateQuery = @"
-                        UPDATE dbo.UserProfiles
-                        SET FirstName = @FirstName,
-                            LastName = @LastName,
-                            Birthday = @Birthday,
-                            Address = @Address,
-                            ContactEmail = @ContactEmail,
-                            ContactNum = @ContactNum,
-                            ProfileImagePath = COALESCE(@ProfileImagePath, ProfileImagePath),
-                            Description = @Description,
-                            UpdatedAt = SYSUTCDATETIME()
-                        WHERE UserID = @UserID;";
-
-                    using (SqlCommand cmd = new SqlCommand(updateQuery, conn))
+                    using (SqlCommand cmd = new SqlCommand("dbo.sp_UpdateUserProfile", conn))
                     {
+                        cmd.CommandType = CommandType.StoredProcedure;
+
                         cmd.Parameters.Add("@UserID", SqlDbType.Int).Value = profile.UserID;
                         cmd.Parameters.Add("@FirstName", SqlDbType.NVarChar, 50).Value = profile.FirstName.Trim();
                         cmd.Parameters.Add("@LastName", SqlDbType.NVarChar, 50).Value = profile.LastName.Trim();
@@ -216,14 +187,9 @@ namespace _241611JalopPersonalWebsite.Repository
                 {
                     conn.Open();
 
-                    string query = @"
-                        SELECT ProfileID, UserID, FirstName, LastName, Birthday, Address, 
-                               ContactEmail, ContactNum, ProfileImagePath, Description, UpdatedAt
-                        FROM dbo.UserProfiles
-                        WHERE UserID = @UserID";
-
-                    using (SqlCommand cmd = new SqlCommand(query, conn))
+                    using (SqlCommand cmd = new SqlCommand("dbo.sp_GetUserProfileByUserId", conn))
                     {
+                        cmd.CommandType = CommandType.StoredProcedure;
                         cmd.Parameters.Add("@UserID", SqlDbType.Int).Value = userId;
 
                         using (SqlDataReader reader = cmd.ExecuteReader())
@@ -267,14 +233,9 @@ namespace _241611JalopPersonalWebsite.Repository
                 {
                     conn.Open();
 
-                    string query = @"
-                        SELECT ProfileID, UserID, FirstName, LastName, Birthday, Address, 
-                               ContactEmail, ContactNum, ProfileImagePath, Description, UpdatedAt
-                        FROM dbo.UserProfiles
-                        WHERE ProfileID = @ProfileID";
-
-                    using (SqlCommand cmd = new SqlCommand(query, conn))
+                    using (SqlCommand cmd = new SqlCommand("dbo.sp_GetUserProfileById", conn))
                     {
+                        cmd.CommandType = CommandType.StoredProcedure;
                         cmd.Parameters.Add("@ProfileID", SqlDbType.Int).Value = profileId;
 
                         using (SqlDataReader reader = cmd.ExecuteReader())

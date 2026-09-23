@@ -51,9 +51,7 @@ namespace _241611JalopPersonalWebsite.Frontend.User.Controls
             }
             else
             {
-                lnkDashboard.Visible = true;
-                lnkDashboard.NavigateUrl = "~/Frontend/User/Dashboard.aspx";
-                lnkDashboard.Text = "Dashboard";
+                lnkDashboard.Visible = false;
                 ddlAccountRole.SelectedValue = "User";
                 ddlAccountRole.Enabled = false;
                 chkAccountIsActive.Enabled = false;

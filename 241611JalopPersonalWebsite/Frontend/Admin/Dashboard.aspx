@@ -1065,7 +1065,7 @@
                                     </span>
                                 </td>
                                 <td>
-                                    <%# Eval("CreatedAt", "{0:dd MMM yyyy, hh:mm tt}") %>
+                                    <%# FormatPhilippineTime(Eval("CreatedAt")) %>
                                 </td>
                                 <td>
                                     <div class="actions-cell" style="justify-content: flex-end;">

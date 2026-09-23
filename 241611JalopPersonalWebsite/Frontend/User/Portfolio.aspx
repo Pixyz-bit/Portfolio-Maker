@@ -208,7 +208,7 @@
 
                 <div class="bar-actions">
                     <!-- Share / Copy Link Button -->
-                    <button type="button" class="btn-top-link" id="btnShareLink" onclick="copyPortfolioLink()" title="Copy Shareable Link">
+                    <button type="button" class="btn-top-link" id="btnShareLink" onclick="copyPortfolioLink()" data-share-url="<%= ShareUrl %>" title="Copy Shareable Link">
                         <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="vertical-align: -2px; margin-right: 4px;">
                             <path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path>
                             <path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path>
@@ -216,10 +216,6 @@
                         <span id="btnShareText">Share</span>
                     </button>
 
-                    <!-- Edit Portfolio Quick Button (Visible ONLY to Owner or Admin) -->
-                    <asp:HyperLink ID="lnkQuickEdit" runat="server" NavigateUrl="~/Frontend/User/Onboarding.aspx" CssClass="btn-top-action" Visible="false">
-                        Edit Portfolio
-                    </asp:HyperLink>
 
                     <!-- User Menu (Visible ONLY when logged in) -->
                     <uc:UserMenu ID="ucUserMenu" runat="server" Visible="false" />
@@ -267,7 +263,9 @@
 
     <script>
         function copyPortfolioLink() {
-            var url = window.location.href;
+            var btn = document.getElementById("btnShareLink");
+            var url = (btn && btn.getAttribute("data-share-url")) ? btn.getAttribute("data-share-url") : window.location.href;
+
             if (navigator.clipboard && window.isSecureContext) {
                 navigator.clipboard.writeText(url).then(function () {
                     showCopiedFeedback();
@@ -280,17 +278,26 @@
         }
 
         function fallbackCopy(text) {
-            var input = document.createElement("input");
-            input.value = text;
-            document.body.appendChild(input);
-            input.select();
+            var textArea = document.createElement("textarea");
+            textArea.value = text;
+            textArea.style.position = "fixed";
+            textArea.style.left = "-9999px";
+            textArea.style.top = "0";
+            textArea.style.opacity = "0";
+            document.body.appendChild(textArea);
+            textArea.focus();
+            textArea.select();
             try {
-                document.execCommand('copy');
-                showCopiedFeedback();
+                var successful = document.execCommand('copy');
+                if (successful) {
+                    showCopiedFeedback();
+                } else {
+                    prompt("Copy this portfolio link:", text);
+                }
             } catch (err) {
                 prompt("Copy this portfolio link:", text);
             }
-            document.body.removeChild(input);
+            document.body.removeChild(textArea);
         }
 
         function showCopiedFeedback() {
@@ -301,6 +308,19 @@
                 setTimeout(function () { span.innerText = oldText; }, 2500);
             }
         }
+
+        // Sync browser address bar with canonical share URL if userId param was not already present
+        (function () {
+            var shareUrl = "<%= ShareUrl %>";
+            if (shareUrl && window.history && window.history.replaceState) {
+                try {
+                    var current = new URL(window.location.href);
+                    if (!current.searchParams.has("userId")) {
+                        window.history.replaceState(null, document.title, shareUrl);
+                    }
+                } catch (e) { }
+            }
+        })();
     </script>
 </body>
 </html>

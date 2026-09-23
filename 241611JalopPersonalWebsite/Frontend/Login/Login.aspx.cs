@@ -44,6 +44,18 @@ namespace _241611JalopPersonalWebsite.Frontend.Login
                     return;
                 }
 
+                // Check for successful registration redirect
+                if (string.Equals(Request.QueryString["registered"], "true", StringComparison.OrdinalIgnoreCase))
+                {
+                    pnlSuccess.Visible = true;
+                    lblSuccessMessage.Text = "Account created successfully! Please sign in.";
+
+                    if (!string.IsNullOrWhiteSpace(Request.QueryString["email"]))
+                    {
+                        txtEmail.Text = Request.QueryString["email"].Trim();
+                    }
+                }
+
                 // Check for redirect message parameter
                 if (!string.IsNullOrWhiteSpace(Request.QueryString["msg"]))
                 {
@@ -51,8 +63,8 @@ namespace _241611JalopPersonalWebsite.Frontend.Login
                     lblErrorMessage.Text = Server.HtmlEncode(Request.QueryString["msg"]);
                 }
 
-                // Pre-fill email if remembered from cookie
-                if (Request.Cookies["RememberedEmail"] != null)
+                // Pre-fill email if remembered from cookie (and not already populated from registration)
+                if (string.IsNullOrWhiteSpace(txtEmail.Text) && Request.Cookies["RememberedEmail"] != null)
                 {
                     txtEmail.Text = Request.Cookies["RememberedEmail"].Value;
                     chkRememberMe.Checked = true;

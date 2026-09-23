@@ -192,7 +192,7 @@ namespace _241611JalopPersonalWebsite.Frontend.Admin
             litSummaryUserId.Text = userId.ToString();
             litSummaryFullName.Text = !string.IsNullOrWhiteSpace(user.FullName) ? user.FullName : user.Email;
             litSummaryEmail.Text = user.Email;
-            litSummaryCreatedAt.Text = user.CreatedAt.ToString("dd MMM yyyy, hh:mm tt");
+            litSummaryCreatedAt.Text = FormatPhilippineTime(user.CreatedAt);
             litSummaryAvatarInitials.Text = GetInitials(user.FirstName, user.LastName, user.Email);
 
             bool isAdmin = string.Equals(user.Role, "Admin", StringComparison.OrdinalIgnoreCase);
@@ -513,6 +513,33 @@ namespace _241611JalopPersonalWebsite.Frontend.Admin
         {
             pnlSuccess.Visible = false;
             pnlError.Visible = false;
+        }
+
+        private static readonly TimeZoneInfo PhilippineTimeZone = GetPhilippineTimeZone();
+
+        private static TimeZoneInfo GetPhilippineTimeZone()
+        {
+            string[] candidates = { "Singapore Standard Time", "Asia/Manila", "Taipei Standard Time", "China Standard Time" };
+            foreach (var id in candidates)
+            {
+                try
+                {
+                    return TimeZoneInfo.FindSystemTimeZoneById(id);
+                }
+                catch { }
+            }
+            return TimeZoneInfo.CreateCustomTimeZone("Philippine Standard Time", TimeSpan.FromHours(8), "Philippine Standard Time", "Philippine Standard Time");
+        }
+
+        public static string FormatPhilippineTime(object dateTimeObj, string format = "dd MMM yyyy, hh:mm tt")
+        {
+            if (dateTimeObj == null || dateTimeObj == DBNull.Value) return string.Empty;
+            if (DateTime.TryParse(dateTimeObj.ToString(), out DateTime dt))
+            {
+                DateTime utc = dt.Kind == DateTimeKind.Utc ? dt : DateTime.SpecifyKind(dt, DateTimeKind.Utc);
+                return TimeZoneInfo.ConvertTimeFromUtc(utc, PhilippineTimeZone).ToString(format);
+            }
+            return string.Empty;
         }
     }
 }

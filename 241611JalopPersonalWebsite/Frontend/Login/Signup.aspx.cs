@@ -36,16 +36,9 @@ namespace _241611JalopPersonalWebsite.Frontend.Login
             // 3. Delegate creation, validation, hashing, and transaction to UserRepository
             if (UserRepository.Create(newUser, confirmPassword, out string errorMessage))
             {
-                // Successful registration
-                pnlSuccess.Visible = true;
-                lblSuccessMessage.Text = "Account registered successfully! You can now <a href='Login.aspx' style='color:#065f46;font-weight:700;text-decoration:underline;'>sign in to your dashboard</a>.";
-                pnlFormFields.Visible = false;
-
-                ClientScript.RegisterStartupScript(this.GetType(), "SignupSuccessLoading", "handleSignupSuccess();", true);
-
-                // Automatically redirect after 2.5 seconds
-                string redirectScript = "setTimeout(function(){ window.location.href = 'Login.aspx'; }, 2500);";
-                ClientScript.RegisterStartupScript(this.GetType(), "RedirectTimer", redirectScript, true);
+                // Directly redirect to Login.aspx
+                Response.Redirect($"Login.aspx?registered=true&email={Server.UrlEncode(newUser.Email)}");
+                return;
             }
             else
             {

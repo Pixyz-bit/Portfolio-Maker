@@ -41,6 +41,7 @@ namespace _241611JalopPersonalWebsite.Frontend.User
 
                 bool isAdmin = string.Equals(Session["Role"]?.ToString(), "Admin", StringComparison.OrdinalIgnoreCase);
                 lnkAdminDashboard.Visible = isAdmin;
+                lnkViewPortfolio.NavigateUrl = $"Portfolio.aspx?userId={userId}";
                 if (isAdmin)
                 {
                     lnkViewPortfolio.CssClass = "btn btn-outline";

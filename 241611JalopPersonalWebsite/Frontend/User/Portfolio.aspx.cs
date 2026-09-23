@@ -9,6 +9,8 @@ namespace _241611JalopPersonalWebsite.Frontend.User
 {
     public partial class Portfolio : Page
     {
+        public string ShareUrl { get; set; } = string.Empty;
+
         protected void Page_Load(object sender, EventArgs e)
         {
             if (!IsPostBack)
@@ -124,6 +126,12 @@ namespace _241611JalopPersonalWebsite.Frontend.User
             bool isOwner = isLoggedIn && (loggedInUserId == userId);
             bool canEdit = isOwner || isAdmin;
 
+            // Generate canonical full absolute shareable URL with ?userId={userId}
+            string scheme = Request.Url.Scheme;
+            string authority = Request.Url.Authority;
+            string path = ResolveUrl("~/Frontend/User/Portfolio.aspx");
+            ShareUrl = $"{scheme}://{authority}{path}?userId={userId}";
+
             // 2. Load UserProfile for the portfolio being viewed
             UserProfile profile = UserProfileRepository.GetByUserId(userId, out string profileError);
             if (profile != null)
@@ -152,9 +160,6 @@ namespace _241611JalopPersonalWebsite.Frontend.User
                 lnkBrand.NavigateUrl = isAdmin ? "~/Frontend/Admin/Dashboard.aspx" : "~/Frontend/User/Dashboard.aspx";
                 lnkBrand.ToolTip = "Go to Dashboard";
 
-                // Quick Edit button is visible ONLY to owner or admin
-                lnkQuickEdit.Visible = canEdit;
-
                 // User menu is visible for logged-in user
                 ucUserMenu.Visible = true;
                 UserProfile menuProfile = (loggedInUserId == userId) ? profile : UserProfileRepository.GetByUserId(loggedInUserId, out _);
@@ -170,7 +175,6 @@ namespace _241611JalopPersonalWebsite.Frontend.User
                 lnkBrand.ToolTip = "Personal Portfolio";
 
                 // HIDE all edit options and user menu completely!
-                lnkQuickEdit.Visible = false;
                 ucUserMenu.Visible = false;
 
                 // Show clean "Sign In" option

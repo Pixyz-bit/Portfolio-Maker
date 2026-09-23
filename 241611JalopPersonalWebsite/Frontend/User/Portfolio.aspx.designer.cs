@@ -37,11 +37,6 @@ namespace _241611JalopPersonalWebsite.Frontend.User
         protected global::System.Web.UI.WebControls.Literal litBrandName;
 
         /// <summary>
-        /// lnkQuickEdit control.
-        /// </summary>
-        protected global::System.Web.UI.WebControls.HyperLink lnkQuickEdit;
-
-        /// <summary>
         /// ucUserMenu control.
         /// </summary>
         protected global::_241611JalopPersonalWebsite.Frontend.User.Controls.UserMenu ucUserMenu;

@@ -399,6 +399,11 @@
             box-shadow: 0 0 0 2px rgba(0, 0, 0, 0.18);
         }
 
+        .form-input.is-invalid, .form-textarea.is-invalid {
+            border-color: #ef4444 !important;
+            box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.25) !important;
+        }
+
         /* Profile Image Upload Box */
         .photo-upload-wrapper {
             display: flex;
@@ -997,6 +1002,69 @@
             setStep(step);
         }
 
+        function escapeToastHtml(str) {
+            if (!str) return '';
+            return String(str)
+                .replace(/&/g, '&amp;')
+                .replace(/</g, '&lt;')
+                .replace(/>/g, '&gt;')
+                .replace(/"/g, '&quot;')
+                .replace(/'/g, '&#39;');
+        }
+
+        function showToast(title, message, isError) {
+            if (typeof isError === 'undefined') isError = true;
+            var container = document.getElementById('toastContainer');
+            if (!container) {
+                container = document.createElement('div');
+                container.id = 'toastContainer';
+                container.className = 'toast-container';
+                document.body.appendChild(container);
+            }
+
+            // Remove previous client toasts to avoid clutter
+            var oldToasts = container.querySelectorAll('.client-toast');
+            for (var i = 0; i < oldToasts.length; i++) {
+                if (oldToasts[i].parentNode) {
+                    oldToasts[i].parentNode.removeChild(oldToasts[i]);
+                }
+            }
+
+            var toast = document.createElement('div');
+            toast.className = 'toast-box client-toast ' + (isError ? 'toast-error' : 'toast-success');
+
+            var iconSvg = isError
+                ? '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="12"></line><line x1="12" y1="16" x2="12.01" y2="16"></line></svg>'
+                : '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg>';
+
+            toast.innerHTML =
+                '<div class="toast-icon">' + iconSvg + '</div>' +
+                '<div class="toast-content">' +
+                    '<span class="toast-title">' + escapeToastHtml(title || (isError ? 'Validation Error' : 'Notice')) + '</span>' +
+                    '<span class="toast-message">' + escapeToastHtml(message) + '</span>' +
+                '</div>' +
+                '<button type="button" class="toast-close-btn" onclick="dismissToast(this)">&times;</button>';
+
+            container.appendChild(toast);
+
+            // Auto dismiss after 5 seconds
+            setTimeout(function () {
+                var btn = toast.querySelector('.toast-close-btn');
+                if (btn) dismissToast(btn);
+            }, 5000);
+        }
+
+        function markInvalid(el) {
+            if (!el) return;
+            el.classList.add('is-invalid');
+            el.focus();
+            var removeHandler = function () {
+                el.classList.remove('is-invalid');
+                el.removeEventListener('input', removeHandler);
+            };
+            el.addEventListener('input', removeHandler);
+        }
+
         function validateStep(step) {
             if (step === 1) {
                 var fnEl = document.getElementById('<%= txtFirstName.ClientID %>');
@@ -1005,9 +1073,9 @@
                 var ln = lnEl ? lnEl.value.trim() : '';
 
                 if (!fn || !ln) {
-                    alert('Please enter your First Name and Last Name to continue.');
-                    if (!fn && fnEl) fnEl.focus();
-                    else if (!ln && lnEl) lnEl.focus();
+                    showToast('Validation Error', 'Please enter your First Name and Last Name to continue.');
+                    if (!fn && fnEl) markInvalid(fnEl);
+                    else if (!ln && lnEl) markInvalid(lnEl);
                     return false;
                 }
 
@@ -1016,8 +1084,8 @@
                 if (email) {
                     var emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
                     if (!emailRegex.test(email)) {
-                        alert('Please enter a valid Public Contact Email address (e.g. name@example.com).');
-                        emailEl.focus();
+                        showToast('Validation Error', 'Please enter a valid Public Contact Email address (e.g. name@example.com).');
+                        markInvalid(emailEl);
                         return false;
                     }
                 }
@@ -1027,8 +1095,8 @@
                 if (phone) {
                     var cleanPhone = phone.replace(/\D/g, '');
                     if (cleanPhone.length !== 11) {
-                        alert('Contact / Mobile Number must be exactly 11 digits (e.g. 09123456789).');
-                        phoneEl.focus();
+                        showToast('Validation Error', 'Contact / Mobile Number must be exactly 11 digits (e.g. 09123456789).');
+                        markInvalid(phoneEl);
                         return false;
                     }
                 }
@@ -1415,7 +1483,13 @@
             if (toast) {
                 toast.style.opacity = '0';
                 toast.style.transform = 'translateY(16px)';
-                setTimeout(function () { toast.style.display = 'none'; }, 250);
+                setTimeout(function () {
+                    if (toast.parentNode) {
+                        toast.parentNode.removeChild(toast);
+                    } else {
+                        toast.style.display = 'none';
+                    }
+                }, 250);
             }
         }
 

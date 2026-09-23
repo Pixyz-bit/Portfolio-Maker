@@ -117,10 +117,14 @@ namespace _241611JalopPersonalWebsite.Frontend.User
 
         private void LoadPortfolio(int userId)
         {
-            // 1. Resolve user for top-right user menu
-            int activeMenuUserId = (Session["UserID"] != null && int.TryParse(Session["UserID"].ToString(), out int sUserId)) ? sUserId : userId;
+            // 1. Determine viewer authentication & permissions
+            int loggedInUserId = 0;
+            bool isLoggedIn = Session["UserID"] != null && int.TryParse(Session["UserID"].ToString(), out loggedInUserId);
+            bool isAdmin = string.Equals(Session["Role"]?.ToString(), "Admin", StringComparison.OrdinalIgnoreCase);
+            bool isOwner = isLoggedIn && (loggedInUserId == userId);
+            bool canEdit = isOwner || isAdmin;
 
-            // 2. Load UserProfile via dedicated UserProfileRepository
+            // 2. Load UserProfile for the portfolio being viewed
             UserProfile profile = UserProfileRepository.GetByUserId(userId, out string profileError);
             if (profile != null)
             {
@@ -141,10 +145,37 @@ namespace _241611JalopPersonalWebsite.Frontend.User
                 litFooterName.Text = "Portfolio";
             }
 
-            // Bind Top-Right User Menu
-            UserProfile menuProfile = (activeMenuUserId == userId) ? profile : UserProfileRepository.GetByUserId(activeMenuUserId, out _);
-            string menuEmail = Session["UserEmail"]?.ToString() ?? (menuProfile != null ? menuProfile.ContactEmail : string.Empty);
-            ucUserMenu.BindUser(menuProfile, menuEmail);
+            // 3. Configure Top Action Bar based on viewer status
+            if (isLoggedIn)
+            {
+                // Authenticated user
+                lnkBrand.NavigateUrl = isAdmin ? "~/Frontend/Admin/Dashboard.aspx" : "~/Frontend/User/Dashboard.aspx";
+                lnkBrand.ToolTip = "Go to Dashboard";
+
+                // Quick Edit button is visible ONLY to owner or admin
+                lnkQuickEdit.Visible = canEdit;
+
+                // User menu is visible for logged-in user
+                ucUserMenu.Visible = true;
+                UserProfile menuProfile = (loggedInUserId == userId) ? profile : UserProfileRepository.GetByUserId(loggedInUserId, out _);
+                string menuEmail = Session["UserEmail"]?.ToString() ?? (menuProfile != null ? menuProfile.ContactEmail : string.Empty);
+                ucUserMenu.BindUser(menuProfile, menuEmail, canEditPortfolio: canEdit, canEditAccount: true);
+
+                lnkGuestSignIn.Visible = false;
+            }
+            else
+            {
+                // Public guest / recruiter / shared link visitor
+                lnkBrand.NavigateUrl = $"Portfolio.aspx?userId={userId}";
+                lnkBrand.ToolTip = "Personal Portfolio";
+
+                // HIDE all edit options and user menu completely!
+                lnkQuickEdit.Visible = false;
+                ucUserMenu.Visible = false;
+
+                // Show clean "Sign In" option
+                lnkGuestSignIn.Visible = true;
+            }
 
             // 3. Delegate to modular user controls
             ucHero.BindProfile(profile);

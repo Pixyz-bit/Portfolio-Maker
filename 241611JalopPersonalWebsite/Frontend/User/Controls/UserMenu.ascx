@@ -409,9 +409,11 @@
             <asp:HyperLink ID="lnkDashboard" runat="server" NavigateUrl="~/Frontend/Admin/Dashboard.aspx" CssClass="menu-btn menu-btn-solid">
                 Admin Dashboard
             </asp:HyperLink>
-            <button type="button" class="menu-btn menu-btn-outline" id="btnUserMenuEditAccount" onclick="openUserAccountModal()">
-                Edit Account
-            </button>
+            <asp:PlaceHolder ID="phEditAccountBtn" runat="server">
+                <button type="button" class="menu-btn menu-btn-outline" id="btnUserMenuEditAccount" onclick="openUserAccountModal()">
+                    Edit Account
+                </button>
+            </asp:PlaceHolder>
             <asp:HyperLink ID="lnkEditPortfolio" runat="server" NavigateUrl="~/Frontend/User/Onboarding.aspx" CssClass="menu-btn menu-btn-outline">
                 Edit Portfolio
             </asp:HyperLink>

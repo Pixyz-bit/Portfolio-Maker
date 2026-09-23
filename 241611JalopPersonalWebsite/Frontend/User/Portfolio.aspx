@@ -201,13 +201,33 @@
         <!-- Top Action Bar -->
         <header class="top-action-bar">
             <div class="bar-container">
-                <a href="Dashboard.aspx" class="bar-brand">
+                <asp:HyperLink ID="lnkBrand" runat="server" NavigateUrl="Dashboard.aspx" CssClass="bar-brand">
                     <div class="brand-badge"><asp:Literal ID="litBrandInitials" runat="server" Text="P" /></div>
                     <span><asp:Literal ID="litBrandName" runat="server" Text="Portfolio" /></span>
-                </a>
+                </asp:HyperLink>
 
                 <div class="bar-actions">
-                    <uc:UserMenu ID="ucUserMenu" runat="server" />
+                    <!-- Share / Copy Link Button -->
+                    <button type="button" class="btn-top-link" id="btnShareLink" onclick="copyPortfolioLink()" title="Copy Shareable Link">
+                        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="vertical-align: -2px; margin-right: 4px;">
+                            <path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path>
+                            <path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path>
+                        </svg>
+                        <span id="btnShareText">Share</span>
+                    </button>
+
+                    <!-- Edit Portfolio Quick Button (Visible ONLY to Owner or Admin) -->
+                    <asp:HyperLink ID="lnkQuickEdit" runat="server" NavigateUrl="~/Frontend/User/Onboarding.aspx" CssClass="btn-top-action" Visible="false">
+                        Edit Portfolio
+                    </asp:HyperLink>
+
+                    <!-- User Menu (Visible ONLY when logged in) -->
+                    <uc:UserMenu ID="ucUserMenu" runat="server" Visible="false" />
+
+                    <!-- Guest Sign In (Visible ONLY when NOT logged in) -->
+                    <asp:HyperLink ID="lnkGuestSignIn" runat="server" NavigateUrl="~/Frontend/Login/Login.aspx" CssClass="btn-top-action" Visible="false">
+                        Sign In
+                    </asp:HyperLink>
                 </div>
             </div>
         </header>
@@ -244,5 +264,43 @@
             </footer>
         </main>
     </form>
+
+    <script>
+        function copyPortfolioLink() {
+            var url = window.location.href;
+            if (navigator.clipboard && window.isSecureContext) {
+                navigator.clipboard.writeText(url).then(function () {
+                    showCopiedFeedback();
+                }).catch(function () {
+                    fallbackCopy(url);
+                });
+            } else {
+                fallbackCopy(url);
+            }
+        }
+
+        function fallbackCopy(text) {
+            var input = document.createElement("input");
+            input.value = text;
+            document.body.appendChild(input);
+            input.select();
+            try {
+                document.execCommand('copy');
+                showCopiedFeedback();
+            } catch (err) {
+                prompt("Copy this portfolio link:", text);
+            }
+            document.body.removeChild(input);
+        }
+
+        function showCopiedFeedback() {
+            var span = document.getElementById("btnShareText");
+            if (span) {
+                var oldText = span.innerText;
+                span.innerText = "Link Copied!";
+                setTimeout(function () { span.innerText = oldText; }, 2500);
+            }
+        }
+    </script>
 </body>
 </html>

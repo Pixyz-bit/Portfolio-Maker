@@ -7,7 +7,7 @@ namespace _241611JalopPersonalWebsite.Frontend.User.Controls
 {
     public partial class UserMenu : UserControl
     {
-        public void BindUser(UserProfile profile, string email)
+        public void BindUser(UserProfile profile, string email, bool canEditPortfolio = true, bool canEditAccount = true)
         {
             if (profile != null)
             {
@@ -51,12 +51,16 @@ namespace _241611JalopPersonalWebsite.Frontend.User.Controls
             }
             else
             {
-                lnkDashboard.Visible = false;
+                lnkDashboard.Visible = true;
+                lnkDashboard.NavigateUrl = "~/Frontend/User/Dashboard.aspx";
+                lnkDashboard.Text = "Dashboard";
                 ddlAccountRole.SelectedValue = "User";
                 ddlAccountRole.Enabled = false;
                 chkAccountIsActive.Enabled = false;
             }
 
+            phEditAccountBtn.Visible = canEditAccount;
+            lnkEditPortfolio.Visible = canEditPortfolio;
             lnkEditPortfolio.NavigateUrl = "~/Frontend/User/Onboarding.aspx";
             lnkEditPortfolio.Text = "Edit Portfolio";
             lnkViewPortfolio.Visible = false;

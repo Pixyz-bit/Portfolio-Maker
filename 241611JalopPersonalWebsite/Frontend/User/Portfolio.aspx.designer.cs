@@ -22,6 +22,11 @@ namespace _241611JalopPersonalWebsite.Frontend.User
         protected global::System.Web.UI.HtmlControls.HtmlForm portfolioForm;
 
         /// <summary>
+        /// lnkBrand control.
+        /// </summary>
+        protected global::System.Web.UI.WebControls.HyperLink lnkBrand;
+
+        /// <summary>
         /// litBrandInitials control.
         /// </summary>
         protected global::System.Web.UI.WebControls.Literal litBrandInitials;
@@ -32,9 +37,19 @@ namespace _241611JalopPersonalWebsite.Frontend.User
         protected global::System.Web.UI.WebControls.Literal litBrandName;
 
         /// <summary>
+        /// lnkQuickEdit control.
+        /// </summary>
+        protected global::System.Web.UI.WebControls.HyperLink lnkQuickEdit;
+
+        /// <summary>
         /// ucUserMenu control.
         /// </summary>
         protected global::_241611JalopPersonalWebsite.Frontend.User.Controls.UserMenu ucUserMenu;
+
+        /// <summary>
+        /// lnkGuestSignIn control.
+        /// </summary>
+        protected global::System.Web.UI.WebControls.HyperLink lnkGuestSignIn;
 
         /// <summary>
         /// ucHero control.

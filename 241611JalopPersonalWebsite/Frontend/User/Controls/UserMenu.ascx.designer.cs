@@ -34,6 +34,11 @@ namespace _241611JalopPersonalWebsite.Frontend.User.Controls
         protected global::System.Web.UI.WebControls.HyperLink lnkDashboard;
 
         /// <summary>
+        /// phEditAccountBtn control.
+        /// </summary>
+        protected global::System.Web.UI.WebControls.PlaceHolder phEditAccountBtn;
+
+        /// <summary>
         /// lnkViewPortfolio control.
         /// </summary>
         protected global::System.Web.UI.WebControls.HyperLink lnkViewPortfolio;

@@ -156,10 +156,6 @@ namespace _241611JalopPersonalWebsite.Frontend.User
             // 3. Configure Top Action Bar based on viewer status
             if (isLoggedIn)
             {
-                // Authenticated user
-                lnkBrand.NavigateUrl = isAdmin ? "~/Frontend/Admin/Dashboard.aspx" : "~/Frontend/User/Dashboard.aspx";
-                lnkBrand.ToolTip = "Go to Dashboard";
-
                 // User menu is visible for logged-in user
                 ucUserMenu.Visible = true;
                 UserProfile menuProfile = (loggedInUserId == userId) ? profile : UserProfileRepository.GetByUserId(loggedInUserId, out _);
@@ -170,10 +166,6 @@ namespace _241611JalopPersonalWebsite.Frontend.User
             }
             else
             {
-                // Public guest / recruiter / shared link visitor
-                lnkBrand.NavigateUrl = $"Portfolio.aspx?userId={userId}";
-                lnkBrand.ToolTip = "Personal Portfolio";
-
                 // HIDE all edit options and user menu completely!
                 ucUserMenu.Visible = false;
 

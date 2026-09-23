@@ -748,11 +748,11 @@
                         <div class="form-row-dual">
                             <div class="form-group">
                                 <label for="txtContactEmail" class="form-label">Public Contact Email</label>
-                                <asp:TextBox ID="txtContactEmail" runat="server" TextMode="Email" CssClass="form-input" MaxLength="255" placeholder="e.g. contact@johndoe.com" />
+                                <asp:TextBox ID="txtContactEmail" runat="server" TextMode="Email" CssClass="form-input" MaxLength="255" placeholder="e.g. name@example.com" />
                             </div>
                             <div class="form-group">
                                 <label for="txtContactNum" class="form-label">Contact / Mobile Number</label>
-                                <asp:TextBox ID="txtContactNum" runat="server" CssClass="form-input" MaxLength="30" placeholder="e.g. +63 912 345 6789" />
+                                <asp:TextBox ID="txtContactNum" runat="server" CssClass="form-input" MaxLength="11" placeholder="e.g. 09123456789" oninput="this.value = this.value.replace(/\D/g, '').slice(0, 11);" />
                             </div>
                         </div>
 
@@ -766,7 +766,7 @@
                     <div class="wizard-footer">
                         <div class="footer-actions-left"></div>
                         <div class="footer-actions-right">
-                            <asp:Button ID="btnSaveStep1" runat="server" Text="Save & Exit" CssClass="btn btn-outline" OnClick="btnSaveChanges_Click" CausesValidation="false" OnClientClick="serializeDynamicData();" />
+                            <asp:Button ID="btnSaveStep1" runat="server" Text="Save & Exit" CssClass="btn btn-outline" OnClick="btnSaveChanges_Click" CausesValidation="false" OnClientClick="if (!validateStep(1)) return false; serializeDynamicData();" />
                             <button type="button" class="btn btn-solid" onclick="nextStep(1);">Continue</button>
                         </div>
                     </div>
@@ -903,7 +903,7 @@
                         </div>
                         <div class="footer-actions-right">
                             <asp:Button ID="btnSaveStep5" runat="server" Text="Save & Exit" CssClass="btn btn-outline" OnClick="btnSaveChanges_Click" CausesValidation="false" OnClientClick="serializeDynamicData();" />
-                            <asp:Button ID="btnCompleteOnboarding" runat="server" Text="Complete & Launch Portfolio" CssClass="btn btn-solid" OnClick="btnCompleteOnboarding_Click" OnClientClick="serializeDynamicData();" />
+                            <asp:Button ID="btnCompleteOnboarding" runat="server" Text="Complete & Launch Portfolio" CssClass="btn btn-solid" OnClick="btnCompleteOnboarding_Click" OnClientClick="if (!validateStep(1)) { setStep(1); return false; } serializeDynamicData();" />
                         </div>
                     </div>
                 </div>
@@ -999,11 +999,38 @@
 
         function validateStep(step) {
             if (step === 1) {
-                var fn = document.getElementById('<%= txtFirstName.ClientID %>').value.trim();
-                var ln = document.getElementById('<%= txtLastName.ClientID %>').value.trim();
+                var fnEl = document.getElementById('<%= txtFirstName.ClientID %>');
+                var lnEl = document.getElementById('<%= txtLastName.ClientID %>');
+                var fn = fnEl ? fnEl.value.trim() : '';
+                var ln = lnEl ? lnEl.value.trim() : '';
+
                 if (!fn || !ln) {
                     alert('Please enter your First Name and Last Name to continue.');
+                    if (!fn && fnEl) fnEl.focus();
+                    else if (!ln && lnEl) lnEl.focus();
                     return false;
+                }
+
+                var emailEl = document.getElementById('<%= txtContactEmail.ClientID %>');
+                var email = emailEl ? emailEl.value.trim() : '';
+                if (email) {
+                    var emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+                    if (!emailRegex.test(email)) {
+                        alert('Please enter a valid Public Contact Email address (e.g. name@example.com).');
+                        emailEl.focus();
+                        return false;
+                    }
+                }
+
+                var phoneEl = document.getElementById('<%= txtContactNum.ClientID %>');
+                var phone = phoneEl ? phoneEl.value.trim() : '';
+                if (phone) {
+                    var cleanPhone = phone.replace(/\D/g, '');
+                    if (cleanPhone.length !== 11) {
+                        alert('Contact / Mobile Number must be exactly 11 digits (e.g. 09123456789).');
+                        phoneEl.focus();
+                        return false;
+                    }
                 }
             }
             return true;

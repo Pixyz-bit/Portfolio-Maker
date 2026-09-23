@@ -74,10 +74,11 @@
             font-weight: 800;
             letter-spacing: -0.02em;
             color: var(--text-black);
-            text-decoration: none;
             display: flex;
             align-items: center;
             gap: 10px;
+            user-select: none;
+            cursor: default;
         }
 
         .brand-badge {
@@ -199,10 +200,10 @@
         <!-- Top Action Bar -->
         <header class="top-action-bar">
             <div class="bar-container">
-                <asp:HyperLink ID="lnkBrand" runat="server" NavigateUrl="Dashboard.aspx" CssClass="bar-brand">
+                <div class="bar-brand">
                     <div class="brand-badge"><asp:Literal ID="litBrandInitials" runat="server" Text="P" /></div>
                     <span><asp:Literal ID="litBrandName" runat="server" Text="Portfolio" /></span>
-                </asp:HyperLink>
+                </div>
 
                 <div class="bar-actions">
                     <!-- Share / Copy Link Button -->

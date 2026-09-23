@@ -24,11 +24,6 @@ namespace _241611JalopPersonalWebsite.Frontend.User.Controls
         protected global::System.Web.UI.WebControls.Literal litEmail;
 
         /// <summary>
-        /// litBio control.
-        /// </summary>
-        protected global::System.Web.UI.WebControls.Literal litBio;
-
-        /// <summary>
         /// lnkDashboard control.
         /// </summary>
         protected global::System.Web.UI.WebControls.HyperLink lnkDashboard;

@@ -401,10 +401,6 @@
         <h3 class="menu-user-name"><asp:Literal ID="litFullName" runat="server" Text="User" /></h3>
         <p class="menu-user-email"><asp:Literal ID="litEmail" runat="server" Text="user@example.com" /></p>
 
-        <div class="menu-bio-box">
-            <asp:Literal ID="litBio" runat="server" Text="No bio provided yet." />
-        </div>
-
         <div class="menu-actions">
             <asp:HyperLink ID="lnkDashboard" runat="server" NavigateUrl="~/Frontend/Admin/Dashboard.aspx" CssClass="menu-btn menu-btn-solid">
                 Admin Dashboard

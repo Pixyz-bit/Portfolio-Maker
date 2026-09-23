@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Text.RegularExpressions;
 using System.Web.Script.Serialization;
 using System.Web.UI;
 using _241611JalopPersonalWebsite.Model;
@@ -166,6 +167,32 @@ namespace _241611JalopPersonalWebsite.Frontend.User
                 return;
             }
 
+            // Validate Public Contact Email (if provided)
+            string contactEmail = txtContactEmail.Text.Trim();
+            if (!string.IsNullOrWhiteSpace(contactEmail))
+            {
+                if (!Regex.IsMatch(contactEmail, @"^[^@\s]+@[^@\s]+\.[^@\s]+$"))
+                {
+                    ShowError("Please enter a valid Public Contact Email address (e.g. name@example.com).");
+                    hfCurrentStep.Value = "1";
+                    return;
+                }
+            }
+
+            // Validate Contact Number (must be exactly 11 digits if provided)
+            string contactNum = txtContactNum.Text.Trim();
+            if (!string.IsNullOrWhiteSpace(contactNum))
+            {
+                string cleanPhone = Regex.Replace(contactNum, @"\D", "");
+                if (cleanPhone.Length != 11)
+                {
+                    ShowError("Contact / Mobile Number must be exactly 11 digits (e.g. 09123456789).");
+                    hfCurrentStep.Value = "1";
+                    return;
+                }
+                contactNum = cleanPhone;
+            }
+
             try
             {
                 // =========================================================================
@@ -219,8 +246,8 @@ namespace _241611JalopPersonalWebsite.Frontend.User
                     existingProfile.LastName = lastName;
                     existingProfile.Birthday = birthday;
                     existingProfile.Address = txtAddress.Text.Trim();
-                    existingProfile.ContactEmail = txtContactEmail.Text.Trim();
-                    existingProfile.ContactNum = txtContactNum.Text.Trim();
+                    existingProfile.ContactEmail = contactEmail;
+                    existingProfile.ContactNum = contactNum;
                     existingProfile.ProfileImagePath = profileImagePath;
                     existingProfile.Description = txtDescription.Text.Trim();
 
@@ -239,8 +266,8 @@ namespace _241611JalopPersonalWebsite.Frontend.User
                         LastName = lastName,
                         Birthday = birthday,
                         Address = txtAddress.Text.Trim(),
-                        ContactEmail = txtContactEmail.Text.Trim(),
-                        ContactNum = txtContactNum.Text.Trim(),
+                        ContactEmail = contactEmail,
+                        ContactNum = contactNum,
                         ProfileImagePath = profileImagePath,
                         Description = txtDescription.Text.Trim()
                     };

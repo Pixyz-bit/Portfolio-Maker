@@ -13,7 +13,6 @@ namespace _241611JalopPersonalWebsite.Frontend.User.Controls
             {
                 litFullName.Text = !string.IsNullOrWhiteSpace(profile.FullName) ? profile.FullName : "User";
                 litEmail.Text = !string.IsNullOrWhiteSpace(profile.ContactEmail) ? profile.ContactEmail : (email ?? string.Empty);
-                litBio.Text = !string.IsNullOrWhiteSpace(profile.Description) ? Server.HtmlEncode(profile.Description) : "No bio provided yet.";
 
                 if (!string.IsNullOrWhiteSpace(profile.ProfileImagePath))
                 {
@@ -24,7 +23,6 @@ namespace _241611JalopPersonalWebsite.Frontend.User.Controls
             {
                 litFullName.Text = !string.IsNullOrWhiteSpace(Session["FullName"]?.ToString()) ? Session["FullName"].ToString() : "Welcome";
                 litEmail.Text = email ?? Session["UserEmail"]?.ToString() ?? string.Empty;
-                litBio.Text = "No bio provided yet.";
             }
 
             // Pre-populate Edit Account modal fields if not postback

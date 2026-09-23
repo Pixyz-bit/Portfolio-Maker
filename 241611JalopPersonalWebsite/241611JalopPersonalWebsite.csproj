@@ -70,6 +70,15 @@
     <Content Include="Backend\Database\Migration\01_Schema.sql" />
     <Content Include="Backend\Database\Migration\02_Alter_Profile_Affiliations_SocialLinks.sql" />
     <Content Include="Backend\Database\Migration\03_StoredProcedures.sql" />
+    <Content Include="Frontend\Assets\fonts\fonts.css" />
+    <Content Include="Frontend\Assets\fonts\inter-v20-latin-regular.woff2" />
+    <Content Include="Frontend\Assets\fonts\inter-v20-latin-500.woff2" />
+    <Content Include="Frontend\Assets\fonts\inter-v20-latin-600.woff2" />
+    <Content Include="Frontend\Assets\fonts\inter-v20-latin-700.woff2" />
+    <Content Include="Frontend\Assets\fonts\plus-jakarta-sans-v12-latin-regular.woff2" />
+    <Content Include="Frontend\Assets\fonts\plus-jakarta-sans-v12-latin-600.woff2" />
+    <Content Include="Frontend\Assets\fonts\plus-jakarta-sans-v12-latin-700.woff2" />
+    <Content Include="Frontend\Assets\fonts\plus-jakarta-sans-v12-latin-800.woff2" />
     <Content Include="Default.aspx" />
     <Content Include="Frontend\Admin\Dashboard.aspx" />
     <Content Include="Frontend\Login\Login.aspx" />

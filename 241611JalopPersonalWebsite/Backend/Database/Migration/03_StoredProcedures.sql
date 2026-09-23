@@ -1,13 +1,13 @@
 -- ==========================================================
 -- Migration Script: 03_StoredProcedures
--- Database: IPTPersonalWebsite
+-- Database: IPTPersonalWebsite / db69719
 -- Description: Master script creating all Stored Procedures 
 --              for Users, Profiles, Educations, Skills,
 --              Hobbies, Affiliations, SocialLinks & Analytics.
 -- Idempotent: Uses CREATE OR ALTER PROCEDURE
 -- ==========================================================
 
-USE IPTPersonalWebsite;
+USE db69719;
 GO
 
 -- =========================================================================

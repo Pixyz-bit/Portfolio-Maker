@@ -16,10 +16,8 @@
     <title><asp:Literal ID="litPageTitle" runat="server" Text="Personal Portfolio" /></title>
     <meta name="description" content="Personal portfolio showcasing educational attainment, professional skills, affiliations, and hobbies." />
 
-    <!-- Google Fonts: Plus Jakarta Sans & Inter -->
-    <link rel="preconnect" href="https://fonts.googleapis.com" />
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@500;600;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+    <!-- Local Offline Fonts: Plus Jakarta Sans & Inter -->
+    <link rel="stylesheet" href="../Assets/fonts/fonts.css" />
 
     <style>
         :root {

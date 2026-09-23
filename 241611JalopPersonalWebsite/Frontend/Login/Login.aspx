@@ -8,7 +8,8 @@
     <title>Sign In | Personal Portfolio</title>
     <meta name="description" content="Sign in to manage and customize your personal developer and professional portfolio." />
 
-    <!-- Google Fonts: Plus Jakarta Sans & Inter -->
+    <!-- Local Offline Fonts: Plus Jakarta Sans & Inter -->
+    <link rel="stylesheet" href="../Assets/fonts/fonts.css" />
     <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='20' fill='%23000'/><text x='50' y='70' font-size='60' text-anchor='middle' fill='%23fff' font-family='sans-serif' font-weight='bold'>P</text></svg>">
 
     <style>
@@ -24,58 +25,6 @@
             --radius-btn: 10px;
             --transition: 0.2s ease;
         }
-/* Plus Jakarta Sans */
-@font-face {
-    font-family: 'Plus Jakarta Sans';
-    font-style: normal;
-    font-weight: 600;
-    font-display: swap;
-    src: url('../Assets/fonts/plus-jakarta-sans-v8-latin-600.woff2') format('woff2');
-}
-@font-face {
-    font-family: 'Plus Jakarta Sans';
-    font-style: normal;
-    font-weight: 700;
-    font-display: swap;
-    src: url('../Assets/fonts/plus-jakarta-sans-v8-latin-700.woff2') format('woff2');
-}
-@font-face {
-    font-family: 'Plus Jakarta Sans';
-    font-style: normal;
-    font-weight: 800;
-    font-display: swap;
-    src: url('../Assets/fonts/plus-jakarta-sans-v8-latin-800.woff2') format('woff2');
-}
-
-/* Inter */
-@font-face {
-    font-family: 'Inter';
-    font-style: normal;
-    font-weight: 400;
-    font-display: swap;
-    src: url('../Assets/fonts/inter-v18-latin-400.woff2') format('woff2');
-}
-@font-face {
-    font-family: 'Inter';
-    font-style: normal;
-    font-weight: 500;
-    font-display: swap;
-    src: url('../Assets/fonts/inter-v18-latin-500.woff2') format('woff2');
-}
-@font-face {
-    font-family: 'Inter';
-    font-style: normal;
-    font-weight: 600;
-    font-display: swap;
-    src: url('../Assets/fonts/inter-v18-latin-600.woff2') format('woff2');
-}
-@font-face {
-    font-family: 'Inter';
-    font-style: normal;
-    font-weight: 700;
-    font-display: swap;
-    src: url('../Assets/fonts/inter-v18-latin-700.woff2') format('woff2');
-}
 
         * {
             box-sizing: border-box;

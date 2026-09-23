@@ -9,10 +9,8 @@
     <title>Admin Console | Portfolio OS</title>
     <meta name="description" content="Administrator dashboard for user management, system analytics, and account administration." />
 
-    <!-- Google Fonts: Plus Jakarta Sans & Inter -->
-    <link rel="preconnect" href="https://fonts.googleapis.com" />
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@500;600;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+    <!-- Local Offline Fonts: Plus Jakarta Sans & Inter -->
+    <link rel="stylesheet" href="../Assets/fonts/fonts.css" />
 
     <style>
         :root {

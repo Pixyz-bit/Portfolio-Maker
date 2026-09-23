@@ -219,13 +219,70 @@
         margin-bottom: 22px;
     }
 
-    .user-account-alert {
-        padding: 10px 14px;
-        border-radius: 8px;
-        font-size: 0.85rem;
-        font-weight: 600;
-        margin-bottom: 16px;
+    .user-account-toast-container {
+        position: fixed;
+        bottom: 24px;
+        right: 24px;
+        z-index: 1000000;
+        max-width: 420px;
+        width: calc(100vw - 48px);
+        pointer-events: none;
+    }
+
+    .user-account-toast {
+        pointer-events: auto;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 12px;
+        padding: 14px 18px;
+        border-radius: 12px;
         border: 2px solid #000000;
+        box-shadow: 4px 4px 0px #000000;
+        font-size: 0.88rem;
+        font-weight: 700;
+        animation: userToastSlideUp 0.35s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+        background: #ffffff;
+    }
+
+    @keyframes userToastSlideUp {
+        from {
+            opacity: 0;
+            transform: translateY(20px) scale(0.96);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0) scale(1);
+        }
+    }
+
+    .user-account-toast.alert-danger {
+        background-color: #fef2f2;
+        color: #991b1b;
+        border-color: #ef4444;
+    }
+
+    .user-account-toast.alert-success {
+        background-color: #f0fdf4;
+        color: #166534;
+        border-color: #16a34a;
+    }
+
+    .user-account-toast-content {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+
+    .user-account-toast-close {
+        background: transparent;
+        border: none;
+        font-size: 1.3rem;
+        line-height: 1;
+        cursor: pointer;
+        color: inherit;
+        padding: 0 4px;
+        font-weight: 800;
     }
 
     .user-account-form-row {
@@ -379,10 +436,6 @@
         <h3 class="user-account-modal-title">Edit User Account</h3>
         <p class="user-account-modal-desc">Update credentials, system role, and access status.</p>
 
-        <asp:Panel ID="pnlUserAccountModalMsg" runat="server" Visible="false" CssClass="user-account-alert">
-            <asp:Literal ID="litUserAccountModalMsg" runat="server" />
-        </asp:Panel>
-
         <div class="user-account-form-row">
             <div class="user-account-form-group">
                 <label class="user-account-label">First Name</label>
@@ -399,18 +452,20 @@
             <asp:TextBox ID="txtAccountEmail" runat="server" TextMode="Email" CssClass="user-account-input" placeholder="email@example.com" />
         </div>
 
-        <div class="user-account-form-group" style="margin-bottom: 16px;">
-            <label class="user-account-label">System Role</label>
-            <asp:DropDownList ID="ddlAccountRole" runat="server" CssClass="user-account-input">
-                <asp:ListItem Value="User" Text="User (Standard Portfolio Owner)" />
-                <asp:ListItem Value="Admin" Text="Administrator (Full Access)" />
-            </asp:DropDownList>
-        </div>
+        <asp:PlaceHolder ID="phAdminOnlyAccountFields" runat="server">
+            <div class="user-account-form-group" style="margin-bottom: 16px;">
+                <label class="user-account-label">System Role</label>
+                <asp:DropDownList ID="ddlAccountRole" runat="server" CssClass="user-account-input">
+                    <asp:ListItem Value="User" Text="User (Standard Portfolio Owner)" />
+                    <asp:ListItem Value="Admin" Text="Administrator (Full Access)" />
+                </asp:DropDownList>
+            </div>
 
-        <div class="user-account-form-check" style="margin-bottom: 18px;">
-            <asp:CheckBox ID="chkAccountIsActive" runat="server" Checked="true" />
-            <label for="<%= chkAccountIsActive.ClientID %>">Account is active and permitted to login</label>
-        </div>
+            <div class="user-account-form-check" style="margin-bottom: 18px;">
+                <asp:CheckBox ID="chkAccountIsActive" runat="server" Checked="true" />
+                <label for="<%= chkAccountIsActive.ClientID %>">Account is active and permitted to login</label>
+            </div>
+        </asp:PlaceHolder>
 
         <div class="user-account-divider"></div>
 
@@ -433,6 +488,17 @@
             <asp:Button ID="btnSaveUserAccount" runat="server" Text="Save Changes" CssClass="user-account-btn user-account-btn-save" OnClick="btnSaveUserAccount_Click" />
         </div>
     </div>
+</div>
+
+<!-- Floating Lower-Right Toast Container for User Account Alerts -->
+<div class="user-account-toast-container" id="userAccountToastContainer">
+    <asp:Panel ID="pnlUserAccountModalMsg" runat="server" Visible="false" CssClass="user-account-toast">
+        <div class="user-account-toast-content">
+            <span style="font-size: 1.1rem; line-height: 1;">&#9888;</span>
+            <asp:Literal ID="litUserAccountModalMsg" runat="server" />
+        </div>
+        <button type="button" class="user-account-toast-close" onclick="this.closest('.user-account-toast').style.display='none';">&times;</button>
+    </asp:Panel>
 </div>
 
 <script>

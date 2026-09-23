@@ -44,6 +44,13 @@ namespace _241611JalopPersonalWebsite.Frontend.Login
                     return;
                 }
 
+                // Check for redirect message parameter
+                if (!string.IsNullOrWhiteSpace(Request.QueryString["msg"]))
+                {
+                    pnlError.Visible = true;
+                    lblErrorMessage.Text = Server.HtmlEncode(Request.QueryString["msg"]);
+                }
+
                 // Pre-fill email if remembered from cookie
                 if (Request.Cookies["RememberedEmail"] != null)
                 {
@@ -107,9 +114,10 @@ namespace _241611JalopPersonalWebsite.Frontend.Login
             }
             else
             {
-                // Display exact error message from repository
+                // Display exact error message from repository as lower-right toast after loading check
                 pnlError.Visible = true;
                 lblErrorMessage.Text = errorMessage;
+                ClientScript.RegisterStartupScript(this.GetType(), "LoginErrorLoading", "handleLoginError();", true);
             }
         }
 

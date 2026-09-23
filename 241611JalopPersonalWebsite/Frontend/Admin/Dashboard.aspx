@@ -244,30 +244,110 @@
             margin-top: 4px;
         }
 
-        /* Feedback Alerts */
-        .alert-box {
-            padding: 14px 18px;
-            border-radius: var(--radius-btn);
-            font-size: 0.92rem;
-            font-weight: 600;
-            margin-bottom: 24px;
-            border: 2px solid var(--border-black);
+        /* Floating Lower-Right Toast Notifications */
+        .toast-container {
+            position: fixed;
+            bottom: 24px;
+            right: 24px;
+            z-index: 100000;
             display: flex;
-            align-items: center;
-            justify-content: space-between;
+            flex-direction: column;
             gap: 12px;
+            max-width: 420px;
+            width: calc(100vw - 48px);
+            pointer-events: none;
         }
 
-        .alert-success {
-            background-color: #ecfdf5;
-            color: #065f46;
-            border-color: #065f46;
+        .toast-box {
+            pointer-events: auto;
+            display: flex;
+            align-items: flex-start;
+            gap: 12px;
+            padding: 14px 18px;
+            border-radius: 12px;
+            border: 2px solid #000000;
+            box-shadow: 4px 4px 0px #000000;
+            background-color: #ffffff;
+            animation: toastSlideUp 0.35s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+            transition: opacity 0.25s ease, transform 0.25s ease;
         }
 
-        .alert-error {
+        @keyframes toastSlideUp {
+            from {
+                opacity: 0;
+                transform: translateY(24px) scale(0.96);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0) scale(1);
+            }
+        }
+
+        .toast-box.toast-error {
             background-color: #fef2f2;
+            border-color: #ef4444;
             color: #991b1b;
-            border-color: #991b1b;
+            box-shadow: 4px 4px 0px #ef4444;
+        }
+
+        .toast-box.toast-success {
+            background-color: #f0fdf4;
+            border-color: #16a34a;
+            color: #166534;
+            box-shadow: 4px 4px 0px #16a34a;
+        }
+
+        .toast-icon {
+            flex-shrink: 0;
+            margin-top: 2px;
+        }
+
+        .toast-content {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            gap: 3px;
+        }
+
+        .toast-title {
+            font-size: 0.85rem;
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: 0.04em;
+            line-height: 1.2;
+        }
+
+        .toast-message {
+            font-size: 0.88rem;
+            font-weight: 600;
+            line-height: 1.4;
+        }
+
+        .toast-close-btn {
+            background: transparent;
+            border: none;
+            font-size: 1.3rem;
+            line-height: 1;
+            cursor: pointer;
+            color: inherit;
+            padding: 0 2px;
+            font-weight: 800;
+            opacity: 0.75;
+            transition: opacity 0.2s ease;
+        }
+
+        .toast-close-btn:hover {
+            opacity: 1;
+        }
+
+        @media (max-width: 480px) {
+            .toast-container {
+                bottom: 16px;
+                right: 16px;
+                left: 16px;
+                width: auto;
+                max-width: none;
+            }
         }
 
         /* Analytics Grid */
@@ -840,18 +920,30 @@
                 </div>
             </div>
 
-            <!-- Feedback Alert Banners -->
-            <asp:Panel ID="pnlSuccess" runat="server" Visible="false" CssClass="alert-box alert-success">
-                <div>
-                    <asp:Literal ID="lblSuccessMessage" runat="server" />
-                </div>
-            </asp:Panel>
+            <!-- Floating Lower-Right Toast Notifications -->
+            <div class="toast-container" id="toastContainer">
+                <asp:Panel ID="pnlSuccess" runat="server" Visible="false" CssClass="toast-box toast-success">
+                    <div class="toast-icon">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg>
+                    </div>
+                    <div class="toast-content">
+                        <span class="toast-title">Success</span>
+                        <span class="toast-message"><asp:Literal ID="lblSuccessMessage" runat="server" /></span>
+                    </div>
+                    <button type="button" class="toast-close-btn" onclick="dismissToast(this)">&times;</button>
+                </asp:Panel>
 
-            <asp:Panel ID="pnlError" runat="server" Visible="false" CssClass="alert-box alert-error">
-                <div>
-                    <asp:Literal ID="lblErrorMessage" runat="server" />
-                </div>
-            </asp:Panel>
+                <asp:Panel ID="pnlError" runat="server" Visible="false" CssClass="toast-box toast-error">
+                    <div class="toast-icon">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="12"></line><line x1="12" y1="16" x2="12.01" y2="16"></line></svg>
+                    </div>
+                    <div class="toast-content">
+                        <span class="toast-title">Error</span>
+                        <span class="toast-message"><asp:Literal ID="lblErrorMessage" runat="server" /></span>
+                    </div>
+                    <button type="button" class="toast-close-btn" onclick="dismissToast(this)">&times;</button>
+                </asp:Panel>
+            </div>
 
             <!-- Metrics Analytics Grid (Populated via DashboardAnalyticsRepository) -->
             <section class="metrics-grid">
@@ -990,13 +1082,11 @@
                                             Edit
                                         </button>
 
-                                        <!-- Delete User Button -->
-                                        <asp:LinkButton ID="btnDeleteUser" runat="server" 
-                                            CommandName="DeleteUser" 
-                                            CommandArgument='<%# Eval("UserID") %>'
-                                            CssClass="btn btn-danger btn-sm"
-                                            Text="Delete"
-                                            OnClientClick="return confirm('WARNING: Are you sure you want to permanently delete this user? All associated portfolios, educations, skills, and affiliations will be erased.');" />
+                                        <!-- Delete User Button (Proper Modal Trigger) -->
+                                        <button type="button" class="btn btn-danger btn-sm"
+                                            onclick='openDeleteModal(<%# Eval("UserID") %>, "<%# Server.HtmlEncode(Eval("FullName")?.ToString() ?? Eval("FirstName")?.ToString()) %>", "<%# Server.HtmlEncode(Eval("Email")?.ToString()) %>")'>
+                                            Delete
+                                        </button>
                                     </div>
                                 </td>
                             </tr>
@@ -1203,6 +1293,11 @@
                     <button type="button" class="btn btn-outline btn-sm" onclick="openEditFromSummary()">
                         Edit Account
                     </button>
+
+                    <!-- Delete Account Button inside modal -->
+                    <button type="button" class="btn btn-danger btn-sm" onclick="openDeleteModalFromSummary()">
+                        Delete
+                    </button>
                     
                     <asp:Button ID="btnCloseSummary" runat="server" Text="Close Summary" CssClass="btn btn-outline btn-sm" OnClick="btnCloseSummary_Click" />
                 </div>
@@ -1232,6 +1327,43 @@
                         Cancel
                     </button>
                     <asp:Button ID="btnConfirmStatusAction" runat="server" Text="Confirm" CssClass="btn btn-danger btn-sm" OnClick="btnConfirmStatusAction_Click" style="min-width: 140px;" />
+                </div>
+            </div>
+        </div>
+
+        <!-- PROPER DELETE USER CONFIRMATION MODAL -->
+        <div class="modal-overlay" id="deleteModal">
+            <div class="modal-box" style="max-width: 480px; text-align: center;">
+                <button type="button" class="close-modal-btn" onclick="closeDeleteModal()">&times;</button>
+                
+                <div style="width: 60px; height: 60px; border-radius: 50%; border: 2.5px solid #000; margin: 0 auto 16px; display: flex; align-items: center; justify-content: center; background-color: #fee2e2;">
+                    <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#dc2626" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                        <polyline points="3 6 5 6 21 6"></polyline>
+                        <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
+                        <line x1="10" y1="11" x2="10" y2="17"></line>
+                        <line x1="14" y1="11" x2="14" y2="17"></line>
+                    </svg>
+                </div>
+
+                <h3 class="modal-title">Delete User Account</h3>
+                <p class="modal-desc" id="deleteModalDesc" style="margin-bottom: 16px; line-height: 1.5; color: #3f3f46;">
+                    Are you sure you want to permanently delete this user account?
+                </p>
+
+                <div style="background-color: #fff1f2; border: 2px solid #fecdd3; border-radius: 10px; padding: 12px 14px; margin-bottom: 20px; text-align: left; display: flex; gap: 10px; align-items: flex-start;">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#e11d48" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink: 0; margin-top: 1px;"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path><line x1="12" y1="9" x2="12" y2="13"></line><line x1="12" y1="17" x2="12.01" y2="17"></line></svg>
+                    <div style="font-size: 0.82rem; color: #9f1239; line-height: 1.45;">
+                        <strong style="font-weight: 700;">Warning:</strong> This action cannot be undone. All associated portfolios, educations, skills, affiliations, hobbies, and social links will be permanently erased.
+                    </div>
+                </div>
+
+                <asp:HiddenField ID="hfDeleteUserId" runat="server" />
+
+                <div class="modal-actions" style="justify-content: center; border-top: none; padding-top: 0; margin-top: 10px; gap: 12px;">
+                    <button type="button" class="btn btn-outline btn-sm" onclick="closeDeleteModal()" style="min-width: 100px;">
+                        Cancel
+                    </button>
+                    <asp:Button ID="btnConfirmDeleteUser" runat="server" Text="Yes, Permanently Delete" CssClass="btn btn-danger btn-sm" OnClick="btnConfirmDeleteUser_Click" style="min-width: 170px;" />
                 </div>
             </div>
         </div>
@@ -1431,12 +1563,34 @@
             openStatusModal(userId, fullName, email, isActive);
         }
 
+        // Proper Delete Modal handlers
+        function openDeleteModal(userId, fullName, email) {
+            document.getElementById('<%= hfDeleteUserId.ClientID %>').value = userId;
+            const descEl = document.getElementById('deleteModalDesc');
+            descEl.innerHTML = 'Are you sure you want to permanently delete the account for <strong>' + fullName + '</strong> (' + email + ')?';
+            document.getElementById('deleteModal').classList.add('active');
+        }
+
+        function closeDeleteModal() {
+            document.getElementById('deleteModal').classList.remove('active');
+        }
+
+        function openDeleteModalFromSummary() {
+            const userId = document.getElementById('<%= hfSummaryUserId.ClientID %>').value;
+            const firstName = document.getElementById('<%= hfSummaryFirstName.ClientID %>').value;
+            const lastName = document.getElementById('<%= hfSummaryLastName.ClientID %>').value;
+            const fullName = (firstName + ' ' + lastName).trim();
+            const email = document.getElementById('<%= hfSummaryEmailRaw.ClientID %>').value;
+            openDeleteModal(userId, fullName, email);
+        }
+
         // Close on escape key
         document.addEventListener('keydown', function (e) {
             if (e.key === 'Escape') {
                 closeAddModal();
                 closeEditModal();
                 closeStatusModal();
+                closeDeleteModal();
             }
         });
 
@@ -1445,9 +1599,31 @@
             const addModal = document.getElementById('addModal');
             const editModal = document.getElementById('editModal');
             const statusModal = document.getElementById('statusModal');
+            const deleteModal = document.getElementById('deleteModal');
             if (e.target === addModal) closeAddModal();
             if (e.target === editModal) closeEditModal();
             if (e.target === statusModal) closeStatusModal();
+            if (e.target === deleteModal) closeDeleteModal();
+        });
+
+        function dismissToast(btn) {
+            var toast = btn.closest('.toast-box');
+            if (toast) {
+                toast.style.opacity = '0';
+                toast.style.transform = 'translateY(16px)';
+                setTimeout(function () { toast.style.display = 'none'; }, 250);
+            }
+        }
+
+        // Auto-dismiss active toasts after 5 seconds
+        window.addEventListener('DOMContentLoaded', function () {
+            var activeToasts = document.querySelectorAll('.toast-box');
+            activeToasts.forEach(function (t) {
+                setTimeout(function () {
+                    var btn = t.querySelector('.toast-close-btn');
+                    if (btn) dismissToast(btn);
+                }, 5000);
+            });
         });
     </script>
 </body>

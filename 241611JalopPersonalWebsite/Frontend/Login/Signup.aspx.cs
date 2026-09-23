@@ -38,11 +38,13 @@ namespace _241611JalopPersonalWebsite.Frontend.Login
             {
                 // Successful registration
                 pnlSuccess.Visible = true;
-                lblSuccessMessage.Text = "Account registered successfully! You can now <a href='Login.aspx' style='color:#6ee7b7;font-weight:700;text-decoration:underline;'>sign in to your dashboard</a>.";
+                lblSuccessMessage.Text = "Account registered successfully! You can now <a href='Login.aspx' style='color:#065f46;font-weight:700;text-decoration:underline;'>sign in to your dashboard</a>.";
                 pnlFormFields.Visible = false;
 
-                // Optional: Automatically redirect after 3 seconds
-                string redirectScript = "setTimeout(function(){ window.location.href = 'Login.aspx'; }, 3000);";
+                ClientScript.RegisterStartupScript(this.GetType(), "SignupSuccessLoading", "handleSignupSuccess();", true);
+
+                // Automatically redirect after 2.5 seconds
+                string redirectScript = "setTimeout(function(){ window.location.href = 'Login.aspx'; }, 2500);";
                 ClientScript.RegisterStartupScript(this.GetType(), "RedirectTimer", redirectScript, true);
             }
             else
@@ -56,6 +58,7 @@ namespace _241611JalopPersonalWebsite.Frontend.Login
         {
             pnlError.Visible = true;
             lblErrorMessage.Text = message;
+            ClientScript.RegisterStartupScript(this.GetType(), "SignupErrorLoading", "handleSignupError();", true);
         }
     }
 }

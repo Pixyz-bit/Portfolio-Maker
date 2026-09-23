@@ -306,6 +306,36 @@ namespace _241611JalopPersonalWebsite.Frontend.Admin
             }
         }
 
+        protected void btnConfirmDeleteUser_Click(object sender, EventArgs e)
+        {
+            ClearBanners();
+
+            if (int.TryParse(hfDeleteUserId.Value, out int targetUserId))
+            {
+                int currentAdminId = Convert.ToInt32(Session["UserID"]);
+                if (targetUserId == currentAdminId)
+                {
+                    ShowError("Action aborted: You cannot delete the account you are currently logged in with.");
+                    return;
+                }
+
+                if (UserRepository.DeleteUser(targetUserId, out string error))
+                {
+                    ShowSuccess("User account and related portfolio records were deleted successfully.");
+                    if (pnlUserSummaryModal.Visible && hfSummaryUserId.Value == targetUserId.ToString())
+                    {
+                        pnlUserSummaryModal.Visible = false;
+                    }
+                    LoadAnalytics();
+                    LoadUsers();
+                }
+                else
+                {
+                    ShowError("Error deleting user: " + error);
+                }
+            }
+        }
+
         protected void btnCloseSummary_Click(object sender, EventArgs e)
         {
             pnlUserSummaryModal.Visible = false;

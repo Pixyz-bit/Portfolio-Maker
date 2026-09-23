@@ -79,6 +79,11 @@ namespace _241611JalopPersonalWebsite.Frontend.User.Controls
         protected global::System.Web.UI.WebControls.TextBox txtAccountEmail;
 
         /// <summary>
+        /// phAdminOnlyAccountFields control.
+        /// </summary>
+        protected global::System.Web.UI.WebControls.PlaceHolder phAdminOnlyAccountFields;
+
+        /// <summary>
         /// ddlAccountRole control.
         /// </summary>
         protected global::System.Web.UI.WebControls.DropDownList ddlAccountRole;

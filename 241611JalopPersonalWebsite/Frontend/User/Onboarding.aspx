@@ -200,26 +200,110 @@
             font-weight: 800;
         }
 
-        /* Status Alerts */
-        .alert-box {
-            padding: 12px 16px;
-            border-radius: var(--radius-input);
+        /* Floating Lower-Right Toast Notifications */
+        .toast-container {
+            position: fixed;
+            bottom: 24px;
+            right: 24px;
+            z-index: 100000;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            max-width: 420px;
+            width: calc(100vw - 48px);
+            pointer-events: none;
+        }
+
+        .toast-box {
+            pointer-events: auto;
+            display: flex;
+            align-items: flex-start;
+            gap: 12px;
+            padding: 14px 18px;
+            border-radius: 12px;
+            border: 2px solid #000000;
+            box-shadow: 4px 4px 0px #000000;
+            background-color: #ffffff;
+            animation: toastSlideUp 0.35s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+            transition: opacity 0.25s ease, transform 0.25s ease;
+        }
+
+        @keyframes toastSlideUp {
+            from {
+                opacity: 0;
+                transform: translateY(24px) scale(0.96);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0) scale(1);
+            }
+        }
+
+        .toast-box.toast-error {
+            background-color: #fef2f2;
+            border-color: #ef4444;
+            color: #991b1b;
+            box-shadow: 4px 4px 0px #ef4444;
+        }
+
+        .toast-box.toast-success {
+            background-color: #f0fdf4;
+            border-color: #16a34a;
+            color: #166534;
+            box-shadow: 4px 4px 0px #16a34a;
+        }
+
+        .toast-icon {
+            flex-shrink: 0;
+            margin-top: 2px;
+        }
+
+        .toast-content {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            gap: 3px;
+        }
+
+        .toast-title {
+            font-size: 0.85rem;
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: 0.04em;
+            line-height: 1.2;
+        }
+
+        .toast-message {
             font-size: 0.88rem;
             font-weight: 600;
-            margin-bottom: 24px;
-            border: 2px solid var(--border-black);
+            line-height: 1.4;
         }
 
-        .alert-danger {
-            background-color: #fef2f2;
-            color: #991b1b;
-            border-color: #991b1b;
+        .toast-close-btn {
+            background: transparent;
+            border: none;
+            font-size: 1.3rem;
+            line-height: 1;
+            cursor: pointer;
+            color: inherit;
+            padding: 0 2px;
+            font-weight: 800;
+            opacity: 0.75;
+            transition: opacity 0.2s ease;
         }
 
-        .alert-success {
-            background-color: #f0fdf4;
-            color: #166534;
-            border-color: #166534;
+        .toast-close-btn:hover {
+            opacity: 1;
+        }
+
+        @media (max-width: 480px) {
+            .toast-container {
+                bottom: 16px;
+                right: 16px;
+                left: 16px;
+                width: auto;
+                max-width: none;
+            }
         }
 
         /* Wizard Step Content */
@@ -390,6 +474,86 @@
             justify-content: space-between;
         }
 
+        .item-card-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding-bottom: 10px;
+            border-bottom: 1.5px solid #e2e8f0;
+            margin-bottom: 2px;
+        }
+
+        .item-card-badge {
+            font-size: 0.88rem;
+            font-weight: 800;
+            color: var(--text-black);
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .btn-delete-card {
+            background-color: transparent;
+            border: 1.5px solid #dc2626;
+            color: #dc2626;
+            font-size: 0.8rem;
+            font-weight: 700;
+            padding: 4px 10px;
+            border-radius: 6px;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            transition: var(--transition);
+        }
+
+        .btn-delete-card:hover {
+            background-color: #dc2626;
+            color: #ffffff;
+        }
+
+        .btn-add-item {
+            width: auto;
+            height: 44px;
+            padding: 0 20px;
+            font-size: 0.9rem;
+            font-weight: 800;
+            border: 2px dashed var(--border-black);
+            background-color: #fafafa;
+        }
+
+        .btn-add-item:hover {
+            background-color: #000000;
+            color: #ffffff;
+            border-style: solid;
+        }
+
+        .dynamic-list-container {
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+        }
+
+        .sub-section-title {
+            font-size: 1.15rem;
+            font-weight: 800;
+            margin-bottom: 12px;
+            letter-spacing: -0.01em;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .dynamic-empty-hint {
+            padding: 18px;
+            background-color: #f8fafc;
+            border: 1.5px dashed #cbd5e1;
+            border-radius: 10px;
+            font-size: 0.88rem;
+            color: #64748b;
+            text-align: center;
+        }
+
         /* Wizard Footer Controls */
         .wizard-footer {
             display: flex;
@@ -495,15 +659,6 @@
                     <p class="card-subtitle">Fill in your information at your own pace. Save & Exit anytime to view your portfolio.</p>
                 </div>
 
-                <!-- Status Alerts -->
-                <asp:Panel ID="pnlError" runat="server" Visible="false" CssClass="alert-box alert-danger">
-                    <asp:Label ID="lblErrorMessage" runat="server" />
-                </asp:Panel>
-
-                <asp:Panel ID="pnlSuccess" runat="server" Visible="false" CssClass="alert-box alert-success">
-                    <asp:Label ID="lblSuccessMessage" runat="server" />
-                </asp:Panel>
-
                 <!-- 5-Step Progress Bar with Segmented Connectors -->
                 <div class="step-indicator">
                     <button type="button" class="step-item active" id="indicator1" onclick="jumpToStep(1);">
@@ -536,9 +691,14 @@
                     </button>
                 </div>
 
-                <!-- Hidden field to preserve current step across postbacks -->
+                <!-- Hidden fields to preserve state across postbacks -->
                 <asp:HiddenField ID="hfCurrentStep" runat="server" Value="1" />
                 <asp:HiddenField ID="hfExistingImagePath" runat="server" Value="" />
+                <asp:HiddenField ID="hfEducationsJson" runat="server" Value="" />
+                <asp:HiddenField ID="hfSkillsJson" runat="server" Value="" />
+                <asp:HiddenField ID="hfAffiliationsJson" runat="server" Value="" />
+                <asp:HiddenField ID="hfHobbiesJson" runat="server" Value="" />
+                <asp:HiddenField ID="hfSocialLinksJson" runat="server" Value="" />
 
                 <!-- ======================================================= -->
                 <!-- STEP 1: Personal Profile (UserProfile)                  -->
@@ -608,66 +768,28 @@
                     <div class="wizard-footer">
                         <div class="footer-actions-left"></div>
                         <div class="footer-actions-right">
-                            <asp:Button ID="btnSaveStep1" runat="server" Text="Save & Exit" CssClass="btn btn-outline" OnClick="btnSaveChanges_Click" CausesValidation="false" />
+                            <asp:Button ID="btnSaveStep1" runat="server" Text="Save & Exit" CssClass="btn btn-outline" OnClick="btnSaveChanges_Click" CausesValidation="false" OnClientClick="serializeDynamicData();" />
                             <button type="button" class="btn btn-solid" onclick="nextStep(1);">Continue</button>
                         </div>
                     </div>
                 </div>
 
                 <!-- ======================================================= -->
-                <!-- STEP 2: Education (Education)                           -->
+                <!-- STEP 2: Education (Education — Dynamic List)           -->
                 <!-- ======================================================= -->
                 <div class="step-section" id="step2">
                     <div class="section-header">
                         <h2 class="section-title">Step 2: Education History</h2>
-                        <p class="section-desc">Add your academic background, universities, and degrees.</p>
+                        <p class="section-desc">Add your academic background, universities, degrees, and graduation years.</p>
                     </div>
 
                     <div class="form-grid">
-                        <!-- Primary Education Card -->
-                        <div class="item-card">
-                            <div class="item-card-title">Primary Degree / Education *</div>
-                            <div class="form-group">
-                                <label for="txtCourse1" class="form-label">Degree / Course Name *</label>
-                                <asp:TextBox ID="txtCourse1" runat="server" CssClass="form-input" MaxLength="150" placeholder="e.g. Bachelor of Science in Information Technology" />
-                            </div>
-                            <div class="form-group">
-                                <label for="txtUniversity1" class="form-label">University / Institution *</label>
-                                <asp:TextBox ID="txtUniversity1" runat="server" CssClass="form-input" MaxLength="150" placeholder="e.g. University of Science and Technology of Southern Philippines" />
-                            </div>
-                            <div class="form-row-dual">
-                                <div class="form-group">
-                                    <label for="txtEduStartYear1" class="form-label">Start Year *</label>
-                                    <asp:TextBox ID="txtEduStartYear1" runat="server" CssClass="form-input" MaxLength="10" placeholder="e.g. 2021" />
-                                </div>
-                                <div class="form-group">
-                                    <label for="txtEduEndYear1" class="form-label">End Year (or 'Present')</label>
-                                    <asp:TextBox ID="txtEduEndYear1" runat="server" CssClass="form-input" MaxLength="10" placeholder="e.g. 2025" />
-                                </div>
-                            </div>
-                        </div>
-
-                        <!-- Secondary Education Card (Optional) -->
-                        <div class="item-card">
-                            <div class="item-card-title">Secondary Education <span class="label-hint">(Optional)</span></div>
-                            <div class="form-group">
-                                <label for="txtCourse2" class="form-label">Degree / Course / Strand</label>
-                                <asp:TextBox ID="txtCourse2" runat="server" CssClass="form-input" MaxLength="150" placeholder="e.g. Senior High School - STEM Track" />
-                            </div>
-                            <div class="form-group">
-                                <label for="txtUniversity2" class="form-label">School / Institution</label>
-                                <asp:TextBox ID="txtUniversity2" runat="server" CssClass="form-input" MaxLength="150" placeholder="e.g. Cagayan de Oro National High School" />
-                            </div>
-                            <div class="form-row-dual">
-                                <div class="form-group">
-                                    <label for="txtEduStartYear2" class="form-label">Start Year</label>
-                                    <asp:TextBox ID="txtEduStartYear2" runat="server" CssClass="form-input" MaxLength="10" placeholder="e.g. 2019" />
-                                </div>
-                                <div class="form-group">
-                                    <label for="txtEduEndYear2" class="form-label">End Year</label>
-                                    <asp:TextBox ID="txtEduEndYear2" runat="server" CssClass="form-input" MaxLength="10" placeholder="e.g. 2021" />
-                                </div>
-                            </div>
+                        <div class="dynamic-list-container" id="educationList"></div>
+                        <div>
+                            <button type="button" class="btn btn-outline btn-add-item" onclick="addEducation();">
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+                                Add Another Education
+                            </button>
                         </div>
                     </div>
 
@@ -676,72 +798,28 @@
                             <button type="button" class="btn btn-outline" onclick="prevStep(2);">Back</button>
                         </div>
                         <div class="footer-actions-right">
-                            <asp:Button ID="btnSaveStep2" runat="server" Text="Save & Exit" CssClass="btn btn-outline" OnClick="btnSaveChanges_Click" CausesValidation="false" />
+                            <asp:Button ID="btnSaveStep2" runat="server" Text="Save & Exit" CssClass="btn btn-outline" OnClick="btnSaveChanges_Click" CausesValidation="false" OnClientClick="serializeDynamicData();" />
                             <button type="button" class="btn btn-solid" onclick="nextStep(2);">Continue</button>
                         </div>
                     </div>
                 </div>
 
                 <!-- ======================================================= -->
-                <!-- STEP 3: Skills (Skill)                                  -->
+                <!-- STEP 3: Skills (Skill — Dynamic List)                  -->
                 <!-- ======================================================= -->
                 <div class="step-section" id="step3">
                     <div class="section-header">
                         <h2 class="section-title">Step 3: Skills & Competencies</h2>
-                        <p class="section-desc">Highlight your technical proficiencies, frameworks, and tools.</p>
+                        <p class="section-desc">Highlight your technical proficiencies, frameworks, tools, and expertise.</p>
                     </div>
 
                     <div class="form-grid">
-                        <!-- Skill 1 -->
-                        <div class="item-card">
-                            <div class="item-card-title">Primary Skill 1 *</div>
-                            <div class="form-group">
-                                <label for="txtSkill1" class="form-label">Skill Name *</label>
-                                <asp:TextBox ID="txtSkill1" runat="server" CssClass="form-input" MaxLength="100" placeholder="e.g. C# & ASP.NET Web Forms / MVC" />
-                            </div>
-                            <div class="form-group">
-                                <label for="txtSkillDesc1" class="form-label">Description / Proficiency Details</label>
-                                <asp:TextBox ID="txtSkillDesc1" runat="server" CssClass="form-input" placeholder="e.g. Backend architecture, ADO.NET, REST APIs, Session state" />
-                            </div>
-                        </div>
-
-                        <!-- Skill 2 -->
-                        <div class="item-card">
-                            <div class="item-card-title">Skill 2</div>
-                            <div class="form-group">
-                                <label for="txtSkill2" class="form-label">Skill Name</label>
-                                <asp:TextBox ID="txtSkill2" runat="server" CssClass="form-input" MaxLength="100" placeholder="e.g. Microsoft SQL Server & Database Design" />
-                            </div>
-                            <div class="form-group">
-                                <label for="txtSkillDesc2" class="form-label">Description / Proficiency Details</label>
-                                <asp:TextBox ID="txtSkillDesc2" runat="server" CssClass="form-input" placeholder="e.g. Relational modeling, stored procedures, indexing, migrations" />
-                            </div>
-                        </div>
-
-                        <!-- Skill 3 -->
-                        <div class="item-card">
-                            <div class="item-card-title">Skill 3</div>
-                            <div class="form-group">
-                                <label for="txtSkill3" class="form-label">Skill Name</label>
-                                <asp:TextBox ID="txtSkill3" runat="server" CssClass="form-input" MaxLength="100" placeholder="e.g. Frontend Technologies (HTML5, CSS3, JavaScript)" />
-                            </div>
-                            <div class="form-group">
-                                <label for="txtSkillDesc3" class="form-label">Description / Proficiency Details</label>
-                                <asp:TextBox ID="txtSkillDesc3" runat="server" CssClass="form-input" placeholder="e.g. Responsive wireframing, monochromatic UI design, DOM manipulation" />
-                            </div>
-                        </div>
-
-                        <!-- Skill 4 -->
-                        <div class="item-card">
-                            <div class="item-card-title">Skill 4</div>
-                            <div class="form-group">
-                                <label for="txtSkill4" class="form-label">Skill Name</label>
-                                <asp:TextBox ID="txtSkill4" runat="server" CssClass="form-input" MaxLength="100" placeholder="e.g. Git & Version Control" />
-                            </div>
-                            <div class="form-group">
-                                <label for="txtSkillDesc4" class="form-label">Description / Proficiency Details</label>
-                                <asp:TextBox ID="txtSkillDesc4" runat="server" CssClass="form-input" placeholder="e.g. Branching workflows, GitHub repository maintenance, code reviews" />
-                            </div>
+                        <div class="dynamic-list-container" id="skillList"></div>
+                        <div>
+                            <button type="button" class="btn btn-outline btn-add-item" onclick="addSkill();">
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+                                Add Another Skill
+                            </button>
                         </div>
                     </div>
 
@@ -750,96 +828,44 @@
                             <button type="button" class="btn btn-outline" onclick="prevStep(3);">Back</button>
                         </div>
                         <div class="footer-actions-right">
-                            <asp:Button ID="btnSaveStep3" runat="server" Text="Save & Exit" CssClass="btn btn-outline" OnClick="btnSaveChanges_Click" CausesValidation="false" />
+                            <asp:Button ID="btnSaveStep3" runat="server" Text="Save & Exit" CssClass="btn btn-outline" OnClick="btnSaveChanges_Click" CausesValidation="false" OnClientClick="serializeDynamicData();" />
                             <button type="button" class="btn btn-solid" onclick="nextStep(3);">Continue</button>
                         </div>
                     </div>
                 </div>
 
                 <!-- ======================================================= -->
-                <!-- STEP 4: Affiliations & Hobbies (Affiliation & Hobby)    -->
+                <!-- STEP 4: Affiliations & Hobbies (Dynamic Lists)          -->
                 <!-- ======================================================= -->
                 <div class="step-section" id="step4">
                     <div class="section-header">
                         <h2 class="section-title">Step 4: Affiliations & Hobbies</h2>
-                        <p class="section-desc">Showcase your organization memberships and personal passions.</p>
+                        <p class="section-desc">Showcase your organization memberships, leadership roles, and personal passions.</p>
                     </div>
 
                     <div class="form-grid">
-                        <!-- Affiliation 1 -->
-                        <div class="item-card">
-                            <div class="item-card-title">Organization Affiliation 1</div>
-                            <div class="form-row-dual">
-                                <div class="form-group">
-                                    <label for="txtOrg1" class="form-label">Organization Name</label>
-                                    <asp:TextBox ID="txtOrg1" runat="server" CssClass="form-input" MaxLength="150" placeholder="e.g. Junior Philippine Computer Society" />
-                                </div>
-                                <div class="form-group">
-                                    <label for="txtRole1" class="form-label">Position / Role</label>
-                                    <asp:TextBox ID="txtRole1" runat="server" CssClass="form-input" MaxLength="100" placeholder="e.g. Vice President for Technical Affairs" />
-                                </div>
-                            </div>
-                            <div class="form-row-dual">
-                                <div class="form-group">
-                                    <label for="txtOrgStart1" class="form-label">Start Year</label>
-                                    <asp:TextBox ID="txtOrgStart1" runat="server" CssClass="form-input" MaxLength="10" placeholder="e.g. 2022" />
-                                </div>
-                                <div class="form-group">
-                                    <label for="txtOrgEnd1" class="form-label">End Year</label>
-                                    <asp:TextBox ID="txtOrgEnd1" runat="server" CssClass="form-input" MaxLength="10" placeholder="e.g. 2024" />
-                                </div>
-                            </div>
+                        <div class="sub-section-title">
+                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M23 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path></svg>
+                            Organizations & Affiliations
+                        </div>
+                        <div class="dynamic-list-container" id="affiliationList"></div>
+                        <div style="margin-bottom: 24px;">
+                            <button type="button" class="btn btn-outline btn-add-item" onclick="addAffiliation();">
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+                                Add Another Affiliation
+                            </button>
                         </div>
 
-                        <!-- Affiliation 2 (Optional) -->
-                        <div class="item-card">
-                            <div class="item-card-title">Organization Affiliation 2 <span class="label-hint">(Optional)</span></div>
-                            <div class="form-row-dual">
-                                <div class="form-group">
-                                    <label for="txtOrg2" class="form-label">Organization Name</label>
-                                    <asp:TextBox ID="txtOrg2" runat="server" CssClass="form-input" MaxLength="150" placeholder="e.g. Student Council / Tech Guild" />
-                                </div>
-                                <div class="form-group">
-                                    <label for="txtRole2" class="form-label">Position / Role</label>
-                                    <asp:TextBox ID="txtRole2" runat="server" CssClass="form-input" MaxLength="100" placeholder="e.g. Committee Member" />
-                                </div>
-                            </div>
-                            <div class="form-row-dual">
-                                <div class="form-group">
-                                    <label for="txtOrgStart2" class="form-label">Start Year</label>
-                                    <asp:TextBox ID="txtOrgStart2" runat="server" CssClass="form-input" MaxLength="10" placeholder="e.g. 2023" />
-                                </div>
-                                <div class="form-group">
-                                    <label for="txtOrgEnd2" class="form-label">End Year</label>
-                                    <asp:TextBox ID="txtOrgEnd2" runat="server" CssClass="form-input" MaxLength="10" placeholder="e.g. Present" />
-                                </div>
-                            </div>
+                        <div class="sub-section-title">
+                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon></svg>
+                            Personal Hobbies & Interests
                         </div>
-
-                        <!-- Hobby 1 -->
-                        <div class="item-card">
-                            <div class="item-card-title">Personal Hobby / Interest 1</div>
-                            <div class="form-group">
-                                <label for="txtHobby1" class="form-label">Hobby Name</label>
-                                <asp:TextBox ID="txtHobby1" runat="server" CssClass="form-input" MaxLength="100" placeholder="e.g. Competitive Programming" />
-                            </div>
-                            <div class="form-group">
-                                <label for="txtHobbyDesc1" class="form-label">Description</label>
-                                <asp:TextBox ID="txtHobbyDesc1" runat="server" CssClass="form-input" placeholder="e.g. Solving algorithmic challenges on LeetCode & Codeforces" />
-                            </div>
-                        </div>
-
-                        <!-- Hobby 2 -->
-                        <div class="item-card">
-                            <div class="item-card-title">Personal Hobby / Interest 2</div>
-                            <div class="form-group">
-                                <label for="txtHobby2" class="form-label">Hobby Name</label>
-                                <asp:TextBox ID="txtHobby2" runat="server" CssClass="form-input" MaxLength="100" placeholder="e.g. Photography & Digital Art" />
-                            </div>
-                            <div class="form-group">
-                                <label for="txtHobbyDesc2" class="form-label">Description</label>
-                                <asp:TextBox ID="txtHobbyDesc2" runat="server" CssClass="form-input" placeholder="e.g. Capturing architecture and minimalist urban landscapes" />
-                            </div>
+                        <div class="dynamic-list-container" id="hobbyList"></div>
+                        <div>
+                            <button type="button" class="btn btn-outline btn-add-item" onclick="addHobby();">
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+                                Add Another Hobby
+                            </button>
                         </div>
                     </div>
 
@@ -848,50 +874,28 @@
                             <button type="button" class="btn btn-outline" onclick="prevStep(4);">Back</button>
                         </div>
                         <div class="footer-actions-right">
-                            <asp:Button ID="btnSaveStep4" runat="server" Text="Save & Exit" CssClass="btn btn-outline" OnClick="btnSaveChanges_Click" CausesValidation="false" />
+                            <asp:Button ID="btnSaveStep4" runat="server" Text="Save & Exit" CssClass="btn btn-outline" OnClick="btnSaveChanges_Click" CausesValidation="false" OnClientClick="serializeDynamicData();" />
                             <button type="button" class="btn btn-solid" onclick="nextStep(4);">Continue</button>
                         </div>
                     </div>
                 </div>
 
                 <!-- ======================================================= -->
-                <!-- STEP 5: Social Links (SocialLink — Final Step)          -->
+                <!-- STEP 5: Social Links (SocialLink — Dynamic List)        -->
                 <!-- ======================================================= -->
                 <div class="step-section" id="step5">
                     <div class="section-header">
                         <h2 class="section-title">Step 5: Social & Web Presence</h2>
-                        <p class="section-desc">Connect your online profiles and portfolio URLs for visitors to reach you.</p>
+                        <p class="section-desc">Connect your online profiles, social channels, and portfolio links for visitors to reach you.</p>
                     </div>
 
                     <div class="form-grid">
-                        <!-- GitHub -->
-                        <div class="form-group">
-                            <label for="txtGithubLink" class="form-label">GitHub URL</label>
-                            <asp:TextBox ID="txtGithubLink" runat="server" CssClass="form-input" MaxLength="500" placeholder="https://github.com/yourusername" />
-                        </div>
-
-                        <!-- LinkedIn -->
-                        <div class="form-group">
-                            <label for="txtLinkedinLink" class="form-label">LinkedIn URL</label>
-                            <asp:TextBox ID="txtLinkedinLink" runat="server" CssClass="form-input" MaxLength="500" placeholder="https://linkedin.com/in/yourusername" />
-                        </div>
-
-                        <!-- Personal Website / Portfolio -->
-                        <div class="form-group">
-                            <label for="txtWebsiteLink" class="form-label">Personal Website / Portfolio URL</label>
-                            <asp:TextBox ID="txtWebsiteLink" runat="server" CssClass="form-input" MaxLength="500" placeholder="https://yourportfolio.dev" />
-                        </div>
-
-                        <!-- Twitter / X -->
-                        <div class="form-group">
-                            <label for="txtTwitterLink" class="form-label">Twitter / X URL</label>
-                            <asp:TextBox ID="txtTwitterLink" runat="server" CssClass="form-input" MaxLength="500" placeholder="https://x.com/yourusername" />
-                        </div>
-
-                        <!-- Other Social / Instagram / Facebook -->
-                        <div class="form-group">
-                            <label for="txtOtherSocialLink" class="form-label">Other Social Link (Instagram / Facebook)</label>
-                            <asp:TextBox ID="txtOtherSocialLink" runat="server" CssClass="form-input" MaxLength="500" placeholder="https://instagram.com/yourusername" />
+                        <div class="dynamic-list-container" id="socialLinkList"></div>
+                        <div>
+                            <button type="button" class="btn btn-outline btn-add-item" onclick="addSocialLink();">
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+                                Add Another Social Link
+                            </button>
                         </div>
                     </div>
 
@@ -900,10 +904,35 @@
                             <button type="button" class="btn btn-outline" onclick="prevStep(5);">Back</button>
                         </div>
                         <div class="footer-actions-right">
-                            <asp:Button ID="btnSaveStep5" runat="server" Text="Save & Exit" CssClass="btn btn-outline" OnClick="btnSaveChanges_Click" CausesValidation="false" />
-                            <asp:Button ID="btnCompleteOnboarding" runat="server" Text="Complete & Launch Portfolio" CssClass="btn btn-solid" OnClick="btnCompleteOnboarding_Click" />
+                            <asp:Button ID="btnSaveStep5" runat="server" Text="Save & Exit" CssClass="btn btn-outline" OnClick="btnSaveChanges_Click" CausesValidation="false" OnClientClick="serializeDynamicData();" />
+                            <asp:Button ID="btnCompleteOnboarding" runat="server" Text="Complete & Launch Portfolio" CssClass="btn btn-solid" OnClick="btnCompleteOnboarding_Click" OnClientClick="serializeDynamicData();" />
                         </div>
                     </div>
+                </div>
+
+                <!-- Floating Lower-Right Toast Notifications -->
+                <div class="toast-container" id="toastContainer">
+                    <asp:Panel ID="pnlError" runat="server" Visible="false" CssClass="toast-box toast-error">
+                        <div class="toast-icon">
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="12"></line><line x1="12" y1="16" x2="12.01" y2="16"></line></svg>
+                        </div>
+                        <div class="toast-content">
+                            <span class="toast-title">Notice</span>
+                            <asp:Label ID="lblErrorMessage" runat="server" CssClass="toast-message" />
+                        </div>
+                        <button type="button" class="toast-close-btn" onclick="dismissToast(this)">&times;</button>
+                    </asp:Panel>
+
+                    <asp:Panel ID="pnlSuccess" runat="server" Visible="false" CssClass="toast-box toast-success">
+                        <div class="toast-icon">
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg>
+                        </div>
+                        <div class="toast-content">
+                            <span class="toast-title">Success</span>
+                            <asp:Label ID="lblSuccessMessage" runat="server" CssClass="toast-message" />
+                        </div>
+                        <button type="button" class="toast-close-btn" onclick="dismissToast(this)">&times;</button>
+                    </asp:Panel>
                 </div>
             </form>
         </div>
@@ -993,12 +1022,402 @@
             }
         }
 
+        // =========================================================================
+        // Dynamic List Management (Add, Remove, Reindex, Serialize)
+        // =========================================================================
+        function escapeHtml(str) {
+            if (str === null || str === undefined) return '';
+            return String(str)
+                .replace(/&/g, '&amp;')
+                .replace(/</g, '&lt;')
+                .replace(/>/g, '&gt;')
+                .replace(/"/g, '&quot;')
+                .replace(/'/g, '&#039;');
+        }
+
+        function removeDynamicCard(btn, containerId, titlePrefix) {
+            var card = btn.closest('.item-card');
+            if (!card) return;
+            var container = document.getElementById(containerId);
+            card.remove();
+            reindexCards(containerId, titlePrefix);
+            serializeDynamicData();
+        }
+
+        function reindexCards(containerId, titlePrefix) {
+            var container = document.getElementById(containerId);
+            if (!container) return;
+            var cards = container.querySelectorAll('.item-card');
+            cards.forEach(function (c, idx) {
+                var badge = c.querySelector('.badge-title');
+                if (badge) {
+                    badge.textContent = titlePrefix + ' #' + (idx + 1);
+                }
+            });
+        }
+
+        // 1. Education
+        function addEducation(data) {
+            data = data || {};
+            var container = document.getElementById('educationList');
+            if (!container) return;
+            var index = container.querySelectorAll('.item-card').length + 1;
+            var card = document.createElement('div');
+            card.className = 'item-card education-item-card';
+            card.innerHTML = 
+                '<div class="item-card-header">' +
+                    '<span class="item-card-badge">' +
+                        '<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 10v6M2 10l10-5 10 5-10 5z"></path><path d="M6 12v5c3 3 9 3 12 0v-5"></path></svg>' +
+                        '<span class="badge-title">Education #' + index + '</span>' +
+                    '</span>' +
+                    '<button type="button" class="btn-delete-card" onclick="removeDynamicCard(this, \'educationList\', \'Education\');" title="Remove this education record">' +
+                        'Delete' +
+                    '</button>' +
+                '</div>' +
+                '<div class="form-group">' +
+                    '<label class="form-label">Degree / Course Name *</label>' +
+                    '<input type="text" class="form-input edu-course" maxlength="150" placeholder="e.g. Bachelor of Science in Information Technology" value="' + escapeHtml(data.courseName || '') + '" />' +
+                '</div>' +
+                '<div class="form-group">' +
+                    '<label class="form-label">University / Institution *</label>' +
+                    '<input type="text" class="form-input edu-univ" maxlength="150" placeholder="e.g. University of Science and Technology of Southern Philippines" value="' + escapeHtml(data.university || '') + '" />' +
+                '</div>' +
+                '<div class="form-row-dual">' +
+                    '<div class="form-group">' +
+                        '<label class="form-label">Start Year *</label>' +
+                        '<input type="text" class="form-input edu-start" maxlength="10" placeholder="e.g. 2021" value="' + escapeHtml(data.startYear || '') + '" />' +
+                    '</div>' +
+                    '<div class="form-group">' +
+                        '<label class="form-label">End Year (or \'Present\')</label>' +
+                        '<input type="text" class="form-input edu-end" maxlength="10" placeholder="e.g. 2025" value="' + escapeHtml(data.endYear || '') + '" />' +
+                    '</div>' +
+                '</div>';
+            container.appendChild(card);
+        }
+
+        // 2. Skill
+        function addSkill(data) {
+            data = data || {};
+            var container = document.getElementById('skillList');
+            if (!container) return;
+            var index = container.querySelectorAll('.item-card').length + 1;
+            var card = document.createElement('div');
+            card.className = 'item-card skill-item-card';
+            card.innerHTML = 
+                '<div class="item-card-header">' +
+                    '<span class="item-card-badge">' +
+                        '<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="16 18 22 12 16 6"></polyline><polyline points="8 6 2 12 8 18"></polyline></svg>' +
+                        '<span class="badge-title">Skill #' + index + '</span>' +
+                    '</span>' +
+                    '<button type="button" class="btn-delete-card" onclick="removeDynamicCard(this, \'skillList\', \'Skill\');" title="Remove this skill">' +
+                        'Delete' +
+                    '</button>' +
+                '</div>' +
+                '<div class="form-group">' +
+                    '<label class="form-label">Skill Name *</label>' +
+                    '<input type="text" class="form-input skill-name" maxlength="100" placeholder="e.g. C# & ASP.NET Web Forms / MVC" value="' + escapeHtml(data.skillName || '') + '" />' +
+                '</div>' +
+                '<div class="form-group">' +
+                    '<label class="form-label">Description / Proficiency Details</label>' +
+                    '<input type="text" class="form-input skill-desc" placeholder="e.g. Backend architecture, ADO.NET, REST APIs, Session state" value="' + escapeHtml(data.skillDescription || '') + '" />' +
+                '</div>';
+            container.appendChild(card);
+        }
+
+        // 3. Affiliation
+        function addAffiliation(data) {
+            data = data || {};
+            var container = document.getElementById('affiliationList');
+            if (!container) return;
+            var index = container.querySelectorAll('.item-card').length + 1;
+            var card = document.createElement('div');
+            card.className = 'item-card affiliation-item-card';
+            card.innerHTML = 
+                '<div class="item-card-header">' +
+                    '<span class="item-card-badge">' +
+                        '<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle></svg>' +
+                        '<span class="badge-title">Affiliation #' + index + '</span>' +
+                    '</span>' +
+                    '<button type="button" class="btn-delete-card" onclick="removeDynamicCard(this, \'affiliationList\', \'Affiliation\');" title="Remove this affiliation">' +
+                        'Delete' +
+                    '</button>' +
+                '</div>' +
+                '<div class="form-row-dual">' +
+                    '<div class="form-group">' +
+                        '<label class="form-label">Organization Name *</label>' +
+                        '<input type="text" class="form-input affil-org" maxlength="150" placeholder="e.g. Junior Philippine Computer Society" value="' + escapeHtml(data.organizationName || '') + '" />' +
+                    '</div>' +
+                    '<div class="form-group">' +
+                        '<label class="form-label">Position / Role *</label>' +
+                        '<input type="text" class="form-input affil-role" maxlength="100" placeholder="e.g. Vice President for Technical Affairs" value="' + escapeHtml(data.position || '') + '" />' +
+                    '</div>' +
+                '</div>' +
+                '<div class="form-row-dual">' +
+                    '<div class="form-group">' +
+                        '<label class="form-label">Start Year</label>' +
+                        '<input type="text" class="form-input affil-start" maxlength="10" placeholder="e.g. 2022" value="' + escapeHtml(data.startYear || '') + '" />' +
+                    '</div>' +
+                    '<div class="form-group">' +
+                        '<label class="form-label">End Year (or \'Present\')</label>' +
+                        '<input type="text" class="form-input affil-end" maxlength="10" placeholder="e.g. 2024" value="' + escapeHtml(data.endYear || '') + '" />' +
+                    '</div>' +
+                '</div>';
+            container.appendChild(card);
+        }
+
+        // 4. Hobby
+        function addHobby(data) {
+            data = data || {};
+            var container = document.getElementById('hobbyList');
+            if (!container) return;
+            var index = container.querySelectorAll('.item-card').length + 1;
+            var card = document.createElement('div');
+            card.className = 'item-card hobby-item-card';
+            card.innerHTML = 
+                '<div class="item-card-header">' +
+                    '<span class="item-card-badge">' +
+                        '<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon></svg>' +
+                        '<span class="badge-title">Hobby #' + index + '</span>' +
+                    '</span>' +
+                    '<button type="button" class="btn-delete-card" onclick="removeDynamicCard(this, \'hobbyList\', \'Hobby\');" title="Remove this hobby">' +
+                        'Delete' +
+                    '</button>' +
+                '</div>' +
+                '<div class="form-group">' +
+                    '<label class="form-label">Hobby / Interest Name *</label>' +
+                    '<input type="text" class="form-input hobby-name" maxlength="100" placeholder="e.g. Competitive Programming" value="' + escapeHtml(data.hobbyName || '') + '" />' +
+                '</div>' +
+                '<div class="form-group">' +
+                    '<label class="form-label">Description</label>' +
+                    '<input type="text" class="form-input hobby-desc" placeholder="e.g. Solving algorithmic challenges on LeetCode & Codeforces" value="' + escapeHtml(data.hobbyDescription || '') + '" />' +
+                '</div>';
+            container.appendChild(card);
+        }
+
+        // 5. Social Link
+        function addSocialLink(data) {
+            data = data || {};
+            var container = document.getElementById('socialLinkList');
+            if (!container) return;
+            var index = container.querySelectorAll('.item-card').length + 1;
+            var currentPlatform = (data.socialLinkName || 'GitHub').trim();
+            var card = document.createElement('div');
+            card.className = 'item-card social-item-card';
+
+            var platforms = ['GitHub', 'LinkedIn', 'Personal Website', 'Twitter / X', 'Instagram', 'Facebook', 'YouTube', 'Discord', 'TikTok', 'Other'];
+            var optionsHtml = '';
+            var matched = false;
+            for (var i = 0; i < platforms.length; i++) {
+                var p = platforms[i];
+                var isSelected = (p.toLowerCase() === currentPlatform.toLowerCase());
+                if (isSelected) matched = true;
+                optionsHtml += '<option value="' + escapeHtml(p) + '"' + (isSelected ? ' selected' : '') + '>' + escapeHtml(p) + '</option>';
+            }
+            if (!matched && currentPlatform) {
+                optionsHtml += '<option value="' + escapeHtml(currentPlatform) + '" selected>' + escapeHtml(currentPlatform) + '</option>';
+            }
+
+            card.innerHTML = 
+                '<div class="item-card-header">' +
+                    '<span class="item-card-badge">' +
+                        '<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><line x1="2" y1="12" x2="22" y2="12"></line><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"></path></svg>' +
+                        '<span class="badge-title">Link #' + index + '</span>' +
+                    '</span>' +
+                    '<button type="button" class="btn-delete-card" onclick="removeDynamicCard(this, \'socialLinkList\', \'Link\');" title="Remove this social link">' +
+                        'Delete' +
+                    '</button>' +
+                '</div>' +
+                '<div class="form-row-dual">' +
+                    '<div class="form-group">' +
+                        '<label class="form-label">Platform / Network</label>' +
+                        '<select class="form-input social-platform">' +
+                            optionsHtml +
+                        '</select>' +
+                    '</div>' +
+                    '<div class="form-group">' +
+                        '<label class="form-label">Profile / Portfolio URL *</label>' +
+                        '<input type="text" class="form-input social-url" maxlength="500" placeholder="https://..." value="' + escapeHtml(data.link || '') + '" />' +
+                    '</div>' +
+                '</div>';
+            container.appendChild(card);
+        }
+
+        // =========================================================================
+        // Serialization to Hidden Fields
+        // =========================================================================
+        function serializeDynamicData() {
+            // 1. Educations
+            var eduCards = document.querySelectorAll('#educationList .item-card');
+            var eduData = [];
+            eduCards.forEach(function (c) {
+                var courseEl = c.querySelector('.edu-course');
+                var univEl = c.querySelector('.edu-univ');
+                var startEl = c.querySelector('.edu-start');
+                var endEl = c.querySelector('.edu-end');
+                var course = courseEl ? courseEl.value.trim() : '';
+                var univ = univEl ? univEl.value.trim() : '';
+                var start = startEl ? startEl.value.trim() : '';
+                var end = endEl ? endEl.value.trim() : '';
+                if (course || univ) {
+                    eduData.push({ CourseName: course, University: univ, StartYear: start, EndYear: end });
+                }
+            });
+            var hfEdu = document.getElementById('<%= hfEducationsJson.ClientID %>');
+            if (hfEdu) hfEdu.value = JSON.stringify(eduData);
+
+            // 2. Skills
+            var skillCards = document.querySelectorAll('#skillList .item-card');
+            var skillData = [];
+            skillCards.forEach(function (c) {
+                var nameEl = c.querySelector('.skill-name');
+                var descEl = c.querySelector('.skill-desc');
+                var name = nameEl ? nameEl.value.trim() : '';
+                var desc = descEl ? descEl.value.trim() : '';
+                if (name) {
+                    skillData.push({ SkillName: name, SkillDescription: desc });
+                }
+            });
+            var hfSkill = document.getElementById('<%= hfSkillsJson.ClientID %>');
+            if (hfSkill) hfSkill.value = JSON.stringify(skillData);
+
+            // 3. Affiliations
+            var affilCards = document.querySelectorAll('#affiliationList .item-card');
+            var affilData = [];
+            affilCards.forEach(function (c) {
+                var orgEl = c.querySelector('.affil-org');
+                var roleEl = c.querySelector('.affil-role');
+                var startEl = c.querySelector('.affil-start');
+                var endEl = c.querySelector('.affil-end');
+                var org = orgEl ? orgEl.value.trim() : '';
+                var role = roleEl ? roleEl.value.trim() : '';
+                var start = startEl ? startEl.value.trim() : '';
+                var end = endEl ? endEl.value.trim() : '';
+                if (org || role) {
+                    affilData.push({ OrganizationName: org, Position: role, StartYear: start, EndYear: end });
+                }
+            });
+            var hfAffil = document.getElementById('<%= hfAffiliationsJson.ClientID %>');
+            if (hfAffil) hfAffil.value = JSON.stringify(affilData);
+
+            // 4. Hobbies
+            var hobbyCards = document.querySelectorAll('#hobbyList .item-card');
+            var hobbyData = [];
+            hobbyCards.forEach(function (c) {
+                var nameEl = c.querySelector('.hobby-name');
+                var descEl = c.querySelector('.hobby-desc');
+                var name = nameEl ? nameEl.value.trim() : '';
+                var desc = descEl ? descEl.value.trim() : '';
+                if (name) {
+                    hobbyData.push({ HobbyName: name, HobbyDescription: desc });
+                }
+            });
+            var hfHobby = document.getElementById('<%= hfHobbiesJson.ClientID %>');
+            if (hfHobby) hfHobby.value = JSON.stringify(hobbyData);
+
+            // 5. Social Links
+            var socialCards = document.querySelectorAll('#socialLinkList .item-card');
+            var socialData = [];
+            socialCards.forEach(function (c) {
+                var platEl = c.querySelector('.social-platform');
+                var urlEl = c.querySelector('.social-url');
+                var plat = platEl ? platEl.value.trim() : 'Other';
+                var url = urlEl ? urlEl.value.trim() : '';
+                if (url) {
+                    socialData.push({ SocialLinkName: plat, Link: url });
+                }
+            });
+            var hfSocial = document.getElementById('<%= hfSocialLinksJson.ClientID %>');
+            if (hfSocial) hfSocial.value = JSON.stringify(socialData);
+        }
+
+        // =========================================================================
+        // Initialization
+        // =========================================================================
+        function initDynamicSections() {
+            function parseJsonSafely(id) {
+                var el = document.getElementById(id);
+                if (!el || !el.value) return [];
+                try {
+                    return JSON.parse(el.value) || [];
+                } catch (e) {
+                    return [];
+                }
+            }
+
+            // Educations
+            var educations = parseJsonSafely('<%= hfEducationsJson.ClientID %>');
+            if (educations.length > 0) {
+                educations.forEach(function (item) { addEducation(item); });
+            } else {
+                addEducation();
+            }
+
+            // Skills
+            var skills = parseJsonSafely('<%= hfSkillsJson.ClientID %>');
+            if (skills.length > 0) {
+                skills.forEach(function (item) { addSkill(item); });
+            } else {
+                addSkill();
+            }
+
+            // Affiliations
+            var affiliations = parseJsonSafely('<%= hfAffiliationsJson.ClientID %>');
+            if (affiliations.length > 0) {
+                affiliations.forEach(function (item) { addAffiliation(item); });
+            } else {
+                addAffiliation();
+            }
+
+            // Hobbies
+            var hobbies = parseJsonSafely('<%= hfHobbiesJson.ClientID %>');
+            if (hobbies.length > 0) {
+                hobbies.forEach(function (item) { addHobby(item); });
+            } else {
+                addHobby();
+            }
+
+            // Social Links
+            var socialLinks = parseJsonSafely('<%= hfSocialLinksJson.ClientID %>');
+            if (socialLinks.length > 0) {
+                socialLinks.forEach(function (item) { addSocialLink(item); });
+            } else {
+                addSocialLink();
+            }
+        }
+
+        function dismissToast(btn) {
+            var toast = btn.closest('.toast-box');
+            if (toast) {
+                toast.style.opacity = '0';
+                toast.style.transform = 'translateY(16px)';
+                setTimeout(function () { toast.style.display = 'none'; }, 250);
+            }
+        }
+
         // Initialize state on load
         window.addEventListener('DOMContentLoaded', function () {
             var hfStep = document.getElementById('<%= hfCurrentStep.ClientID %>');
             var initStep = hfStep && hfStep.value ? parseInt(hfStep.value) : 1;
             if (isNaN(initStep) || initStep < 1 || initStep > totalSteps) initStep = 1;
             setStep(initStep);
+
+            // Populate dynamic lists
+            initDynamicSections();
+
+            // Hook form submit
+            var form = document.getElementById('<%= onboardingForm.ClientID %>');
+            if (form) {
+                form.addEventListener('submit', serializeDynamicData);
+            }
+
+            // Auto-dismiss any active toasts after 5 seconds
+            var activeToasts = document.querySelectorAll('.toast-box');
+            activeToasts.forEach(function (t) {
+                setTimeout(function () {
+                    var btn = t.querySelector('.toast-close-btn');
+                    if (btn) dismissToast(btn);
+                }, 5000);
+            });
         });
     </script>
 </body>

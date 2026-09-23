@@ -12,6 +12,7 @@
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@600;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='20' fill='%23000'/><text x='50' y='70' font-size='60' text-anchor='middle' fill='%23fff' font-family='sans-serif' font-weight='bold'>P</text></svg>">
 
     <style>
         :root {
@@ -81,26 +82,178 @@
             font-family: 'Inter', sans-serif;
         }
 
-        /* Status Alerts */
-        .alert-box {
-            padding: 12px 16px;
-            border-radius: var(--radius-input);
+        /* Floating Lower-Right Toast Notifications */
+        .toast-container {
+            position: fixed;
+            bottom: 24px;
+            right: 24px;
+            z-index: 100000;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            max-width: 420px;
+            width: calc(100vw - 48px);
+            pointer-events: none;
+        }
+
+        .toast-box {
+            pointer-events: auto;
+            display: flex;
+            align-items: flex-start;
+            gap: 12px;
+            padding: 14px 18px;
+            border-radius: 12px;
+            border: 2px solid #000000;
+            box-shadow: 4px 4px 0px #000000;
+            background-color: #ffffff;
+            animation: toastSlideUp 0.35s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+            transition: opacity 0.25s ease, transform 0.25s ease;
+        }
+
+        @keyframes toastSlideUp {
+            from {
+                opacity: 0;
+                transform: translateY(24px) scale(0.96);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0) scale(1);
+            }
+        }
+
+        .toast-box.toast-error {
+            background-color: #fef2f2;
+            border-color: #ef4444;
+            color: #991b1b;
+            box-shadow: 4px 4px 0px #ef4444;
+        }
+
+        .toast-box.toast-success {
+            background-color: #f0fdf4;
+            border-color: #16a34a;
+            color: #166534;
+            box-shadow: 4px 4px 0px #16a34a;
+        }
+
+        .toast-icon {
+            flex-shrink: 0;
+            margin-top: 2px;
+        }
+
+        .toast-content {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            gap: 3px;
+        }
+
+        .toast-title {
+            font-size: 0.85rem;
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: 0.04em;
+            line-height: 1.2;
+        }
+
+        .toast-message {
             font-size: 0.88rem;
             font-weight: 600;
+            line-height: 1.4;
+        }
+
+        .toast-close-btn {
+            background: transparent;
+            border: none;
+            font-size: 1.3rem;
+            line-height: 1;
+            cursor: pointer;
+            color: inherit;
+            padding: 0 2px;
+            font-weight: 800;
+            opacity: 0.75;
+            transition: opacity 0.2s ease;
+        }
+
+        .toast-close-btn:hover {
+            opacity: 1;
+        }
+
+        @media (max-width: 480px) {
+            .toast-container {
+                bottom: 16px;
+                right: 16px;
+                left: 16px;
+                width: auto;
+                max-width: none;
+            }
+        }
+
+        /* Universal Interactive Loading Screen Overlay */
+        .loading-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: rgba(0, 0, 0, 0.65);
+            backdrop-filter: blur(6px);
+            z-index: 99999;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .loading-box {
+            background-color: #ffffff;
+            border: 2.5px solid #000000;
+            border-radius: 16px;
+            box-shadow: 6px 6px 0px #000000;
+            width: 100%;
+            max-width: 380px;
+            padding: 34px 26px;
+            text-align: center;
+            animation: loadingPop 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        @keyframes loadingPop {
+            from { opacity: 0; transform: scale(0.92) translateY(8px); }
+            to { opacity: 1; transform: scale(1) translateY(0); }
+        }
+
+        .loading-spinner-wrap {
+            display: flex;
+            justify-content: center;
             margin-bottom: 20px;
-            border: 2px solid var(--border-black);
         }
 
-        .alert-danger {
-            background-color: #fef2f2;
-            color: #991b1b;
-            border-color: #991b1b;
+        .retro-spinner {
+            width: 44px;
+            height: 44px;
+            border: 4px solid #f4f4f5;
+            border-top: 4px solid #000000;
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
         }
 
-        .alert-success {
-            background-color: #f0fdf4;
-            color: #166534;
-            border-color: #166534;
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .loading-title {
+            font-size: 1.35rem;
+            font-weight: 800;
+            color: #000000;
+            margin-bottom: 8px;
+            letter-spacing: -0.02em;
+        }
+
+        .loading-desc {
+            font-size: 0.88rem;
+            color: #52525b;
+            line-height: 1.45;
+            margin: 0;
         }
 
         /* Form Controls */
@@ -394,6 +547,55 @@
             }
         };
         var showLoginSuccessModal = window.showLoginSuccessModal;
+
+        function showLoadingScreen(title, desc) {
+            var overlay = document.getElementById('loadingOverlay');
+            if (title) document.getElementById('loadingTitle').textContent = title;
+            if (desc) document.getElementById('loadingDesc').textContent = desc;
+            if (overlay) overlay.style.display = 'flex';
+        }
+
+        function hideLoadingScreen() {
+            var overlay = document.getElementById('loadingOverlay');
+            if (overlay) overlay.style.display = 'none';
+        }
+
+        function dismissToast(btn) {
+            var toast = btn.closest('.toast-box');
+            if (toast) {
+                toast.style.opacity = '0';
+                toast.style.transform = 'translateY(16px)';
+                setTimeout(function () { toast.style.display = 'none'; }, 250);
+            }
+        }
+
+        function handleLoginError() {
+            showLoadingScreen('Authenticating...', 'Verifying credentials with the database...');
+            setTimeout(function () {
+                hideLoadingScreen();
+                var errToast = document.querySelector('.toast-box.toast-error');
+                if (errToast) {
+                    setTimeout(function () {
+                        var btn = errToast.querySelector('.toast-close-btn');
+                        if (btn) dismissToast(btn);
+                    }, 5000);
+                }
+            }, 650);
+        }
+
+        function autoDismissSuccessToast() {
+            var successToast = document.querySelector('.toast-box.toast-success');
+            if (successToast) {
+                setTimeout(function () {
+                    var btn = successToast.querySelector('.toast-close-btn');
+                    if (btn) dismissToast(btn);
+                }, 5000);
+            }
+        }
+
+        window.addEventListener('DOMContentLoaded', function () {
+            autoDismissSuccessToast();
+        });
     </script>
 </head>
 <body>
@@ -407,15 +609,6 @@
 
             <!-- Form -->
             <form id="loginForm" runat="server">
-                <!-- Status Alerts -->
-                <asp:Panel ID="pnlError" runat="server" Visible="false" CssClass="alert-box alert-danger">
-                    <asp:Label ID="lblErrorMessage" runat="server" />
-                </asp:Panel>
-
-                <asp:Panel ID="pnlSuccess" runat="server" Visible="false" CssClass="alert-box alert-success">
-                    <asp:Label ID="lblSuccessMessage" runat="server" />
-                </asp:Panel>
-
                 <!-- Input Fields -->
                 <div class="form-grid">
                     <!-- Email -->
@@ -450,8 +643,33 @@
 
                     <!-- Submit Button -->
                     <div class="btn-wrapper">
-                        <asp:Button ID="btnLogin" runat="server" Text="Sign In" CssClass="btn-submit" OnClick="btnLogin_Click" />
+                        <asp:Button ID="btnLogin" runat="server" Text="Sign In" CssClass="btn-submit" OnClick="btnLogin_Click" OnClientClick="if (this.form.checkValidity ? this.form.checkValidity() : true) { showLoadingScreen('Authenticating...', 'Verifying credentials with the server...'); }" />
                     </div>
+                </div>
+
+                <!-- Floating Lower-Right Toast Notifications -->
+                <div class="toast-container" id="toastContainer">
+                    <asp:Panel ID="pnlError" runat="server" Visible="false" CssClass="toast-box toast-error">
+                        <div class="toast-icon">
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="12"></line><line x1="12" y1="16" x2="12.01" y2="16"></line></svg>
+                        </div>
+                        <div class="toast-content">
+                            <span class="toast-title">Authentication Failed</span>
+                            <asp:Label ID="lblErrorMessage" runat="server" CssClass="toast-message" />
+                        </div>
+                        <button type="button" class="toast-close-btn" onclick="dismissToast(this)">&times;</button>
+                    </asp:Panel>
+
+                    <asp:Panel ID="pnlSuccess" runat="server" Visible="false" CssClass="toast-box toast-success">
+                        <div class="toast-icon">
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg>
+                        </div>
+                        <div class="toast-content">
+                            <span class="toast-title">Success</span>
+                            <asp:Label ID="lblSuccessMessage" runat="server" CssClass="toast-message" />
+                        </div>
+                        <button type="button" class="toast-close-btn" onclick="dismissToast(this)">&times;</button>
+                    </asp:Panel>
                 </div>
             </form>
 
@@ -482,6 +700,17 @@
             </div>
 
             <span class="login-redirect-text">Redirecting to your dashboard...</span>
+        </div>
+    </div>
+
+    <!-- Universal Interactive Loading Screen -->
+    <div class="loading-overlay" id="loadingOverlay" style="display: none;">
+        <div class="loading-box">
+            <div class="loading-spinner-wrap">
+                <div class="retro-spinner"></div>
+            </div>
+            <h3 class="loading-title" id="loadingTitle">Authenticating...</h3>
+            <p class="loading-desc" id="loadingDesc">Checking security credentials with the server...</p>
         </div>
     </div>
 

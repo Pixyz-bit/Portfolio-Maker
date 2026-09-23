@@ -67,6 +67,10 @@ namespace _241611JalopPersonalWebsite.Frontend.Admin
         protected global::System.Web.UI.WebControls.HiddenField hfStatusNewState;
         protected global::System.Web.UI.WebControls.Button btnConfirmStatusAction;
 
+        // Proper Delete Modal Controls
+        protected global::System.Web.UI.WebControls.HiddenField hfDeleteUserId;
+        protected global::System.Web.UI.WebControls.Button btnConfirmDeleteUser;
+
         // Add Modal Controls
         protected global::System.Web.UI.WebControls.TextBox txtAddFirstName;
         protected global::System.Web.UI.WebControls.TextBox txtAddLastName;

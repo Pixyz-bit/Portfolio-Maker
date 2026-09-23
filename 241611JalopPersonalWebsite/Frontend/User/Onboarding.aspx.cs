@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Web.Script.Serialization;
 using System.Web.UI;
 using _241611JalopPersonalWebsite.Model;
 using _241611JalopPersonalWebsite.Repository;
@@ -72,83 +73,49 @@ namespace _241611JalopPersonalWebsite.Frontend.User
             }
 
             // 2. Load Educations
-            List<Education> educations = EducationRepository.GetByUserId(userId, out _);
-            if (educations != null && educations.Count > 0)
+            List<Education> educations = EducationRepository.GetByUserId(userId, out _) ?? new List<Education>();
+            var eduDtoList = new List<object>();
+            foreach (var e in educations)
             {
-                txtCourse1.Text = educations[0].CourseName;
-                txtUniversity1.Text = educations[0].University;
-                txtEduStartYear1.Text = educations[0].StartYear;
-                txtEduEndYear1.Text = educations[0].EndYear ?? string.Empty;
-
-                if (educations.Count > 1)
-                {
-                    txtCourse2.Text = educations[1].CourseName;
-                    txtUniversity2.Text = educations[1].University;
-                    txtEduStartYear2.Text = educations[1].StartYear;
-                    txtEduEndYear2.Text = educations[1].EndYear ?? string.Empty;
-                }
+                eduDtoList.Add(new { courseName = e.CourseName, university = e.University, startYear = e.StartYear, endYear = e.EndYear });
             }
+            hfEducationsJson.Value = new JavaScriptSerializer().Serialize(eduDtoList);
 
             // 3. Load Skills
-            List<Skill> skills = SkillRepository.GetByUserId(userId, out _);
-            if (skills != null && skills.Count > 0)
+            List<Skill> skills = SkillRepository.GetByUserId(userId, out _) ?? new List<Skill>();
+            var skillDtoList = new List<object>();
+            foreach (var s in skills)
             {
-                if (skills.Count >= 1) { txtSkill1.Text = skills[0].SkillName; txtSkillDesc1.Text = skills[0].SkillDescription; }
-                if (skills.Count >= 2) { txtSkill2.Text = skills[1].SkillName; txtSkillDesc2.Text = skills[1].SkillDescription; }
-                if (skills.Count >= 3) { txtSkill3.Text = skills[2].SkillName; txtSkillDesc3.Text = skills[2].SkillDescription; }
-                if (skills.Count >= 4) { txtSkill4.Text = skills[3].SkillName; txtSkillDesc4.Text = skills[3].SkillDescription; }
+                skillDtoList.Add(new { skillName = s.SkillName, skillDescription = s.SkillDescription });
             }
+            hfSkillsJson.Value = new JavaScriptSerializer().Serialize(skillDtoList);
 
             // 4. Load Affiliations
-            List<Affiliation> affiliations = AffiliationRepository.GetByUserId(userId, out _);
-            if (affiliations != null && affiliations.Count > 0)
+            List<Affiliation> affiliations = AffiliationRepository.GetByUserId(userId, out _) ?? new List<Affiliation>();
+            var affilDtoList = new List<object>();
+            foreach (var a in affiliations)
             {
-                if (affiliations.Count >= 1)
-                {
-                    txtOrg1.Text = affiliations[0].OrganizationName;
-                    txtRole1.Text = affiliations[0].Position;
-                    txtOrgStart1.Text = affiliations[0].StartYear;
-                    txtOrgEnd1.Text = affiliations[0].EndYear ?? string.Empty;
-                }
-                if (affiliations.Count >= 2)
-                {
-                    txtOrg2.Text = affiliations[1].OrganizationName;
-                    txtRole2.Text = affiliations[1].Position;
-                    txtOrgStart2.Text = affiliations[1].StartYear;
-                    txtOrgEnd2.Text = affiliations[1].EndYear ?? string.Empty;
-                }
+                affilDtoList.Add(new { organizationName = a.OrganizationName, position = a.Position, startYear = a.StartYear, endYear = a.EndYear });
             }
+            hfAffiliationsJson.Value = new JavaScriptSerializer().Serialize(affilDtoList);
 
             // 5. Load Hobbies
-            List<Hobby> hobbies = HobbyRepository.GetByUserId(userId, out _);
-            if (hobbies != null && hobbies.Count > 0)
+            List<Hobby> hobbies = HobbyRepository.GetByUserId(userId, out _) ?? new List<Hobby>();
+            var hobbyDtoList = new List<object>();
+            foreach (var h in hobbies)
             {
-                if (hobbies.Count >= 1)
-                {
-                    txtHobby1.Text = hobbies[0].HobbyName;
-                    txtHobbyDesc1.Text = hobbies[0].HobbyDescription;
-                }
-                if (hobbies.Count >= 2)
-                {
-                    txtHobby2.Text = hobbies[1].HobbyName;
-                    txtHobbyDesc2.Text = hobbies[1].HobbyDescription;
-                }
+                hobbyDtoList.Add(new { hobbyName = h.HobbyName, hobbyDescription = h.HobbyDescription });
             }
+            hfHobbiesJson.Value = new JavaScriptSerializer().Serialize(hobbyDtoList);
 
             // 6. Load Social Links
-            List<SocialLink> socialLinks = SocialLinkRepository.GetByUserId(userId, out _);
-            if (socialLinks != null)
+            List<SocialLink> socialLinks = SocialLinkRepository.GetByUserId(userId, out _) ?? new List<SocialLink>();
+            var socialDtoList = new List<object>();
+            foreach (var sl in socialLinks)
             {
-                foreach (SocialLink link in socialLinks)
-                {
-                    string name = link.SocialLinkName?.ToLower() ?? string.Empty;
-                    if (name.Contains("github")) txtGithubLink.Text = link.Link;
-                    else if (name.Contains("linkedin")) txtLinkedinLink.Text = link.Link;
-                    else if (name.Contains("website") || name.Contains("portfolio")) txtWebsiteLink.Text = link.Link;
-                    else if (name.Contains("twitter") || name.Contains("x")) txtTwitterLink.Text = link.Link;
-                    else if (string.IsNullOrWhiteSpace(txtOtherSocialLink.Text)) txtOtherSocialLink.Text = link.Link;
-                }
+                socialDtoList.Add(new { socialLinkName = sl.SocialLinkName, link = sl.Link });
             }
+            hfSocialLinksJson.Value = new JavaScriptSerializer().Serialize(socialDtoList);
         }
 
         // =========================================================================
@@ -290,6 +257,8 @@ namespace _241611JalopPersonalWebsite.Frontend.User
                 Session["LastName"] = lastName;
                 Session["FullName"] = $"{firstName} {lastName}".Trim();
 
+                var serializer = new JavaScriptSerializer();
+
                 // =========================================================================
                 // 3. Persist Education Records using EducationRepository
                 // =========================================================================
@@ -302,30 +271,34 @@ namespace _241611JalopPersonalWebsite.Frontend.User
                     }
                 }
 
-                if (!string.IsNullOrWhiteSpace(txtCourse1.Text) && !string.IsNullOrWhiteSpace(txtUniversity1.Text))
+                if (!string.IsNullOrWhiteSpace(hfEducationsJson.Value))
                 {
-                    Education edu1 = new Education
+                    try
                     {
-                        UserID = userId,
-                        CourseName = txtCourse1.Text.Trim(),
-                        University = txtUniversity1.Text.Trim(),
-                        StartYear = string.IsNullOrWhiteSpace(txtEduStartYear1.Text) ? "2020" : txtEduStartYear1.Text.Trim(),
-                        EndYear = txtEduEndYear1.Text.Trim()
-                    };
-                    EducationRepository.Create(edu1, out _);
-                }
-
-                if (!string.IsNullOrWhiteSpace(txtCourse2.Text) && !string.IsNullOrWhiteSpace(txtUniversity2.Text))
-                {
-                    Education edu2 = new Education
+                        var eduItems = serializer.Deserialize<List<EducationInputDto>>(hfEducationsJson.Value);
+                        if (eduItems != null)
+                        {
+                            foreach (var item in eduItems)
+                            {
+                                if (!string.IsNullOrWhiteSpace(item.CourseName) && !string.IsNullOrWhiteSpace(item.University))
+                                {
+                                    Education edu = new Education
+                                    {
+                                        UserID = userId,
+                                        CourseName = item.CourseName.Trim(),
+                                        University = item.University.Trim(),
+                                        StartYear = string.IsNullOrWhiteSpace(item.StartYear) ? "2020" : item.StartYear.Trim(),
+                                        EndYear = item.EndYear?.Trim()
+                                    };
+                                    EducationRepository.Create(edu, out _);
+                                }
+                            }
+                        }
+                    }
+                    catch (Exception ex)
                     {
-                        UserID = userId,
-                        CourseName = txtCourse2.Text.Trim(),
-                        University = txtUniversity2.Text.Trim(),
-                        StartYear = string.IsNullOrWhiteSpace(txtEduStartYear2.Text) ? "2018" : txtEduStartYear2.Text.Trim(),
-                        EndYear = txtEduEndYear2.Text.Trim()
-                    };
-                    EducationRepository.Create(edu2, out _);
+                        System.Diagnostics.Debug.WriteLine("Error parsing educations JSON: " + ex.Message);
+                    }
                 }
 
                 // =========================================================================
@@ -340,10 +313,24 @@ namespace _241611JalopPersonalWebsite.Frontend.User
                     }
                 }
 
-                SaveSkillIfNotEmpty(userId, txtSkill1.Text, txtSkillDesc1.Text);
-                SaveSkillIfNotEmpty(userId, txtSkill2.Text, txtSkillDesc2.Text);
-                SaveSkillIfNotEmpty(userId, txtSkill3.Text, txtSkillDesc3.Text);
-                SaveSkillIfNotEmpty(userId, txtSkill4.Text, txtSkillDesc4.Text);
+                if (!string.IsNullOrWhiteSpace(hfSkillsJson.Value))
+                {
+                    try
+                    {
+                        var skillItems = serializer.Deserialize<List<SkillInputDto>>(hfSkillsJson.Value);
+                        if (skillItems != null)
+                        {
+                            foreach (var item in skillItems)
+                            {
+                                SaveSkillIfNotEmpty(userId, item.SkillName, item.SkillDescription);
+                            }
+                        }
+                    }
+                    catch (Exception ex)
+                    {
+                        System.Diagnostics.Debug.WriteLine("Error parsing skills JSON: " + ex.Message);
+                    }
+                }
 
                 // =========================================================================
                 // 5. Persist Affiliations using AffiliationRepository
@@ -357,8 +344,24 @@ namespace _241611JalopPersonalWebsite.Frontend.User
                     }
                 }
 
-                SaveAffiliationIfNotEmpty(userId, txtOrg1.Text, txtRole1.Text, txtOrgStart1.Text, txtOrgEnd1.Text);
-                SaveAffiliationIfNotEmpty(userId, txtOrg2.Text, txtRole2.Text, txtOrgStart2.Text, txtOrgEnd2.Text);
+                if (!string.IsNullOrWhiteSpace(hfAffiliationsJson.Value))
+                {
+                    try
+                    {
+                        var affilItems = serializer.Deserialize<List<AffiliationInputDto>>(hfAffiliationsJson.Value);
+                        if (affilItems != null)
+                        {
+                            foreach (var item in affilItems)
+                            {
+                                SaveAffiliationIfNotEmpty(userId, item.OrganizationName, item.Position, item.StartYear, item.EndYear);
+                            }
+                        }
+                    }
+                    catch (Exception ex)
+                    {
+                        System.Diagnostics.Debug.WriteLine("Error parsing affiliations JSON: " + ex.Message);
+                    }
+                }
 
                 // =========================================================================
                 // 6. Persist Hobbies using HobbyRepository
@@ -372,8 +375,24 @@ namespace _241611JalopPersonalWebsite.Frontend.User
                     }
                 }
 
-                SaveHobbyIfNotEmpty(userId, txtHobby1.Text, txtHobbyDesc1.Text);
-                SaveHobbyIfNotEmpty(userId, txtHobby2.Text, txtHobbyDesc2.Text);
+                if (!string.IsNullOrWhiteSpace(hfHobbiesJson.Value))
+                {
+                    try
+                    {
+                        var hobbyItems = serializer.Deserialize<List<HobbyInputDto>>(hfHobbiesJson.Value);
+                        if (hobbyItems != null)
+                        {
+                            foreach (var item in hobbyItems)
+                            {
+                                SaveHobbyIfNotEmpty(userId, item.HobbyName, item.HobbyDescription);
+                            }
+                        }
+                    }
+                    catch (Exception ex)
+                    {
+                        System.Diagnostics.Debug.WriteLine("Error parsing hobbies JSON: " + ex.Message);
+                    }
+                }
 
                 // =========================================================================
                 // 7. Persist Social Links using SocialLinkRepository (Final Step)
@@ -387,11 +406,24 @@ namespace _241611JalopPersonalWebsite.Frontend.User
                     }
                 }
 
-                SaveSocialLinkIfNotEmpty(userId, "GitHub", txtGithubLink.Text);
-                SaveSocialLinkIfNotEmpty(userId, "LinkedIn", txtLinkedinLink.Text);
-                SaveSocialLinkIfNotEmpty(userId, "Personal Website", txtWebsiteLink.Text);
-                SaveSocialLinkIfNotEmpty(userId, "Twitter / X", txtTwitterLink.Text);
-                SaveSocialLinkIfNotEmpty(userId, "Instagram", txtOtherSocialLink.Text);
+                if (!string.IsNullOrWhiteSpace(hfSocialLinksJson.Value))
+                {
+                    try
+                    {
+                        var socialItems = serializer.Deserialize<List<SocialLinkInputDto>>(hfSocialLinksJson.Value);
+                        if (socialItems != null)
+                        {
+                            foreach (var item in socialItems)
+                            {
+                                SaveSocialLinkIfNotEmpty(userId, item.SocialLinkName, item.Link);
+                            }
+                        }
+                    }
+                    catch (Exception ex)
+                    {
+                        System.Diagnostics.Debug.WriteLine("Error parsing social links JSON: " + ex.Message);
+                    }
+                }
 
                 // =========================================================================
                 // 8. Result Handling
@@ -473,6 +505,40 @@ namespace _241611JalopPersonalWebsite.Frontend.User
         {
             pnlError.Visible = true;
             lblErrorMessage.Text = message;
+        }
+
+        private class EducationInputDto
+        {
+            public string CourseName { get; set; }
+            public string University { get; set; }
+            public string StartYear { get; set; }
+            public string EndYear { get; set; }
+        }
+
+        private class SkillInputDto
+        {
+            public string SkillName { get; set; }
+            public string SkillDescription { get; set; }
+        }
+
+        private class AffiliationInputDto
+        {
+            public string OrganizationName { get; set; }
+            public string Position { get; set; }
+            public string StartYear { get; set; }
+            public string EndYear { get; set; }
+        }
+
+        private class HobbyInputDto
+        {
+            public string HobbyName { get; set; }
+            public string HobbyDescription { get; set; }
+        }
+
+        private class SocialLinkInputDto
+        {
+            public string SocialLinkName { get; set; }
+            public string Link { get; set; }
         }
     }
 }

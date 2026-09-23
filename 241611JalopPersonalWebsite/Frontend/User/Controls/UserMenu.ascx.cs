@@ -38,6 +38,7 @@ namespace _241611JalopPersonalWebsite.Frontend.User.Controls
             }
 
             bool isAdmin = string.Equals(Session["Role"]?.ToString(), "Admin", StringComparison.OrdinalIgnoreCase);
+            phAdminOnlyAccountFields.Visible = isAdmin;
 
             if (isAdmin)
             {
@@ -46,7 +47,7 @@ namespace _241611JalopPersonalWebsite.Frontend.User.Controls
                 lnkDashboard.Text = "Admin Dashboard";
                 ddlAccountRole.SelectedValue = "Admin";
                 ddlAccountRole.Enabled = true;
-                chkAccountIsActive.Enabled = false;
+                chkAccountIsActive.Enabled = true;
             }
             else
             {
@@ -79,7 +80,7 @@ namespace _241611JalopPersonalWebsite.Frontend.User.Controls
 
             bool isAdmin = string.Equals(Session["Role"]?.ToString(), "Admin", StringComparison.OrdinalIgnoreCase);
             string role = isAdmin ? ddlAccountRole.SelectedValue : (Session["Role"]?.ToString() ?? "User");
-            bool isActive = true;
+            bool isActive = isAdmin ? chkAccountIsActive.Checked : true;
 
             if (string.IsNullOrWhiteSpace(firstName))
             {
@@ -135,14 +136,13 @@ namespace _241611JalopPersonalWebsite.Frontend.User.Controls
         private void ShowModalAlert(string message, bool isError)
         {
             pnlUserAccountModalMsg.Visible = true;
-            pnlUserAccountModalMsg.CssClass = isError ? "user-account-alert alert-danger" : "user-account-alert alert-success";
-            pnlUserAccountModalMsg.Style["background-color"] = isError ? "#fef2f2" : "#f0fdf4";
-            pnlUserAccountModalMsg.Style["color"] = isError ? "#991b1b" : "#166534";
-            pnlUserAccountModalMsg.Style["border"] = isError ? "2px solid #ef4444" : "2px solid #16a34a";
+            pnlUserAccountModalMsg.CssClass = isError ? "user-account-toast alert-danger" : "user-account-toast alert-success";
+            pnlUserAccountModalMsg.Style.Clear();
             litUserAccountModalMsg.Text = message;
 
-            // Keep modal open so the user sees the validation message
-            ScriptManager.RegisterStartupScript(this.Page, this.GetType(), "OpenUserAccountModalOnError", "openUserAccountModal();", true);
+            // Keep modal open so the user sees the validation message, and auto-dismiss toast after 5s
+            string script = "openUserAccountModal(); setTimeout(function() { var t = document.getElementById('" + pnlUserAccountModalMsg.ClientID + "'); if(t) t.style.display='none'; }, 5000);";
+            ScriptManager.RegisterStartupScript(this.Page, this.GetType(), "OpenUserAccountModalOnError", script, true);
         }
     }
 }

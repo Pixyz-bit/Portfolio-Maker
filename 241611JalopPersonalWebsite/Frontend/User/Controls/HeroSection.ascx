@@ -90,14 +90,21 @@
             gap: 20px;
         }
 
-        .header-meta-grid {
-            grid-template-columns: 1fr;
-            gap: 10px;
+        .header-right {
+            width: 100%;
+            display: flex;
+            justify-content: center;
         }
 
         .profile-photo {
             width: 140px;
             height: 140px;
+            margin: 0 auto;
+        }
+
+        .header-meta-grid {
+            grid-template-columns: 1fr;
+            gap: 10px;
         }
 
         .header-name {

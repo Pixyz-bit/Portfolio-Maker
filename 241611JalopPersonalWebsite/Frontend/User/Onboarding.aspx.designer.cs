@@ -97,44 +97,9 @@ namespace _241611JalopPersonalWebsite.Frontend.User
         protected global::System.Web.UI.WebControls.Button btnSaveStep1;
 
         /// <summary>
-        /// txtCourse1 control.
+        /// hfEducationsJson control.
         /// </summary>
-        protected global::System.Web.UI.WebControls.TextBox txtCourse1;
-
-        /// <summary>
-        /// txtUniversity1 control.
-        /// </summary>
-        protected global::System.Web.UI.WebControls.TextBox txtUniversity1;
-
-        /// <summary>
-        /// txtEduStartYear1 control.
-        /// </summary>
-        protected global::System.Web.UI.WebControls.TextBox txtEduStartYear1;
-
-        /// <summary>
-        /// txtEduEndYear1 control.
-        /// </summary>
-        protected global::System.Web.UI.WebControls.TextBox txtEduEndYear1;
-
-        /// <summary>
-        /// txtCourse2 control.
-        /// </summary>
-        protected global::System.Web.UI.WebControls.TextBox txtCourse2;
-
-        /// <summary>
-        /// txtUniversity2 control.
-        /// </summary>
-        protected global::System.Web.UI.WebControls.TextBox txtUniversity2;
-
-        /// <summary>
-        /// txtEduStartYear2 control.
-        /// </summary>
-        protected global::System.Web.UI.WebControls.TextBox txtEduStartYear2;
-
-        /// <summary>
-        /// txtEduEndYear2 control.
-        /// </summary>
-        protected global::System.Web.UI.WebControls.TextBox txtEduEndYear2;
+        protected global::System.Web.UI.WebControls.HiddenField hfEducationsJson;
 
         /// <summary>
         /// btnSaveStep2 control.
@@ -142,44 +107,9 @@ namespace _241611JalopPersonalWebsite.Frontend.User
         protected global::System.Web.UI.WebControls.Button btnSaveStep2;
 
         /// <summary>
-        /// txtSkill1 control.
+        /// hfSkillsJson control.
         /// </summary>
-        protected global::System.Web.UI.WebControls.TextBox txtSkill1;
-
-        /// <summary>
-        /// txtSkillDesc1 control.
-        /// </summary>
-        protected global::System.Web.UI.WebControls.TextBox txtSkillDesc1;
-
-        /// <summary>
-        /// txtSkill2 control.
-        /// </summary>
-        protected global::System.Web.UI.WebControls.TextBox txtSkill2;
-
-        /// <summary>
-        /// txtSkillDesc2 control.
-        /// </summary>
-        protected global::System.Web.UI.WebControls.TextBox txtSkillDesc2;
-
-        /// <summary>
-        /// txtSkill3 control.
-        /// </summary>
-        protected global::System.Web.UI.WebControls.TextBox txtSkill3;
-
-        /// <summary>
-        /// txtSkillDesc3 control.
-        /// </summary>
-        protected global::System.Web.UI.WebControls.TextBox txtSkillDesc3;
-
-        /// <summary>
-        /// txtSkill4 control.
-        /// </summary>
-        protected global::System.Web.UI.WebControls.TextBox txtSkill4;
-
-        /// <summary>
-        /// txtSkillDesc4 control.
-        /// </summary>
-        protected global::System.Web.UI.WebControls.TextBox txtSkillDesc4;
+        protected global::System.Web.UI.WebControls.HiddenField hfSkillsJson;
 
         /// <summary>
         /// btnSaveStep3 control.
@@ -187,64 +117,14 @@ namespace _241611JalopPersonalWebsite.Frontend.User
         protected global::System.Web.UI.WebControls.Button btnSaveStep3;
 
         /// <summary>
-        /// txtOrg1 control.
+        /// hfAffiliationsJson control.
         /// </summary>
-        protected global::System.Web.UI.WebControls.TextBox txtOrg1;
+        protected global::System.Web.UI.WebControls.HiddenField hfAffiliationsJson;
 
         /// <summary>
-        /// txtRole1 control.
+        /// hfHobbiesJson control.
         /// </summary>
-        protected global::System.Web.UI.WebControls.TextBox txtRole1;
-
-        /// <summary>
-        /// txtOrgStart1 control.
-        /// </summary>
-        protected global::System.Web.UI.WebControls.TextBox txtOrgStart1;
-
-        /// <summary>
-        /// txtOrgEnd1 control.
-        /// </summary>
-        protected global::System.Web.UI.WebControls.TextBox txtOrgEnd1;
-
-        /// <summary>
-        /// txtOrg2 control.
-        /// </summary>
-        protected global::System.Web.UI.WebControls.TextBox txtOrg2;
-
-        /// <summary>
-        /// txtRole2 control.
-        /// </summary>
-        protected global::System.Web.UI.WebControls.TextBox txtRole2;
-
-        /// <summary>
-        /// txtOrgStart2 control.
-        /// </summary>
-        protected global::System.Web.UI.WebControls.TextBox txtOrgStart2;
-
-        /// <summary>
-        /// txtOrgEnd2 control.
-        /// </summary>
-        protected global::System.Web.UI.WebControls.TextBox txtOrgEnd2;
-
-        /// <summary>
-        /// txtHobby1 control.
-        /// </summary>
-        protected global::System.Web.UI.WebControls.TextBox txtHobby1;
-
-        /// <summary>
-        /// txtHobbyDesc1 control.
-        /// </summary>
-        protected global::System.Web.UI.WebControls.TextBox txtHobbyDesc1;
-
-        /// <summary>
-        /// txtHobby2 control.
-        /// </summary>
-        protected global::System.Web.UI.WebControls.TextBox txtHobby2;
-
-        /// <summary>
-        /// txtHobbyDesc2 control.
-        /// </summary>
-        protected global::System.Web.UI.WebControls.TextBox txtHobbyDesc2;
+        protected global::System.Web.UI.WebControls.HiddenField hfHobbiesJson;
 
         /// <summary>
         /// btnSaveStep4 control.
@@ -252,29 +132,9 @@ namespace _241611JalopPersonalWebsite.Frontend.User
         protected global::System.Web.UI.WebControls.Button btnSaveStep4;
 
         /// <summary>
-        /// txtGithubLink control.
+        /// hfSocialLinksJson control.
         /// </summary>
-        protected global::System.Web.UI.WebControls.TextBox txtGithubLink;
-
-        /// <summary>
-        /// txtLinkedinLink control.
-        /// </summary>
-        protected global::System.Web.UI.WebControls.TextBox txtLinkedinLink;
-
-        /// <summary>
-        /// txtWebsiteLink control.
-        /// </summary>
-        protected global::System.Web.UI.WebControls.TextBox txtWebsiteLink;
-
-        /// <summary>
-        /// txtTwitterLink control.
-        /// </summary>
-        protected global::System.Web.UI.WebControls.TextBox txtTwitterLink;
-
-        /// <summary>
-        /// txtOtherSocialLink control.
-        /// </summary>
-        protected global::System.Web.UI.WebControls.TextBox txtOtherSocialLink;
+        protected global::System.Web.UI.WebControls.HiddenField hfSocialLinksJson;
 
         /// <summary>
         /// btnSaveStep5 control.

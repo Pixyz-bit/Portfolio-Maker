@@ -199,7 +199,7 @@ namespace _241611JalopPersonalWebsite.Repository
                         cmd.Parameters.Add("@HobbyDescription", SqlDbType.NVarChar, -1).Value = 
                             string.IsNullOrWhiteSpace(hobby.HobbyDescription) ? (object)DBNull.Value : hobby.HobbyDescription.Trim();
 
-                        int rowsAffected = cmd.ExecuteNonQuery();
+                        int rowsAffected = DatabaseConnection.ExecuteNonQueryCount(cmd);
                         if (rowsAffected > 0)
                         {
                             return true;
@@ -243,7 +243,7 @@ namespace _241611JalopPersonalWebsite.Repository
                         cmd.CommandType = CommandType.StoredProcedure;
                         cmd.Parameters.Add("@HobbyID", SqlDbType.Int).Value = hobbyId;
 
-                        int rowsAffected = cmd.ExecuteNonQuery();
+                        int rowsAffected = DatabaseConnection.ExecuteNonQueryCount(cmd);
                         if (rowsAffected > 0)
                         {
                             return true;

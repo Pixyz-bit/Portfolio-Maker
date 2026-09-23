@@ -94,6 +94,14 @@
     <Content Include="Frontend\User\Controls\HobbiesSection.ascx" />
     <Content Include="Frontend\User\Controls\SocialLinksSection.ascx" />
     <Content Include="Frontend\User\Controls\UserMenu.ascx" />
+    <Content Include="Uploads\Profiles\user_11_52f2c6ad.png" />
+    <Content Include="Uploads\Profiles\user_14_a988ef7c.jpg" />
+    <Content Include="Uploads\Profiles\user_16_a2ebe7a0.png" />
+    <Content Include="Uploads\Profiles\user_1_13492112.jpg" />
+    <Content Include="Uploads\Profiles\user_1_dcffba76.jpg" />
+    <Content Include="Uploads\Profiles\user_2_7ccb18c2.jpg" />
+    <Content Include="Uploads\Profiles\user_2_cb5bb71a.jpg" />
+    <Content Include="Uploads\Profiles\user_6_cf522956.jpg" />
     <Content Include="Web.config" />
     <Content Include="ConnectionStrings.example.config" />
     <Content Include="ConnectionStrings.config" Condition="Exists('ConnectionStrings.config')" />
@@ -219,6 +227,9 @@
   <ItemGroup>
     <None Include="packages.config" />
     <None Include="Properties\PublishProfiles\site93345-WebDeploy.pubxml" />
+    <Content Include="Uploads\Profiles\.gitkeep" />
+    <Content Include="Uploads\Profiles\user_1_7eb57472.webp" />
+    <Content Include="Uploads\Profiles\user_1_eed45dea.webp" />
     <None Include="Web.Debug.config">
       <DependentUpon>Web.config</DependentUpon>
     </None>

@@ -199,7 +199,7 @@ namespace _241611JalopPersonalWebsite.Repository
                         cmd.Parameters.Add("@SkillDescription", SqlDbType.NVarChar, -1).Value = 
                             string.IsNullOrWhiteSpace(skill.SkillDescription) ? (object)DBNull.Value : skill.SkillDescription.Trim();
 
-                        int rowsAffected = cmd.ExecuteNonQuery();
+                        int rowsAffected = DatabaseConnection.ExecuteNonQueryCount(cmd);
                         if (rowsAffected > 0)
                         {
                             return true;
@@ -243,7 +243,7 @@ namespace _241611JalopPersonalWebsite.Repository
                         cmd.CommandType = CommandType.StoredProcedure;
                         cmd.Parameters.Add("@SkillID", SqlDbType.Int).Value = skillId;
 
-                        int rowsAffected = cmd.ExecuteNonQuery();
+                        int rowsAffected = DatabaseConnection.ExecuteNonQueryCount(cmd);
                         if (rowsAffected > 0)
                         {
                             return true;

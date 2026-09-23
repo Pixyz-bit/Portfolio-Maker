@@ -1248,14 +1248,14 @@
                     </asp:HyperLink>
 
                     <button type="button" class="btn btn-outline btn-sm" onclick="openEditFromSummary()">
-                        Edit Account
+                        Account Settings
                     </button>
 
                     <!--<button type="button" class="btn btn-danger btn-sm" onclick="openDeleteModalFromSummary()">
                         Delete
                     </button>-->
                     
-                    <asp:Button ID="btnCloseSummary" runat="server" Text="Close Summary" CssClass="btn btn-outline btn-sm" OnClick="btnCloseSummary_Click" />
+                    <asp:Button ID="btnCloseSummary" runat="server" Text="Close" CssClass="btn btn-outline btn-sm" OnClick="btnCloseSummary_Click" />
                 </div>
             </div>
         </asp:Panel>
@@ -1269,7 +1269,7 @@
                     <svg id="statusModalIconActivate" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#16a34a" stroke-width="2.5" style="display: none;"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg>
                 </div>
 
-                <h3 class="modal-title" id="statusModalTitle">Deactivate Account</h3>
+                <h3 class="modal-title" id="statusModalTitle">Deactivate</h3>
                 <p class="modal-desc" id="statusModalDesc" style="margin-bottom: 24px; line-height: 1.5; color: #3f3f46;">
                     Are you sure you want to change the status of this user account?
                 </p>

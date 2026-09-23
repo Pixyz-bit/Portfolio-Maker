@@ -209,7 +209,7 @@ namespace _241611JalopPersonalWebsite.Repository
                         cmd.Parameters.Add("@SocialLinkName", SqlDbType.NVarChar, 50).Value = link.SocialLinkName.Trim();
                         cmd.Parameters.Add("@Link", SqlDbType.NVarChar, 500).Value = link.Link.Trim();
 
-                        int rowsAffected = cmd.ExecuteNonQuery();
+                        int rowsAffected = DatabaseConnection.ExecuteNonQueryCount(cmd);
                         if (rowsAffected > 0)
                         {
                             return true;
@@ -253,7 +253,7 @@ namespace _241611JalopPersonalWebsite.Repository
                         cmd.CommandType = CommandType.StoredProcedure;
                         cmd.Parameters.Add("@SocialLinkID", SqlDbType.Int).Value = socialLinkId;
 
-                        int rowsAffected = cmd.ExecuteNonQuery();
+                        int rowsAffected = DatabaseConnection.ExecuteNonQueryCount(cmd);
                         if (rowsAffected > 0)
                         {
                             return true;

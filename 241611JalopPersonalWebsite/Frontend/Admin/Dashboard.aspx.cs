@@ -261,12 +261,12 @@ namespace _241611JalopPersonalWebsite.Frontend.Admin
 
             if (user.IsActive)
             {
-                litSummaryStatusBtnText.Text = "Deactivate Account";
+                litSummaryStatusBtnText.Text = "Deactivate";
                 btnSummaryStatusTrigger.Attributes["class"] = "btn btn-danger btn-sm";
             }
             else
             {
-                litSummaryStatusBtnText.Text = "Activate Account";
+                litSummaryStatusBtnText.Text = "Activate";
                 btnSummaryStatusTrigger.Attributes["class"] = "btn btn-success btn-sm";
             }
 

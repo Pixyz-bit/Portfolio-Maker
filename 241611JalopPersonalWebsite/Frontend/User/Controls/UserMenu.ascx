@@ -411,7 +411,7 @@
             </asp:HyperLink>
             <asp:PlaceHolder ID="phEditAccountBtn" runat="server">
                 <button type="button" class="menu-btn menu-btn-outline" id="btnUserMenuEditAccount" onclick="openUserAccountModal()">
-                    Edit Account
+                    Account Settings
                 </button>
             </asp:PlaceHolder>
             <asp:HyperLink ID="lnkEditPortfolio" runat="server" NavigateUrl="~/Frontend/User/Onboarding.aspx" CssClass="menu-btn menu-btn-outline">

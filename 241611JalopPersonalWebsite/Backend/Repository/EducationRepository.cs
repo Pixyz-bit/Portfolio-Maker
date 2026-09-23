@@ -227,7 +227,7 @@ namespace _241611JalopPersonalWebsite.Repository
                         cmd.Parameters.Add("@EndYear", SqlDbType.NVarChar, 10).Value = 
                             string.IsNullOrWhiteSpace(education.EndYear) ? (object)DBNull.Value : education.EndYear.Trim();
 
-                        int rowsAffected = cmd.ExecuteNonQuery();
+                        int rowsAffected = DatabaseConnection.ExecuteNonQueryCount(cmd);
                         if (rowsAffected > 0)
                         {
                             return true;
@@ -271,7 +271,7 @@ namespace _241611JalopPersonalWebsite.Repository
                         cmd.CommandType = CommandType.StoredProcedure;
                         cmd.Parameters.Add("@EducationID", SqlDbType.Int).Value = educationId;
 
-                        int rowsAffected = cmd.ExecuteNonQuery();
+                        int rowsAffected = DatabaseConnection.ExecuteNonQueryCount(cmd);
                         if (rowsAffected > 0)
                         {
                             return true;

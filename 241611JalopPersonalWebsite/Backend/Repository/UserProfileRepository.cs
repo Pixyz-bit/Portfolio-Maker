@@ -150,7 +150,7 @@ namespace _241611JalopPersonalWebsite.Repository
                         cmd.Parameters.Add("@Description", SqlDbType.NVarChar, -1).Value = 
                             string.IsNullOrWhiteSpace(profile.Description) ? (object)DBNull.Value : profile.Description.Trim();
 
-                        int rowsAffected = cmd.ExecuteNonQuery();
+                        int rowsAffected = DatabaseConnection.ExecuteNonQueryCount(cmd);
                         if (rowsAffected > 0)
                         {
                             return true;

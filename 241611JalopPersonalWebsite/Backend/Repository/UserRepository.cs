@@ -271,7 +271,7 @@ namespace _241611JalopPersonalWebsite.Repository
                         updateCmd.Parameters.Add("@UserID", SqlDbType.Int).Value = userId;
                         updateCmd.Parameters.Add("@NewPasswordHash", SqlDbType.NVarChar, 255).Value = HashPassword(newPassword);
 
-                        int rows = updateCmd.ExecuteNonQuery();
+                        int rows = DatabaseConnection.ExecuteNonQueryCount(updateCmd);
                         if (rows > 0)
                         {
                             return true;
@@ -331,7 +331,7 @@ namespace _241611JalopPersonalWebsite.Repository
                         updateCmd.Parameters.Add("@UserID", SqlDbType.Int).Value = userId;
                         updateCmd.Parameters.Add("@NewEmail", SqlDbType.NVarChar, 255).Value = newEmail.Trim();
 
-                        int rows = updateCmd.ExecuteNonQuery();
+                        int rows = DatabaseConnection.ExecuteNonQueryCount(updateCmd);
                         return rows > 0;
                     }
                 }
@@ -473,7 +473,7 @@ namespace _241611JalopPersonalWebsite.Repository
                         cmd.Parameters.Add("@UserID", SqlDbType.Int).Value = userId;
                         cmd.Parameters.Add("@IsActive", SqlDbType.Bit).Value = isActive;
 
-                        int rows = cmd.ExecuteNonQuery();
+                        int rows = DatabaseConnection.ExecuteNonQueryCount(cmd);
                         if (rows > 0)
                         {
                             return true;
@@ -521,7 +521,7 @@ namespace _241611JalopPersonalWebsite.Repository
                         cmd.Parameters.Add("@UserID", SqlDbType.Int).Value = userId;
                         cmd.Parameters.Add("@Role", SqlDbType.NVarChar, 20).Value = newRole;
 
-                        int rows = cmd.ExecuteNonQuery();
+                        int rows = DatabaseConnection.ExecuteNonQueryCount(cmd);
                         return rows > 0;
                     }
                 }
@@ -699,7 +699,7 @@ namespace _241611JalopPersonalWebsite.Repository
                         cmd.Parameters.Add("@UserID", SqlDbType.Int).Value = userId;
                         cmd.Parameters.Add("@NewPasswordHash", SqlDbType.NVarChar, 255).Value = HashPassword(newPassword);
 
-                        int rows = cmd.ExecuteNonQuery();
+                        int rows = DatabaseConnection.ExecuteNonQueryCount(cmd);
                         if (rows > 0)
                         {
                             return true;
@@ -740,7 +740,7 @@ namespace _241611JalopPersonalWebsite.Repository
                         cmd.CommandType = CommandType.StoredProcedure;
                         cmd.Parameters.Add("@UserID", SqlDbType.Int).Value = userId;
 
-                        int rows = cmd.ExecuteNonQuery();
+                        int rows = DatabaseConnection.ExecuteNonQueryCount(cmd);
                         if (rows > 0)
                         {
                             return true;

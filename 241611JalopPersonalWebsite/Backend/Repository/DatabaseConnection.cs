@@ -96,6 +96,29 @@ namespace _241611JalopPersonalWebsite.Repository
             }
         }
 
+        /// <summary>
+        /// Executes an UPDATE or DELETE command and returns the affected row count.
+        /// Handles stored procedures that return 'SELECT @@ROWCOUNT;' as a scalar result.
+        /// </summary>
+        public static int ExecuteNonQueryCount(SqlCommand cmd)
+        {
+            try
+            {
+                object scalar = cmd.ExecuteScalar();
+                if (scalar != null && int.TryParse(scalar.ToString(), out int scalarCount))
+                {
+                    return scalarCount;
+                }
+            }
+            catch
+            {
+                // Fallback for standard non-query statements without scalar results
+            }
+
+            int nonQuery = cmd.ExecuteNonQuery();
+            return nonQuery >= 0 ? nonQuery : 0;
+        }
+
         public static bool IsLocalEnvironment()
         {
             try

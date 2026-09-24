@@ -258,7 +258,9 @@ namespace _241611JalopPersonalWebsite.Frontend.Admin
             lblNoSocialLinks.Visible = (socialLinks.Count == 0);
 
             // 8. Bind Actions
-            lnkSummaryPortfolio.NavigateUrl = $"~/Frontend/User/Portfolio.aspx?u={UrlObfuscator.EncodeUserId(userId)}";
+            string targetToken = UrlObfuscator.EncodeUserId(userId);
+            lnkSummaryPortfolio.NavigateUrl = $"~/Frontend/User/Portfolio.aspx?u={targetToken}";
+            lnkSummaryEditPortfolio.NavigateUrl = $"~/Frontend/User/Onboarding.aspx?u={targetToken}";
 
             if (user.IsActive)
             {

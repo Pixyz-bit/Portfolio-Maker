@@ -1166,9 +1166,16 @@
                                             <%# (bool)Eval("IsActive") ? "Deactivate" : "Activate" %>
                                         </button>
 
+                                        <a href='<%# ResolveUrl($"~/Frontend/User/Onboarding.aspx?u={_241611JalopPersonalWebsite.Backend.Common.UrlObfuscator.EncodeUserId(Convert.ToInt32(Eval("UserID")))}") %>'
+                                            class="btn btn-solid btn-sm"
+                                            title="Edit user portfolio content">
+                                            Edit Content
+                                        </a>
+
                                         <button type="button" class="btn btn-outline btn-sm"
-                                            onclick='openEditModal(<%# Eval("UserID") %>, "<%# Server.HtmlEncode(Eval("FirstName")?.ToString()) %>", "<%# Server.HtmlEncode(Eval("LastName")?.ToString()) %>", "<%# Server.HtmlEncode(Eval("Email")?.ToString()) %>", "<%# Eval("Role") %>", <%# Eval("IsActive").ToString().ToLower() %>)'>
-                                            Edit
+                                            onclick='openEditModal(<%# Eval("UserID") %>, "<%# Server.HtmlEncode(Eval("FirstName")?.ToString()) %>", "<%# Server.HtmlEncode(Eval("LastName")?.ToString()) %>", "<%# Server.HtmlEncode(Eval("Email")?.ToString()) %>", "<%# Eval("Role") %>", <%# Eval("IsActive").ToString().ToLower() %>)'
+                                            title="Edit user account credentials and role">
+                                            Account
                                         </button>
 
                                         <!-- Delete User Button (Proper Modal Trigger) 
@@ -1370,8 +1377,12 @@
                         <asp:Literal ID="litSummaryStatusBtnText" runat="server" Text="Deactivate" />
                     </button>
                     
-                    <asp:HyperLink ID="lnkSummaryPortfolio" runat="server" Target="_blank" CssClass="btn btn-solid btn-sm">
+                    <asp:HyperLink ID="lnkSummaryPortfolio" runat="server" Target="_blank" CssClass="btn btn-outline btn-sm">
                         View Live Portfolio
+                    </asp:HyperLink>
+
+                    <asp:HyperLink ID="lnkSummaryEditPortfolio" runat="server" Target="_blank" CssClass="btn btn-solid btn-sm">
+                        Edit Content
                     </asp:HyperLink>
 
                     <button type="button" class="btn btn-outline btn-sm" onclick="openEditFromSummary()">

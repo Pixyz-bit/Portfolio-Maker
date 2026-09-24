@@ -215,6 +215,15 @@
                         <span id="btnShareText">Share</span>
                     </button>
 
+                    <!-- Admin / Owner Edit Portfolio Button -->
+                    <asp:HyperLink ID="lnkAdminEditPortfolio" runat="server" CssClass="btn-top-link" Visible="false" style="font-weight: 700; background-color: #000; color: #fff; text-decoration: none;">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="vertical-align: -2px; margin-right: 4px;">
+                            <path d="M12 20h9"></path>
+                            <path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"></path>
+                        </svg>
+                        <span>Edit Content</span>
+                    </asp:HyperLink>
+
                     <!-- User Menu (Visible ONLY when logged in) -->
                     <uc:UserMenu ID="ucUserMenu" runat="server" Visible="false" />
 

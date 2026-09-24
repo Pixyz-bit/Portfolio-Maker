@@ -656,10 +656,22 @@
     <div class="onboarding-container">
         <div class="card">
             <form id="onboardingForm" runat="server" enctype="multipart/form-data">
+                <asp:Panel ID="pnlAdminBanner" runat="server" Visible="false" style="background-color: #fef3c7; border: 2px solid #000000; border-radius: 12px; padding: 12px 16px; margin-bottom: 20px; display: flex; align-items: center; justify-content: space-between; gap: 12px; box-shadow: 3px 3px 0px #000; flex-wrap: wrap;">
+                    <div style="display: flex; align-items: center; gap: 8px;">
+                        <span style="background-color: #000; color: #fff; font-size: 0.75rem; font-weight: 800; padding: 3px 8px; border-radius: 6px; text-transform: uppercase; letter-spacing: 0.05em;">Admin Console</span>
+                        <span style="font-size: 0.9rem; font-weight: 700; color: #78350f;">
+                            Editing portfolio content for: <u><asp:Literal ID="litAdminTargetUserName" runat="server" /></u>
+                        </span>
+                    </div>
+                    <asp:HyperLink ID="lnkReturnToAdmin" runat="server" NavigateUrl="~/Frontend/Admin/Dashboard.aspx" CssClass="btn btn-outline btn-sm" style="background: #ffffff; text-decoration: none; padding: 6px 14px; font-weight: 700;">
+                        Return to Admin Console
+                    </asp:HyperLink>
+                </asp:Panel>
+
                 <div class="card-header">
-                    <span class="badge-tag">Portfolio Creator</span>
-                    <h1 class="card-title">Profile Onboarding</h1>
-                    <p class="card-subtitle">Fill in your information at your own pace. Save & Exit anytime to view your portfolio.</p>
+                    <span class="badge-tag">Portfolio Content Editor</span>
+                    <h1 class="card-title"><asp:Literal ID="litPageTitle" runat="server" Text="Profile Onboarding" /></h1>
+                    <p class="card-subtitle"><asp:Literal ID="litPageSubtitle" runat="server" Text="Fill in your information at your own pace. Save & Exit anytime to view the live portfolio." /></p>
                 </div>
 
                 <!-- 5-Step Progress Bar with Segmented Connectors -->
@@ -695,6 +707,7 @@
                 </div>
 
                 <!-- Hidden fields to preserve state across postbacks -->
+                <asp:HiddenField ID="hfTargetUserId" runat="server" Value="" />
                 <asp:HiddenField ID="hfCurrentStep" runat="server" Value="1" />
                 <asp:HiddenField ID="hfExistingImagePath" runat="server" Value="" />
                 <asp:HiddenField ID="hfEducationsJson" runat="server" Value="" />

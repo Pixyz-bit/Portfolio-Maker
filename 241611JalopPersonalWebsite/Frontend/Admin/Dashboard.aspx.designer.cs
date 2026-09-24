@@ -59,6 +59,7 @@ namespace _241611JalopPersonalWebsite.Frontend.Admin
         protected global::System.Web.UI.HtmlControls.HtmlButton btnSummaryStatusTrigger;
         protected global::System.Web.UI.WebControls.Literal litSummaryStatusBtnText;
         protected global::System.Web.UI.WebControls.HyperLink lnkSummaryPortfolio;
+        protected global::System.Web.UI.WebControls.HyperLink lnkSummaryEditPortfolio;
         protected global::System.Web.UI.WebControls.Button btnCloseSummary;
 
         // Proper Status Modal Controls

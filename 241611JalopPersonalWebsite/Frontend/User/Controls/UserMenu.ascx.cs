@@ -1,5 +1,6 @@
 using System;
 using System.Web.UI;
+using _241611JalopPersonalWebsite.Backend.Common;
 using _241611JalopPersonalWebsite.Model;
 using _241611JalopPersonalWebsite.Repository;
 
@@ -7,7 +8,7 @@ namespace _241611JalopPersonalWebsite.Frontend.User.Controls
 {
     public partial class UserMenu : UserControl
     {
-        public void BindUser(UserProfile profile, string email, bool canEditPortfolio = true, bool canEditAccount = true)
+        public void BindUser(UserProfile profile, string email, bool canEditPortfolio = true, bool canEditAccount = true, int targetUserId = 0)
         {
             if (profile != null)
             {
@@ -55,10 +56,22 @@ namespace _241611JalopPersonalWebsite.Frontend.User.Controls
                 chkAccountIsActive.Enabled = false;
             }
 
+            int currentUserId = (Session["UserID"] != null && int.TryParse(Session["UserID"].ToString(), out int sId)) ? sId : 0;
             phEditAccountBtn.Visible = canEditAccount;
             lnkEditPortfolio.Visible = canEditPortfolio;
-            lnkEditPortfolio.NavigateUrl = "~/Frontend/User/Onboarding.aspx";
-            lnkEditPortfolio.Text = "Edit Portfolio";
+
+            if (targetUserId > 0 && targetUserId != currentUserId && isAdmin)
+            {
+                string targetToken = UrlObfuscator.EncodeUserId(targetUserId);
+                lnkEditPortfolio.NavigateUrl = $"~/Frontend/User/Onboarding.aspx?u={targetToken}";
+                lnkEditPortfolio.Text = "Edit User's Portfolio";
+            }
+            else
+            {
+                lnkEditPortfolio.NavigateUrl = "~/Frontend/User/Onboarding.aspx";
+                lnkEditPortfolio.Text = "Edit Portfolio";
+            }
+
             lnkViewPortfolio.Visible = false;
             lnkEditDetails.Visible = false;
             lnkSignOut.NavigateUrl = "~/Frontend/Login/Login.aspx?action=logout";

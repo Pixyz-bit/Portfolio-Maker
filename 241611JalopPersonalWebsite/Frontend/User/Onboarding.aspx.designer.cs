@@ -37,6 +37,36 @@ namespace _241611JalopPersonalWebsite.Frontend.User
         protected global::System.Web.UI.WebControls.Label lblSuccessMessage;
 
         /// <summary>
+        /// pnlAdminBanner control.
+        /// </summary>
+        protected global::System.Web.UI.WebControls.Panel pnlAdminBanner;
+
+        /// <summary>
+        /// litAdminTargetUserName control.
+        /// </summary>
+        protected global::System.Web.UI.WebControls.Literal litAdminTargetUserName;
+
+        /// <summary>
+        /// lnkReturnToAdmin control.
+        /// </summary>
+        protected global::System.Web.UI.WebControls.HyperLink lnkReturnToAdmin;
+
+        /// <summary>
+        /// litPageTitle control.
+        /// </summary>
+        protected global::System.Web.UI.WebControls.Literal litPageTitle;
+
+        /// <summary>
+        /// litPageSubtitle control.
+        /// </summary>
+        protected global::System.Web.UI.WebControls.Literal litPageSubtitle;
+
+        /// <summary>
+        /// hfTargetUserId control.
+        /// </summary>
+        protected global::System.Web.UI.WebControls.HiddenField hfTargetUserId;
+
+        /// <summary>
         /// hfCurrentStep control.
         /// </summary>
         protected global::System.Web.UI.WebControls.HiddenField hfCurrentStep;

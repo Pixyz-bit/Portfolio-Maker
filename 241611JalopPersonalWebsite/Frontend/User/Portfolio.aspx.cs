@@ -179,7 +179,20 @@ namespace _241611JalopPersonalWebsite.Frontend.User
                 ucUserMenu.Visible = true;
                 UserProfile menuProfile = (loggedInUserId == userId) ? profile : UserProfileRepository.GetByUserId(loggedInUserId, out _);
                 string menuEmail = Session["UserEmail"]?.ToString() ?? (menuProfile != null ? menuProfile.ContactEmail : string.Empty);
-                ucUserMenu.BindUser(menuProfile, menuEmail, canEditPortfolio: canEdit, canEditAccount: true);
+                ucUserMenu.BindUser(menuProfile, menuEmail, canEditPortfolio: canEdit, canEditAccount: true, targetUserId: userId);
+
+                // Configure prominent "Edit Content" action button in the action bar for owner or admin
+                if (canEdit)
+                {
+                    lnkAdminEditPortfolio.Visible = true;
+                    string editToken = UrlObfuscator.EncodeUserId(userId);
+                    lnkAdminEditPortfolio.NavigateUrl = $"~/Frontend/User/Onboarding.aspx?u={editToken}";
+                    lnkAdminEditPortfolio.ToolTip = isOwner ? "Edit your portfolio content" : $"Edit {profile?.FullName ?? "User"}'s portfolio content (Admin)";
+                }
+                else
+                {
+                    lnkAdminEditPortfolio.Visible = false;
+                }
 
                 lnkGuestSignIn.Visible = false;
             }
@@ -187,6 +200,7 @@ namespace _241611JalopPersonalWebsite.Frontend.User
             {
                 // HIDE all edit options and user menu completely!
                 ucUserMenu.Visible = false;
+                lnkAdminEditPortfolio.Visible = false;
 
                 // Show clean "Sign In" option
                 lnkGuestSignIn.Visible = true;

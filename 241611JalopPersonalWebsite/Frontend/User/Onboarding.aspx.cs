@@ -4,6 +4,7 @@ using System.IO;
 using System.Text.RegularExpressions;
 using System.Web.Script.Serialization;
 using System.Web.UI;
+using _241611JalopPersonalWebsite.Backend.Common;
 using _241611JalopPersonalWebsite.Model;
 using _241611JalopPersonalWebsite.Repository;
 
@@ -13,7 +14,7 @@ namespace _241611JalopPersonalWebsite.Frontend.User
     {
         protected void Page_Load(object sender, EventArgs e)
         {
-            // Verify user authentication
+            // Verify user authentication and resolve target user
             int userId = GetCurrentUserId();
             if (userId <= 0)
             {
@@ -21,10 +22,36 @@ namespace _241611JalopPersonalWebsite.Frontend.User
                 return;
             }
 
+            int loggedInUserId = (Session["UserID"] != null && int.TryParse(Session["UserID"].ToString(), out int lid)) ? lid : 0;
+            bool isAdmin = string.Equals(Session["Role"]?.ToString(), "Admin", StringComparison.OrdinalIgnoreCase);
+
             if (!IsPostBack)
             {
                 pnlError.Visible = false;
                 pnlSuccess.Visible = false;
+                hfTargetUserId.Value = userId.ToString();
+
+                if (isAdmin && userId != loggedInUserId)
+                {
+                    UserProfile targetProfile = UserProfileRepository.GetByUserId(userId, out _);
+                    UserLogin targetUser = UserRepository.GetUserById(userId, out _);
+                    string targetName = (targetProfile != null && !string.IsNullOrWhiteSpace(targetProfile.FullName))
+                        ? targetProfile.FullName
+                        : ((targetUser != null && !string.IsNullOrWhiteSpace(targetUser.FullName))
+                            ? targetUser.FullName
+                            : $"User #{userId}");
+
+                    pnlAdminBanner.Visible = true;
+                    litAdminTargetUserName.Text = targetName;
+                    litPageTitle.Text = $"Edit Portfolio: {targetName}";
+                    litPageSubtitle.Text = "You are editing this user's live portfolio information with Administrator authority.";
+                }
+                else
+                {
+                    pnlAdminBanner.Visible = false;
+                    litPageTitle.Text = "Profile Onboarding";
+                    litPageSubtitle.Text = "Fill in your information at your own pace. Save & Exit anytime to view your portfolio.";
+                }
 
                 // Load existing profile and portfolio data into form
                 LoadExistingData(userId);
@@ -33,12 +60,40 @@ namespace _241611JalopPersonalWebsite.Frontend.User
 
         private int GetCurrentUserId()
         {
-            if (Session["UserID"] != null && int.TryParse(Session["UserID"].ToString(), out int userId))
+            if (Session["UserID"] == null || !int.TryParse(Session["UserID"].ToString(), out int loggedInUserId) || loggedInUserId <= 0)
             {
-                return userId;
+                return 0;
             }
 
-            return 0;
+            bool isAdmin = string.Equals(Session["Role"]?.ToString(), "Admin", StringComparison.OrdinalIgnoreCase);
+
+            if (isAdmin)
+            {
+                // Check hidden field first on postback
+                if (!string.IsNullOrWhiteSpace(hfTargetUserId.Value) && int.TryParse(hfTargetUserId.Value, out int hfId) && hfId > 0)
+                {
+                    return hfId;
+                }
+
+                // Check obfuscated token ?u=...
+                string token = Request.QueryString["u"];
+                if (!string.IsNullOrWhiteSpace(token))
+                {
+                    int targetId = UrlObfuscator.DecodeUserId(token);
+                    if (targetId > 0)
+                    {
+                        return targetId;
+                    }
+                }
+
+                // Check direct ?userId=...
+                if (Request.QueryString["userId"] != null && int.TryParse(Request.QueryString["userId"], out int qsId) && qsId > 0)
+                {
+                    return qsId;
+                }
+            }
+
+            return loggedInUserId;
         }
 
         private void LoadExistingData(int userId)
@@ -65,12 +120,26 @@ namespace _241611JalopPersonalWebsite.Frontend.User
                     hfExistingImagePath.Value = profile.ProfileImagePath;
                 }
             }
-            else if (Session["FirstName"] != null)
+            else
             {
-                // Fallback to session values from signup/login if profile not created yet
-                txtFirstName.Text = Session["FirstName"].ToString();
-                txtLastName.Text = Session["LastName"] != null ? Session["LastName"].ToString() : string.Empty;
-                txtContactEmail.Text = Session["UserEmail"] != null ? Session["UserEmail"].ToString() : string.Empty;
+                int loggedInUserId = (Session["UserID"] != null && int.TryParse(Session["UserID"].ToString(), out int lid)) ? lid : 0;
+                if (userId != loggedInUserId)
+                {
+                    UserLogin targetUser = UserRepository.GetUserById(userId, out _);
+                    if (targetUser != null)
+                    {
+                        txtFirstName.Text = targetUser.FirstName ?? string.Empty;
+                        txtLastName.Text = targetUser.LastName ?? string.Empty;
+                        txtContactEmail.Text = targetUser.Email ?? string.Empty;
+                    }
+                }
+                else if (Session["FirstName"] != null)
+                {
+                    // Fallback to session values from signup/login if profile not created yet
+                    txtFirstName.Text = Session["FirstName"].ToString();
+                    txtLastName.Text = Session["LastName"] != null ? Session["LastName"].ToString() : string.Empty;
+                    txtContactEmail.Text = Session["UserEmail"] != null ? Session["UserEmail"].ToString() : string.Empty;
+                }
             }
 
             // 2. Load Educations
@@ -279,10 +348,14 @@ namespace _241611JalopPersonalWebsite.Frontend.User
                     }
                 }
 
-                // Update Session state
-                Session["FirstName"] = firstName;
-                Session["LastName"] = lastName;
-                Session["FullName"] = $"{firstName} {lastName}".Trim();
+                // Update Session state only if editing own profile
+                int loggedInUserId = (Session["UserID"] != null && int.TryParse(Session["UserID"].ToString(), out int lid)) ? lid : 0;
+                if (userId == loggedInUserId)
+                {
+                    Session["FirstName"] = firstName;
+                    Session["LastName"] = lastName;
+                    Session["FullName"] = $"{firstName} {lastName}".Trim();
+                }
 
                 var serializer = new JavaScriptSerializer();
 
@@ -459,8 +532,21 @@ namespace _241611JalopPersonalWebsite.Frontend.User
 
                 if (redirectToDashboard)
                 {
-                    lblSuccessMessage.Text = "Portfolio details successfully saved! Redirecting to your portfolio...";
-                    string redirectScript = "setTimeout(function(){ window.location.href = 'Portfolio.aspx'; }, 1500);";
+                    int currentSessionId = (Session["UserID"] != null && int.TryParse(Session["UserID"].ToString(), out int sid)) ? sid : 0;
+                    string targetUrl;
+                    if (userId == currentSessionId)
+                    {
+                        lblSuccessMessage.Text = "Portfolio details successfully saved! Redirecting to your portfolio...";
+                        targetUrl = "Portfolio.aspx";
+                    }
+                    else
+                    {
+                        lblSuccessMessage.Text = "User portfolio successfully updated! Redirecting to portfolio preview...";
+                        string targetToken = UrlObfuscator.EncodeUserId(userId);
+                        targetUrl = $"Portfolio.aspx?u={targetToken}";
+                    }
+
+                    string redirectScript = $"setTimeout(function(){{ window.location.href = '{targetUrl}'; }}, 1500);";
                     ClientScript.RegisterStartupScript(this.GetType(), "OnboardingRedirect", redirectScript, true);
                 }
                 else

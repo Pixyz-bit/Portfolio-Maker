@@ -1,36 +1,4 @@
-<%@ Control Language="C#" AutoEventWireup="true" CodeBehind="SkillsSection.ascx.cs" Inherits="_241611JalopPersonalWebsite.Frontend.User.Controls.SkillsSection" %>
-
-<style>
-    /* Skills Section Component Styles */
-    .list-group {
-        display: flex;
-        flex-direction: column;
-        gap: 22px;
-        flex-grow: 1;
-    }
-
-    .list-item {
-        display: flex;
-        flex-direction: column;
-    }
-
-    .list-title {
-        font-size: 1.05rem;
-        font-weight: 700;
-        color: var(--text-black);
-        line-height: 1.35;
-    }
-
-    .list-desc {
-        font-size: 0.95rem;
-        font-weight: 400;
-        color: var(--text-black);
-        margin-top: 3px;
-        line-height: 1.45;
-        white-space: pre-line;
-    }
-</style>
-
+﻿<%@ Control Language="C#" AutoEventWireup="true" CodeBehind="SkillsSection.ascx.cs" Inherits="_241611JalopPersonalWebsite.Frontend.User.Controls.SkillsSection" %>
 <section class="bento-card">
     <h2 class="card-title">Skills</h2>
 

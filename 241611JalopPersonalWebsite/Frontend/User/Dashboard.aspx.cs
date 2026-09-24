@@ -1,5 +1,6 @@
 using System;
 using System.Web.UI;
+using _241611JalopPersonalWebsite.Backend.Common;
 using _241611JalopPersonalWebsite.Model;
 using _241611JalopPersonalWebsite.Repository;
 
@@ -41,7 +42,7 @@ namespace _241611JalopPersonalWebsite.Frontend.User
 
                 bool isAdmin = string.Equals(Session["Role"]?.ToString(), "Admin", StringComparison.OrdinalIgnoreCase);
                 lnkAdminDashboard.Visible = isAdmin;
-                lnkViewPortfolio.NavigateUrl = $"Portfolio.aspx?userId={userId}";
+                lnkViewPortfolio.NavigateUrl = $"Portfolio.aspx?u={UrlObfuscator.EncodeUserId(userId)}";
                 if (isAdmin)
                 {
                     lnkViewPortfolio.CssClass = "btn btn-outline";

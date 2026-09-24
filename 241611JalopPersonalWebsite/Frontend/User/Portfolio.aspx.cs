@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Data.SqlClient;
 using System.Web.UI;
+using _241611JalopPersonalWebsite.Backend.Common;
 using _241611JalopPersonalWebsite.Model;
 using _241611JalopPersonalWebsite.Repository;
 
@@ -80,19 +81,36 @@ namespace _241611JalopPersonalWebsite.Frontend.User
 
         private int ResolveTargetUserId()
         {
-            // 1. Check QueryString: ?userId=X
+            // 1. Check Obfuscated/Hashed Token QueryString: ?u=TOKEN
+            string token = Request.QueryString["u"];
+            if (!string.IsNullOrWhiteSpace(token))
+            {
+                int decodedId = UrlObfuscator.DecodeUserId(token);
+                if (decodedId > 0)
+                {
+                    return decodedId;
+                }
+            }
+
+            // 2. Direct QueryString: ?userId=X (Allowed for Admin or the authenticated owner)
             if (Request.QueryString["userId"] != null && int.TryParse(Request.QueryString["userId"], out int qsId) && qsId > 0)
             {
-                return qsId;
+                bool isAdmin = string.Equals(Session["Role"]?.ToString(), "Admin", StringComparison.OrdinalIgnoreCase);
+                int loggedInId = (Session["UserID"] != null && int.TryParse(Session["UserID"].ToString(), out int sId)) ? sId : 0;
+
+                if (isAdmin || loggedInId == qsId)
+                {
+                    return qsId;
+                }
             }
 
-            // 2. Check Session
-            if (Session["UserID"] != null && int.TryParse(Session["UserID"].ToString(), out int sId) && sId > 0)
+            // 3. Check Session (logged-in user viewing their own portfolio)
+            if (Session["UserID"] != null && int.TryParse(Session["UserID"].ToString(), out int sessionUserId) && sessionUserId > 0)
             {
-                return sId;
+                return sessionUserId;
             }
 
-            // 3. Fallback for testing: find latest active user in database
+            // 4. Fallback for testing: find latest active user in database (only if in development)
             try
             {
                 using (SqlConnection conn = DatabaseConnection.GetConnection())
@@ -126,11 +144,12 @@ namespace _241611JalopPersonalWebsite.Frontend.User
             bool isOwner = isLoggedIn && (loggedInUserId == userId);
             bool canEdit = isOwner || isAdmin;
 
-            // Generate canonical full absolute shareable URL with ?userId={userId}
+            // Generate canonical full absolute shareable URL with ?u={token}
             string scheme = Request.Url.Scheme;
             string authority = Request.Url.Authority;
             string path = ResolveUrl("~/Frontend/User/Portfolio.aspx");
-            ShareUrl = $"{scheme}://{authority}{path}?userId={userId}";
+            string token = UrlObfuscator.EncodeUserId(userId);
+            ShareUrl = $"{scheme}://{authority}{path}?u={token}";
 
             // 2. Load UserProfile for the portfolio being viewed
             UserProfile profile = UserProfileRepository.GetByUserId(userId, out string profileError);

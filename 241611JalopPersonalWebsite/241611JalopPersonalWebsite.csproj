@@ -205,6 +205,7 @@
     <Compile Include="Frontend\User\Controls\UserMenu.ascx.designer.cs">
       <DependentUpon>UserMenu.ascx</DependentUpon>
     </Compile>
+    <Compile Include="Backend\Common\UrlObfuscator.cs" />
     <Compile Include="Backend\Model\Affiliation.cs" />
     <Compile Include="Backend\Model\DashboardAnalytics.cs" />
     <Compile Include="Backend\Model\Education.cs" />

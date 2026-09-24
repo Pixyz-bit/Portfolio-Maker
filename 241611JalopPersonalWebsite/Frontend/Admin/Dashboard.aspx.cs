@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Web.UI;
 using System.Web.UI.WebControls;
+using _241611JalopPersonalWebsite.Backend.Common;
 using _241611JalopPersonalWebsite.Model;
 using _241611JalopPersonalWebsite.Repository;
 
@@ -257,7 +258,7 @@ namespace _241611JalopPersonalWebsite.Frontend.Admin
             lblNoSocialLinks.Visible = (socialLinks.Count == 0);
 
             // 8. Bind Actions
-            lnkSummaryPortfolio.NavigateUrl = $"~/Frontend/User/Portfolio.aspx?userId={userId}";
+            lnkSummaryPortfolio.NavigateUrl = $"~/Frontend/User/Portfolio.aspx?u={UrlObfuscator.EncodeUserId(userId)}";
 
             if (user.IsActive)
             {

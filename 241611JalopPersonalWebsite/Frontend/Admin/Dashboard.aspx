@@ -14,8 +14,7 @@
 
     <style>
         :root {
-            --bg-canvas: #fafafa;
-            --dot-color: #cbd5e1;
+            --bg-canvas: #ffffff;
             --border-black: #000000;
             --text-black: #000000;
             --text-sub: #18181b;
@@ -38,9 +37,7 @@
 
         body {
             font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
-            background-color: var(--bg-canvas);
-            background-image: radial-gradient(var(--dot-color) 1.2px, transparent 1.2px);
-            background-size: 16px 16px;
+            background-color: #ffffff;
             color: var(--text-black);
             min-height: 100vh;
             line-height: 1.5;
@@ -606,6 +603,125 @@
             margin-bottom: 12px;
         }
 
+        /* Mobile Responsiveness for Toolbar and Table */
+        @media (max-width: 768px) {
+            .admin-main {
+                padding: 20px 14px;
+            }
+
+            .content-card {
+                padding: 18px 14px;
+                border-radius: 14px;
+            }
+
+            .table-toolbar {
+                margin-bottom: 16px;
+            }
+
+            .filter-group {
+                flex-direction: column;
+                align-items: stretch;
+                width: 100%;
+                gap: 10px;
+            }
+
+            .search-input {
+                width: 100%;
+                min-width: 0;
+            }
+
+            .filter-group .select-box {
+                width: 100%;
+            }
+
+            .filter-group .btn {
+                width: 100%;
+                justify-content: center;
+            }
+
+            /* Transform Table into Mobile Card View */
+            .table-responsive {
+                border: none;
+                background-color: transparent;
+                overflow: visible;
+            }
+
+            .data-table,
+            .data-table thead,
+            .data-table tbody,
+            .data-table tr,
+            .data-table td {
+                display: block;
+                width: 100%;
+            }
+
+            .data-table thead {
+                display: none;
+            }
+
+            .data-table tr.user-data-row {
+                background-color: #ffffff;
+                border: 2px solid var(--border-black);
+                border-radius: 14px;
+                margin-bottom: 14px;
+                padding: 14px 16px;
+                box-shadow: var(--shadow-neo-sm);
+            }
+
+            .data-table td {
+                display: flex;
+                align-items: center;
+                justify-content: space-between;
+                padding: 9px 0;
+                border-bottom: 1px solid #f1f5f9;
+                font-size: 0.88rem;
+            }
+
+            .data-table td:first-child {
+                display: block;
+                padding-top: 0;
+                padding-bottom: 12px;
+                border-bottom: 1.5px solid #e2e8f0;
+            }
+
+            .data-table td:last-child {
+                border-bottom: none;
+                padding-bottom: 0;
+                padding-top: 12px;
+                justify-content: flex-end;
+            }
+
+            .data-table td[data-label]::before {
+                content: attr(data-label);
+                font-family: 'Plus Jakarta Sans', sans-serif;
+                font-size: 0.76rem;
+                font-weight: 800;
+                text-transform: uppercase;
+                letter-spacing: 0.04em;
+                color: var(--text-muted);
+                margin-right: 12px;
+                flex-shrink: 0;
+            }
+
+            .data-table td:first-child::before,
+            .data-table td:last-child::before {
+                display: none;
+            }
+
+            .actions-cell {
+                width: 100%;
+                justify-content: flex-end;
+                gap: 8px;
+            }
+
+            .actions-cell .btn {
+                flex: 1;
+                text-align: center;
+                justify-content: center;
+                padding: 8px 12px;
+            }
+        }
+
         .modal-overlay {
             display: none;
             position: fixed;
@@ -969,22 +1085,21 @@
             <section class="content-card">
                 <div class="table-toolbar">
                     <div class="filter-group">
-                        <asp:TextBox ID="txtSearch" runat="server" CssClass="input-box search-input" placeholder="Search by name or email address..." />
+                        <asp:TextBox ID="txtSearch" runat="server" CssClass="input-box search-input" placeholder="Search by name or email address..." autocomplete="off" />
                         
                         <asp:DropDownList ID="ddlStatusFilter" runat="server" CssClass="select-box">
                             <asp:ListItem Value="" Text="All Statuses" />
-                            <asp:ListItem Value="Active" Text="Active Accounts" />
-                            <asp:ListItem Value="Inactive" Text="Deactivated Accounts" />
+                            <asp:ListItem Value="active" Text="Active Accounts" />
+                            <asp:ListItem Value="inactive" Text="Deactivated Accounts" />
                         </asp:DropDownList>
 
                         <asp:DropDownList ID="ddlRoleFilter" runat="server" CssClass="select-box">
                             <asp:ListItem Value="" Text="All Roles" />
-                            <asp:ListItem Value="Admin" Text="Administrators" />
-                            <asp:ListItem Value="User" Text="Standard Users" />
+                            <asp:ListItem Value="admin" Text="Administrators" />
+                            <asp:ListItem Value="user" Text="Standard Users" />
                         </asp:DropDownList>
 
-                        <asp:Button ID="btnApplyFilter" runat="server" Text="Apply Filter" CssClass="btn btn-solid btn-sm" OnClick="btnApplyFilter_Click" />
-                        <asp:Button ID="btnResetFilter" runat="server" Text="Reset" CssClass="btn btn-outline btn-sm" OnClick="btnResetFilter_Click" />
+                        <asp:Button ID="btnResetFilter" runat="server" Text="Reset Filters" CssClass="btn btn-outline btn-sm" OnClientClick="resetClientUserFilters(); return false;" />
                     </div>
                 </div>
 
@@ -1004,8 +1119,12 @@
                                 <tbody>
                         </HeaderTemplate>
                         <ItemTemplate>
-                            <tr>
-                                <td>
+                            <tr class="user-data-row" 
+                                data-name="<%# Server.HtmlEncode((Eval("FullName")?.ToString() ?? "").ToLowerInvariant()) %>" 
+                                data-email="<%# Server.HtmlEncode((Eval("Email")?.ToString() ?? "").ToLowerInvariant()) %>" 
+                                data-role="<%# Server.HtmlEncode((Eval("Role")?.ToString() ?? "").ToLowerInvariant()) %>" 
+                                data-status="<%# (bool)Eval("IsActive") ? "active" : "inactive" %>">
+                                <td data-label="User Account">
                                     <asp:LinkButton ID="btnUserClick" runat="server" 
                                         CommandName="ViewSummary" 
                                         CommandArgument='<%# Eval("UserID") %>' 
@@ -1025,21 +1144,21 @@
                                         </div>
                                     </asp:LinkButton>
                                 </td>
-                                <td>
+                                <td data-label="Role">
                                     <span class="badge <%# string.Equals(Eval("Role")?.ToString(), "Admin", StringComparison.OrdinalIgnoreCase) ? "badge-admin" : "badge-user" %>">
                                         <%# Eval("Role") %>
                                     </span>
                                 </td>
-                                <td>
+                                <td data-label="Status">
                                     <span class="badge <%# (bool)Eval("IsActive") ? "badge-active" : "badge-inactive" %>">
                                         <span class="status-dot"></span>
                                         <%# (bool)Eval("IsActive") ? "Active" : "Deactivated" %>
                                     </span>
                                 </td>
-                                <td>
+                                <td data-label="Registered">
                                     <%# FormatPhilippineTime(Eval("CreatedAt")) %>
                                 </td>
-                                <td>
+                                <td data-label="Actions">
                                     <div class="actions-cell" style="justify-content: flex-end;">
                                         <button type="button" 
                                             class='<%# (bool)Eval("IsActive") ? "btn btn-danger btn-sm" : "btn btn-success btn-sm" %>'
@@ -1067,12 +1186,20 @@
                         </FooterTemplate>
                     </asp:Repeater>
 
-                    <asp:Panel ID="pnlNoUsers" runat="server" Visible="false" CssClass="empty-state">
+                    <div id="clientNoUsers" class="empty-state" style="display: none;">
                         <div class="empty-icon">
                             <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="#94a3b8" stroke-width="1.5"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
                         </div>
                         <h4 style="margin-bottom: 4px;">No users match your criteria</h4>
                         <p>Try adjusting your search keywords or resetting the status and role filters.</p>
+                    </div>
+
+                    <asp:Panel ID="pnlNoUsers" runat="server" Visible="false" CssClass="empty-state">
+                        <div class="empty-icon">
+                            <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="#94a3b8" stroke-width="1.5"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+                        </div>
+                        <h4 style="margin-bottom: 4px;">No users in database</h4>
+                        <p>No user records are currently registered.</p>
                     </asp:Panel>
                 </div>
             </section>
@@ -1566,7 +1693,56 @@
             }
         }
 
-        // Auto-dismiss active toasts after 5 seconds
+        // Instant Automatic Client-Side Filtering for User Management
+        function applyClientUserFilters() {
+            var searchInput = document.getElementById('<%= txtSearch.ClientID %>') || document.getElementById('txtSearch');
+            var statusSelect = document.getElementById('<%= ddlStatusFilter.ClientID %>') || document.getElementById('ddlStatusFilter');
+            var roleSelect = document.getElementById('<%= ddlRoleFilter.ClientID %>') || document.getElementById('ddlRoleFilter');
+            var noUsersNotice = document.getElementById('clientNoUsers');
+
+            var query = (searchInput ? searchInput.value : '').trim().toLowerCase();
+            var statusVal = (statusSelect ? statusSelect.value : '').trim().toLowerCase();
+            var roleVal = (roleSelect ? roleSelect.value : '').trim().toLowerCase();
+
+            var rows = document.querySelectorAll('.data-table tbody tr.user-data-row');
+            var visibleCount = 0;
+
+            rows.forEach(function (row) {
+                var name = row.getAttribute('data-name') || '';
+                var email = row.getAttribute('data-email') || '';
+                var role = row.getAttribute('data-role') || '';
+                var status = row.getAttribute('data-status') || '';
+
+                var matchesQuery = !query || name.indexOf(query) !== -1 || email.indexOf(query) !== -1;
+                var matchesStatus = !statusVal || status === statusVal;
+                var matchesRole = !roleVal || role === roleVal;
+
+                if (matchesQuery && matchesStatus && matchesRole) {
+                    row.style.display = '';
+                    visibleCount++;
+                } else {
+                    row.style.display = 'none';
+                }
+            });
+
+            if (noUsersNotice) {
+                noUsersNotice.style.display = (visibleCount === 0 && rows.length > 0) ? 'block' : 'none';
+            }
+        }
+
+        function resetClientUserFilters() {
+            var searchInput = document.getElementById('<%= txtSearch.ClientID %>') || document.getElementById('txtSearch');
+            var statusSelect = document.getElementById('<%= ddlStatusFilter.ClientID %>') || document.getElementById('ddlStatusFilter');
+            var roleSelect = document.getElementById('<%= ddlRoleFilter.ClientID %>') || document.getElementById('ddlRoleFilter');
+
+            if (searchInput) searchInput.value = '';
+            if (statusSelect) statusSelect.selectedIndex = 0;
+            if (roleSelect) roleSelect.selectedIndex = 0;
+
+            applyClientUserFilters();
+        }
+
+        // Auto-dismiss active toasts after 5 seconds and wire up automatic filtering
         window.addEventListener('DOMContentLoaded', function () {
             var activeToasts = document.querySelectorAll('.toast-box');
             activeToasts.forEach(function (t) {
@@ -1575,6 +1751,27 @@
                     if (btn) dismissToast(btn);
                 }, 5000);
             });
+
+            var searchInput = document.getElementById('<%= txtSearch.ClientID %>') || document.getElementById('txtSearch');
+            var statusSelect = document.getElementById('<%= ddlStatusFilter.ClientID %>') || document.getElementById('ddlStatusFilter');
+            var roleSelect = document.getElementById('<%= ddlRoleFilter.ClientID %>') || document.getElementById('ddlRoleFilter');
+
+            if (searchInput) {
+                searchInput.addEventListener('input', applyClientUserFilters);
+                searchInput.addEventListener('keydown', function (e) {
+                    if (e.key === 'Enter') {
+                        e.preventDefault();
+                        applyClientUserFilters();
+                        return false;
+                    }
+                });
+            }
+            if (statusSelect) {
+                statusSelect.addEventListener('change', applyClientUserFilters);
+            }
+            if (roleSelect) {
+                roleSelect.addEventListener('change', applyClientUserFilters);
+            }
         });
     </script>
 </body>

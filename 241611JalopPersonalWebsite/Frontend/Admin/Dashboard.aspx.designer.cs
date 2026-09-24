@@ -16,7 +16,6 @@ namespace _241611JalopPersonalWebsite.Frontend.Admin
         protected global::System.Web.UI.WebControls.TextBox txtSearch;
         protected global::System.Web.UI.WebControls.DropDownList ddlStatusFilter;
         protected global::System.Web.UI.WebControls.DropDownList ddlRoleFilter;
-        protected global::System.Web.UI.WebControls.Button btnApplyFilter;
         protected global::System.Web.UI.WebControls.Button btnResetFilter;
         protected global::System.Web.UI.WebControls.Repeater rptUsers;
         protected global::System.Web.UI.WebControls.Panel pnlNoUsers;

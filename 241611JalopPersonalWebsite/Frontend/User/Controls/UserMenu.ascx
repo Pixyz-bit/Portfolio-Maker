@@ -43,8 +43,6 @@
         right: 0;
         width: 350px;
         background-color: #ffffff;
-        background-image: radial-gradient(#cbd5e1 1.2px, transparent 1.2px);
-        background-size: 16px 16px;
         border: 2.5px solid #000000;
         border-radius: 20px;
         padding: 30px 24px 26px;

@@ -3,6 +3,7 @@ using System.Data.SqlClient;
 using System.Diagnostics;
 using System.Web;
 using System.Web.UI;
+using _241611JalopPersonalWebsite.Backend.Common;
 using _241611JalopPersonalWebsite.Model;
 using _241611JalopPersonalWebsite.Repository;
 
@@ -116,7 +117,7 @@ namespace _241611JalopPersonalWebsite.Frontend.Login
                     : (!string.IsNullOrWhiteSpace(authenticatedUser.FullName) ? authenticatedUser.FullName : "User");
                 string redirectUrl = isAdmin 
                     ? "../Admin/Dashboard.aspx" 
-                    : $"../User/Portfolio.aspx?userId={authenticatedUser.UserID}";
+                    : $"../User/Portfolio.aspx?u={UrlObfuscator.EncodeUserId(authenticatedUser.UserID)}";
 
                 string safeWelcomeName = (welcomeName ?? "User").Replace("\\", "\\\\").Replace("'", "\\'").Replace("\"", "\\\"").Replace("\r", "").Replace("\n", "");
                 string safeRedirectUrl = redirectUrl.Replace("\\", "\\\\").Replace("'", "\\'").Replace("\"", "\\\"");

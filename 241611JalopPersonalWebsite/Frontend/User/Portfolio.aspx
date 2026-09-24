@@ -183,14 +183,286 @@
             margin-top: 10px;
         }
 
-        /* Responsive Breakpoints */
-        @media (max-width: 840px) {
+        /* Responsive Breakpoints (Screen only - do not apply to print/PDF) */
+        @media screen and (max-width: 840px) {
             .bento-grid {
                 grid-template-columns: 1fr;
             }
 
             .bento-card {
                 padding: 26px 22px;
+            }
+        }
+
+        /* High-Fidelity Print & PDF Export Styles */
+        @media print {
+            @page {
+                size: A4 portrait;
+                margin: 12mm 12mm 14mm 12mm;
+            }
+
+            *, *:before, *:after {
+                -webkit-print-color-adjust: exact !important;
+                print-color-adjust: exact !important;
+                color-adjust: exact !important;
+                word-wrap: normal !important;
+                word-break: normal !important;
+                overflow-wrap: normal !important;
+            }
+
+            html, body {
+                background: #ffffff !important;
+                background-image: none !important;
+                color: #000000 !important;
+                font-size: 10.5pt !important;
+                line-height: 1.4 !important;
+                margin: 0 !important;
+                padding: 0 !important;
+                width: 100% !important;
+            }
+
+            form {
+                width: 100% !important;
+                margin: 0 !important;
+                padding: 0 !important;
+            }
+
+            /* Hide all interactive, navigation, and floating chrome */
+            .top-action-bar,
+            .user-menu-wrapper,
+            .user-menu-dropdown,
+            .user-account-modal-overlay,
+            #btnShareLink,
+            #btnExportPdf,
+            #lnkAdminEditPortfolio,
+            #ucUserMenu,
+            #lnkGuestSignIn,
+            .portfolio-footer {
+                display: none !important;
+                visibility: hidden !important;
+            }
+
+            .portfolio-wrap {
+                width: 100% !important;
+                max-width: 100% !important;
+                padding: 0 !important;
+                margin: 0 !important;
+                display: block !important;
+            }
+
+            /* Bento Cards (PDF Container) */
+            .bento-card {
+                background-color: #ffffff !important;
+                background-image: none !important;
+                border: 1.5px solid #000000 !important;
+                border-radius: 12px !important;
+                padding: 18px 22px !important;
+                box-shadow: none !important;
+                break-inside: avoid !important;
+                page-break-inside: avoid !important;
+                margin-bottom: 14px !important;
+                box-sizing: border-box !important;
+                width: 100% !important;
+            }
+
+            .card-title {
+                font-size: 1.25rem !important;
+                margin-bottom: 12px !important;
+                color: #000000 !important;
+                font-weight: 800 !important;
+            }
+
+            /* Hero Card - Keep side-by-side on PDF */
+            .header-card {
+                display: flex !important;
+                flex-direction: row !important;
+                align-items: center !important;
+                justify-content: space-between !important;
+                gap: 24px !important;
+                width: 100% !important;
+                box-sizing: border-box !important;
+            }
+
+            .header-left {
+                flex: 1 1 auto !important;
+                width: calc(100% - 150px) !important;
+                min-width: 320px !important;
+                box-sizing: border-box !important;
+            }
+
+            .header-right {
+                flex: 0 0 125px !important;
+                width: 125px !important;
+                height: 125px !important;
+                display: block !important;
+                margin: 0 !important;
+            }
+
+            .header-name {
+                display: block !important;
+                width: 100% !important;
+                font-size: 2.2rem !important;
+                line-height: 1.15 !important;
+                margin-bottom: 14px !important;
+                white-space: normal !important;
+                word-break: normal !important;
+                overflow-wrap: normal !important;
+                word-wrap: normal !important;
+                color: #000000 !important;
+            }
+
+            /* 2-Column Details in Hero */
+            .header-meta-grid {
+                display: flex !important;
+                flex-direction: row !important;
+                justify-content: space-between !important;
+                gap: 20px !important;
+                width: 100% !important;
+                box-sizing: border-box !important;
+            }
+
+            .meta-col {
+                flex: 1 1 50% !important;
+                display: flex !important;
+                flex-direction: column !important;
+                gap: 6px !important;
+                min-width: 0 !important;
+            }
+
+            .detail-row {
+                display: block !important;
+                font-size: 0.95rem !important;
+                line-height: 1.4 !important;
+                white-space: normal !important;
+                word-break: normal !important;
+            }
+
+            .detail-label {
+                font-weight: 800 !important;
+                display: inline !important;
+                white-space: nowrap !important;
+                margin-right: 5px !important;
+                color: #000000 !important;
+            }
+
+            .detail-value {
+                font-weight: 500 !important;
+                display: inline !important;
+                white-space: normal !important;
+                word-break: normal !important;
+                color: #000000 !important;
+            }
+
+            .detail-value a {
+                color: #000000 !important;
+                word-break: break-all !important;
+            }
+
+            .profile-photo {
+                width: 125px !important;
+                height: 125px !important;
+                border-radius: 12px !important;
+                border: 2px solid #000000 !important;
+                object-fit: cover !important;
+                margin: 0 !important;
+                display: block !important;
+            }
+
+            /* Bento Grid in PDF */
+            .bento-grid {
+                display: flex !important;
+                flex-direction: row !important;
+                flex-wrap: wrap !important;
+                gap: 14px !important;
+                width: 100% !important;
+                margin-bottom: 14px !important;
+            }
+
+            .bento-grid > section,
+            .bento-grid > div {
+                flex: 1 1 calc(50% - 10px) !important;
+                max-width: calc(50% - 10px) !important;
+                margin-bottom: 0 !important;
+                box-sizing: border-box !important;
+            }
+
+            /* Lists formatting */
+            .list-group {
+                display: flex !important;
+                flex-direction: column !important;
+                gap: 12px !important;
+            }
+
+            .list-item {
+                break-inside: avoid !important;
+                page-break-inside: avoid !important;
+                display: flex !important;
+                flex-direction: column !important;
+            }
+
+            .list-title {
+                font-size: 0.98rem !important;
+                font-weight: 700 !important;
+            }
+
+            .list-desc {
+                font-size: 0.88rem !important;
+                line-height: 1.4 !important;
+            }
+
+            .timeline-row {
+                display: flex !important;
+                flex-direction: row !important;
+                justify-content: space-between !important;
+                align-items: baseline !important;
+                gap: 10px !important;
+            }
+
+            .timeline-period {
+                white-space: nowrap !important;
+                font-size: 0.88rem !important;
+                color: #52525b !important;
+                font-weight: 600 !important;
+            }
+
+            /* Social Links Bar */
+            .connect-bar {
+                display: flex !important;
+                flex-direction: row !important;
+                align-items: center !important;
+                justify-content: space-between !important;
+                flex-wrap: wrap !important;
+                gap: 12px !important;
+                border: 1.5px solid #000000 !important;
+                border-radius: 12px !important;
+                padding: 16px 22px !important;
+                background-color: #ffffff !important;
+                background-image: none !important;
+                break-inside: avoid !important;
+                page-break-inside: avoid !important;
+            }
+
+            .social-pills-wrap {
+                display: flex !important;
+                flex-wrap: wrap !important;
+                gap: 8px !important;
+            }
+
+            .social-pill-btn {
+                border: 1.5px solid #000000 !important;
+                padding: 6px 12px !important;
+                font-size: 0.85rem !important;
+                background-color: #ffffff !important;
+                color: #000000 !important;
+            }
+
+            a {
+                color: inherit !important;
+                text-decoration: none !important;
+            }
+
+            a[href]:after {
+                content: none !important;
             }
         }
     </style>
@@ -206,6 +478,16 @@
                 </div>
 
                 <div class="bar-actions">
+                    <!-- Export to PDF Button -->
+                    <button type="button" class="btn-top-link" id="btnExportPdf" onclick="exportPortfolioToPdf()" title="Export Portfolio to PDF">
+                        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="vertical-align: -2px; margin-right: 4px;">
+                            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                            <polyline points="7 10 12 15 17 10"></polyline>
+                            <line x1="12" y1="15" x2="12" y2="3"></line>
+                        </svg>
+                        <span>Export PDF</span>
+                    </button>
+
                     <!-- Share / Copy Link Button -->
                     <button type="button" class="btn-top-link" id="btnShareLink" onclick="copyPortfolioLink()" data-share-url="<%= ShareUrl %>" title="Copy Shareable Link">
                         <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="vertical-align: -2px; margin-right: 4px;">
@@ -269,6 +551,22 @@
     </form>
 
     <script>
+        function exportPortfolioToPdf() {
+            var originalTitle = document.title;
+            var headerNameEl = document.querySelector('.header-name');
+            var personName = headerNameEl ? headerNameEl.innerText.trim() : '';
+            if (!personName) {
+                personName = document.title.replace(/\|.*/, '').trim() || 'Portfolio';
+            }
+
+            document.title = personName + " - Portfolio";
+            window.print();
+
+            setTimeout(function () {
+                document.title = originalTitle;
+            }, 1000);
+        }
+
         function copyPortfolioLink() {
             var btn = document.getElementById("btnShareLink");
             var url = (btn && btn.getAttribute("data-share-url")) ? btn.getAttribute("data-share-url") : window.location.href;

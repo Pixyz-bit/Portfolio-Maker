@@ -78,7 +78,7 @@
         line-height: 1.4;
     }
 
-    @media (max-width: 840px) {
+    @media screen and (max-width: 840px) {
         .timeline-row {
             flex-direction: column;
             gap: 2px;

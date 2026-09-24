@@ -22,7 +22,7 @@
         line-height: 1.15;
         color: var(--text-black);
         margin-bottom: 18px;
-        word-wrap: break-word;
+        overflow-wrap: break-word;
     }
 
     .header-meta-grid {
@@ -56,7 +56,7 @@
         font-weight: 500;
         color: var(--text-black);
         display: inline;
-        word-break: break-word;
+        overflow-wrap: break-word;
     }
 
     .detail-value a {
@@ -83,7 +83,7 @@
         background-color: #f4f4f5;
     }
 
-    @media (max-width: 840px) {
+    @media screen and (max-width: 840px) {
         .header-card {
             flex-direction: column-reverse;
             align-items: flex-start;

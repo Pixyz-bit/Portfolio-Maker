@@ -58,7 +58,7 @@
         display: block;
     }
 
-    @media (max-width: 840px) {
+    @media screen and (max-width: 840px) {
         .connect-bar {
             border-radius: 20px;
             flex-direction: column;

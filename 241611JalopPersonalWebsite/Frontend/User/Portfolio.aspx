@@ -20,6 +20,7 @@
     <link rel="stylesheet" href="<%= Page.ResolveUrl("~/Frontend/Assets/fonts/fonts.css") %>" />
 
     <link rel="stylesheet" href="<%= Page.ResolveUrl("~/Frontend/Assets/css/portfolio.css") %>?v=<%= DateTime.UtcNow.Ticks %>" />
+    <link rel="stylesheet" href="<%= Page.ResolveUrl("~/Frontend/Assets/css/user-menu.css") %>?v=<%= DateTime.UtcNow.Ticks %>" />
 
     <style>
         /* Top Navigation Button System matching nav-actions */

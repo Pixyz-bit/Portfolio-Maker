@@ -86,7 +86,7 @@ namespace _241611JalopPersonalWebsite.Frontend.User.Controls
             {
                 lnkDashboard.Visible = true;
                 lnkDashboard.NavigateUrl = "~/Frontend/Admin/Dashboard.aspx";
-                lnkDashboard.Text = "Admin Dashboard";
+                litDashboardLabel.Text = "Admin Dashboard";
                 ddlAccountRole.SelectedValue = "Admin";
                 ddlAccountRole.Enabled = true;
                 chkAccountIsActive.Enabled = true;
@@ -106,16 +106,16 @@ namespace _241611JalopPersonalWebsite.Frontend.User.Controls
             {
                 string targetToken = UrlObfuscator.EncodeUserId(targetUserId);
                 lnkEditPortfolio.NavigateUrl = $"~/Frontend/User/Onboarding.aspx?u={targetToken}";
-                lnkEditPortfolio.Text = "Edit User's Portfolio";
+                litEditPortfolioLabel.Text = "Edit User's Portfolio";
                 lnkViewPortfolio.NavigateUrl = $"~/Frontend/User/Portfolio.aspx?u={targetToken}";
-                lnkViewPortfolio.Text = "View User's Portfolio";
+                litViewPortfolioLabel.Text = "View User's Portfolio";
             }
             else
             {
                 lnkEditPortfolio.NavigateUrl = "~/Frontend/User/Onboarding.aspx";
-                lnkEditPortfolio.Text = "Edit Portfolio";
+                litEditPortfolioLabel.Text = "Edit Portfolio";
                 lnkViewPortfolio.NavigateUrl = "~/Frontend/User/Portfolio.aspx";
-                lnkViewPortfolio.Text = "View Portfolio";
+                litViewPortfolioLabel.Text = "View Portfolio";
             }
 
             lnkViewPortfolio.Visible = true;

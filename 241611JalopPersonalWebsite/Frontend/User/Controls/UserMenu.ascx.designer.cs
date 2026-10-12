@@ -54,6 +54,11 @@ namespace _241611JalopPersonalWebsite.Frontend.User.Controls
         protected global::System.Web.UI.WebControls.HyperLink lnkDashboard;
 
         /// <summary>
+        /// litDashboardLabel control.
+        /// </summary>
+        protected global::System.Web.UI.WebControls.Literal litDashboardLabel;
+
+        /// <summary>
         /// phEditAccountBtn control.
         /// </summary>
         protected global::System.Web.UI.WebControls.PlaceHolder phEditAccountBtn;
@@ -62,6 +67,11 @@ namespace _241611JalopPersonalWebsite.Frontend.User.Controls
         /// lnkViewPortfolio control.
         /// </summary>
         protected global::System.Web.UI.WebControls.HyperLink lnkViewPortfolio;
+
+        /// <summary>
+        /// litViewPortfolioLabel control.
+        /// </summary>
+        protected global::System.Web.UI.WebControls.Literal litViewPortfolioLabel;
 
         /// <summary>
         /// lnkExplorePortfolios control.
@@ -77,6 +87,11 @@ namespace _241611JalopPersonalWebsite.Frontend.User.Controls
         /// lnkEditPortfolio control.
         /// </summary>
         protected global::System.Web.UI.WebControls.HyperLink lnkEditPortfolio;
+
+        /// <summary>
+        /// litEditPortfolioLabel control.
+        /// </summary>
+        protected global::System.Web.UI.WebControls.Literal litEditPortfolioLabel;
 
         /// <summary>
         /// lnkSignOut control.

@@ -24,6 +24,31 @@ namespace _241611JalopPersonalWebsite.Frontend.User.Controls
         protected global::System.Web.UI.WebControls.Literal litEmail;
 
         /// <summary>
+        /// lblRoleBadge control.
+        /// </summary>
+        protected global::System.Web.UI.WebControls.Label lblRoleBadge;
+
+        /// <summary>
+        /// dotVisibility control.
+        /// </summary>
+        protected global::System.Web.UI.HtmlControls.HtmlGenericControl dotVisibility;
+
+        /// <summary>
+        /// litVisibilityLabel control.
+        /// </summary>
+        protected global::System.Web.UI.WebControls.Literal litVisibilityLabel;
+
+        /// <summary>
+        /// btnToggleVisibility control.
+        /// </summary>
+        protected global::System.Web.UI.WebControls.LinkButton btnToggleVisibility;
+
+        /// <summary>
+        /// litVisibilityAction control.
+        /// </summary>
+        protected global::System.Web.UI.WebControls.Literal litVisibilityAction;
+
+        /// <summary>
         /// lnkDashboard control.
         /// </summary>
         protected global::System.Web.UI.WebControls.HyperLink lnkDashboard;
@@ -97,6 +122,11 @@ namespace _241611JalopPersonalWebsite.Frontend.User.Controls
         /// chkAccountIsActive control.
         /// </summary>
         protected global::System.Web.UI.WebControls.CheckBox chkAccountIsActive;
+
+        /// <summary>
+        /// chkAccountIsPublic control.
+        /// </summary>
+        protected global::System.Web.UI.WebControls.CheckBox chkAccountIsPublic;
 
         /// <summary>
         /// txtAccountNewPassword control.

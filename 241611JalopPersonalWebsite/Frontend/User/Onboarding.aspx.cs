@@ -41,14 +41,18 @@ namespace _241611JalopPersonalWebsite.Frontend.User
                             ? targetUser.FullName
                             : $"User #{userId}");
 
-                    pnlAdminBanner.Visible = true;
+                    mainCard.Attributes["class"] = "card card-admin-editing";
+                    pnlAdminBadge.Visible = true;
+                    lnkReturnToAdmin.Visible = true;
                     litAdminTargetUserName.Text = targetName;
                     litPageTitle.Text = $"Edit Portfolio: {targetName}";
                     litPageSubtitle.Text = "You are editing this user's live portfolio information with Administrator authority.";
                 }
                 else
                 {
-                    pnlAdminBanner.Visible = false;
+                    mainCard.Attributes["class"] = "card";
+                    pnlAdminBadge.Visible = false;
+                    lnkReturnToAdmin.Visible = false;
                     litPageTitle.Text = "Profile Onboarding";
                     litPageSubtitle.Text = "Fill in your information at your own pace. Save & Exit anytime to view your portfolio.";
                 }
@@ -68,7 +72,6 @@ namespace _241611JalopPersonalWebsite.Frontend.User
                     backUrl = ResolveUrl($"~/Frontend/User/Portfolio.aspx?u={targetToken}");
                 }
 
-                lnkBackTop.NavigateUrl = backUrl;
                 lnkBackStep1.NavigateUrl = backUrl;
 
                 // Load existing profile and portfolio data into form
@@ -137,6 +140,8 @@ namespace _241611JalopPersonalWebsite.Frontend.User
                     imgProfilePreview.ImageUrl = ResolveUrl(profile.ProfileImagePath);
                     hfExistingImagePath.Value = profile.ProfileImagePath;
                 }
+
+                chkIsPublic.Checked = profile.IsPublic;
             }
             else
             {
@@ -337,6 +342,7 @@ namespace _241611JalopPersonalWebsite.Frontend.User
                     existingProfile.ContactNum = contactNum;
                     existingProfile.ProfileImagePath = profileImagePath;
                     existingProfile.Description = txtDescription.Text.Trim();
+                    existingProfile.IsPublic = chkIsPublic.Checked;
 
                     if (!UserProfileRepository.Update(existingProfile, out string updateError))
                     {
@@ -356,7 +362,8 @@ namespace _241611JalopPersonalWebsite.Frontend.User
                         ContactEmail = contactEmail,
                         ContactNum = contactNum,
                         ProfileImagePath = profileImagePath,
-                        Description = txtDescription.Text.Trim()
+                        Description = txtDescription.Text.Trim(),
+                        IsPublic = chkIsPublic.Checked
                     };
 
                     if (!UserProfileRepository.Create(newProfile, out string createError))

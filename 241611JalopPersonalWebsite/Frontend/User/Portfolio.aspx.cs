@@ -206,7 +206,36 @@ namespace _241611JalopPersonalWebsite.Frontend.User
                 lnkGuestSignIn.Visible = true;
             }
 
-            // 3. Delegate to modular user controls
+            // 4. Handle Portfolio Visibility (Public vs Private)
+            bool isPortfolioPublic = profile != null ? profile.IsPublic : true;
+
+            if (!isPortfolioPublic)
+            {
+                if (canEdit)
+                {
+                    // Owner or Admin viewing a private portfolio: Show indicator badge and full content
+                    pnlOwnerPrivateIndicator.Visible = true;
+                    pnlPrivateNotice.Visible = false;
+                    pnlPortfolioMain.Visible = true;
+                }
+                else
+                {
+                    // Unauthorized guest or non-admin viewing private portfolio: Hide details and show private notice card
+                    pnlOwnerPrivateIndicator.Visible = false;
+                    pnlPrivateNotice.Visible = true;
+                    pnlPortfolioMain.Visible = false;
+                    litPrivateOwnerName.Text = profile != null ? (!string.IsNullOrWhiteSpace(profile.FullName) ? profile.FullName : "The user") : "The user";
+                    return; // Stop further binding to protect private data
+                }
+            }
+            else
+            {
+                pnlOwnerPrivateIndicator.Visible = false;
+                pnlPrivateNotice.Visible = false;
+                pnlPortfolioMain.Visible = true;
+            }
+
+            // 5. Delegate to modular user controls
             ucHero.BindProfile(profile);
             ucSummary.BindSummary(profile != null ? profile.Description : null);
 

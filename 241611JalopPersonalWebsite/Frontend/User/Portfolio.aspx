@@ -126,6 +126,70 @@
                 font-size: 0.75rem !important;
             }
         }
+
+        .owner-private-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            background-color: #fef3c7;
+            color: #92400e;
+            border: 2px solid #000000;
+            border-radius: 8px;
+            padding: 5px 10px;
+            font-size: 0.75rem;
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: 0.04em;
+            line-height: 1;
+        }
+
+        .private-portfolio-card {
+            background-color: #ffffff;
+            border: 2.5px solid #000000;
+            border-radius: 20px;
+            box-shadow: 6px 6px 0px #000000;
+            max-width: 540px;
+            margin: 60px auto;
+            padding: 48px 32px;
+            text-align: center;
+        }
+
+        .private-icon-wrap {
+            width: 64px;
+            height: 64px;
+            border-radius: 50%;
+            background-color: #fef3c7;
+            border: 2px solid #000000;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 20px;
+            color: #92400e;
+        }
+
+        .private-title {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            font-size: 1.55rem;
+            font-weight: 800;
+            color: #000000;
+            margin: 0 0 10px;
+            letter-spacing: -0.02em;
+        }
+
+        .private-desc {
+            font-size: 0.92rem;
+            color: #52525b;
+            line-height: 1.55;
+            margin: 0 0 28px;
+        }
+
+        .private-actions {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 12px;
+            flex-wrap: wrap;
+        }
     </style>
 </head>
 <body>
@@ -176,6 +240,12 @@
                         <span>Edit Content</span>
                     </asp:HyperLink>
 
+                    <!-- Owner / Admin Private Indicator Badge -->
+                    <asp:Panel ID="pnlOwnerPrivateIndicator" runat="server" Visible="false" CssClass="owner-private-badge" ToolTip="Your portfolio is currently set to Private. Only you and administrators can view it.">
+                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg>
+                        <span>Private</span>
+                    </asp:Panel>
+
                     <!-- User Menu (Visible ONLY when logged in) -->
                     <uc:UserMenu ID="ucUserMenu" runat="server" Visible="false" />
 
@@ -194,34 +264,58 @@
 
         <!-- Main Content Wrapper -->
         <main class="portfolio-wrap">
-            <!-- 1. Top Header Card (Hero) -->
-            <uc:HeroSection ID="ucHero" runat="server" />
+            <!-- Private Portfolio Notice for Unauthorized Visitors -->
+            <asp:Panel ID="pnlPrivateNotice" runat="server" Visible="false" CssClass="private-portfolio-card">
+                <div class="private-icon-wrap">
+                    <svg width="34" height="34" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
+                        <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
+                    </svg>
+                </div>
+                <h2 class="private-title">This Portfolio is Private</h2>
+                <p class="private-desc">
+                    <asp:Literal ID="litPrivateOwnerName" runat="server" Text="The user" /> has chosen to keep this portfolio private.
+                    Only the owner and administrators have permission to access its content.
+                </p>
+                <div class="private-actions">
+                    <a href="PublicDashboard.aspx" class="btn btn-solid btn-sm">Explore Public Portfolios</a>
+                    <asp:HyperLink ID="lnkPrivateSignIn" runat="server" NavigateUrl="~/Frontend/Login/Login.aspx" CssClass="btn btn-outline btn-sm">
+                        Owner Sign In
+                    </asp:HyperLink>
+                </div>
+            </asp:Panel>
 
-            <!-- 2. Separated Summary Card -->
-            <uc:SummarySection ID="ucSummary" runat="server" />
+            <!-- Main Portfolio Content (Visible if Public OR Viewer is Owner/Admin) -->
+            <asp:Panel ID="pnlPortfolioMain" runat="server">
+                <!-- 1. Top Header Card (Hero) -->
+                <uc:HeroSection ID="ucHero" runat="server" />
 
-            <!-- 3. 2x2 Bento Grid -->
-            <div class="bento-grid">
-                <!-- Row 1, Col 1: Educational Attainment Card -->
-                <uc:EducationSection ID="ucEducation" runat="server" />
+                <!-- 2. Separated Summary Card -->
+                <uc:SummarySection ID="ucSummary" runat="server" />
 
-                <!-- Row 1, Col 2: Skills Card -->
-                <uc:SkillsSection ID="ucSkills" runat="server" />
+                <!-- 3. 2x2 Bento Grid -->
+                <div class="bento-grid">
+                    <!-- Row 1, Col 1: Educational Attainment Card -->
+                    <uc:EducationSection ID="ucEducation" runat="server" />
 
-                <!-- Row 2, Col 1: Affiliations Card -->
-                <uc:AffiliationsSection ID="ucAffiliations" runat="server" />
+                    <!-- Row 1, Col 2: Skills Card -->
+                    <uc:SkillsSection ID="ucSkills" runat="server" />
 
-                <!-- Row 2, Col 2: Hobbies & Interest Card -->
-                <uc:HobbiesSection ID="ucHobbies" runat="server" />
-            </div>
+                    <!-- Row 2, Col 1: Affiliations Card -->
+                    <uc:AffiliationsSection ID="ucAffiliations" runat="server" />
 
-            <!-- 4. Connect With Me (Bottom-Most) -->
-            <uc:SocialLinksSection ID="ucSocialLinks" runat="server" />
+                    <!-- Row 2, Col 2: Hobbies & Interest Card -->
+                    <uc:HobbiesSection ID="ucHobbies" runat="server" />
+                </div>
 
-            <!-- Footer -->
-            <footer class="portfolio-footer">
-                <p>&copy; <%= DateTime.Now.Year %> <asp:Literal ID="litFooterName" runat="server" />. All rights reserved.</p>
-            </footer>
+                <!-- 4. Connect With Me (Bottom-Most) -->
+                <uc:SocialLinksSection ID="ucSocialLinks" runat="server" />
+
+                <!-- Footer -->
+                <footer class="portfolio-footer">
+                    <p>&copy; <%= DateTime.Now.Year %> <asp:Literal ID="litFooterName" runat="server" />. All rights reserved.</p>
+                </footer>
+            </asp:Panel>
         </main>
     </form>
 

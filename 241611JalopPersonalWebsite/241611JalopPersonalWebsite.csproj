@@ -70,6 +70,7 @@
     <Content Include="Backend\Database\Migration\01_Schema.sql" />
     <Content Include="Backend\Database\Migration\02_Alter_Profile_Affiliations_SocialLinks.sql" />
     <Content Include="Backend\Database\Migration\03_StoredProcedures.sql" />
+    <Content Include="Backend\Database\Migration\04_Add_IsPublic_To_UserProfiles.sql" />
     <Content Include="Frontend\Assets\fonts\fonts.css" />
     <Content Include="Frontend\Assets\fonts\inter-v20-latin-regular.woff2" />
     <Content Include="Frontend\Assets\fonts\inter-v20-latin-500.woff2" />

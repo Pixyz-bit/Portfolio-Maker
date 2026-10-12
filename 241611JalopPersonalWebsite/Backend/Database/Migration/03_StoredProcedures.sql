@@ -463,7 +463,8 @@ CREATE OR ALTER PROCEDURE dbo.sp_CreateUserProfile
     @ContactEmail     NVARCHAR(255) = NULL,
     @ContactNum       NVARCHAR(30) = NULL,
     @ProfileImagePath NVARCHAR(500) = NULL,
-    @Description      NVARCHAR(MAX) = NULL
+    @Description      NVARCHAR(MAX) = NULL,
+    @IsPublic         BIT = 1
 AS
 BEGIN
     SET NOCOUNT ON;
@@ -484,6 +485,7 @@ BEGIN
         ContactNum, 
         ProfileImagePath, 
         Description, 
+        IsPublic,
         UpdatedAt
     )
     VALUES (
@@ -496,6 +498,7 @@ BEGIN
         @ContactNum, 
         @ProfileImagePath, 
         @Description, 
+        ISNULL(@IsPublic, 1),
         SYSUTCDATETIME()
     );
 
@@ -512,7 +515,8 @@ CREATE OR ALTER PROCEDURE dbo.sp_UpdateUserProfile
     @ContactEmail     NVARCHAR(255) = NULL,
     @ContactNum       NVARCHAR(30) = NULL,
     @ProfileImagePath NVARCHAR(500) = NULL,
-    @Description      NVARCHAR(MAX) = NULL
+    @Description      NVARCHAR(MAX) = NULL,
+    @IsPublic         BIT = 1
 AS
 BEGIN
     SET NOCOUNT ON;
@@ -526,6 +530,7 @@ BEGIN
         ContactNum = @ContactNum,
         ProfileImagePath = COALESCE(@ProfileImagePath, ProfileImagePath),
         Description = @Description,
+        IsPublic = ISNULL(@IsPublic, IsPublic),
         UpdatedAt = SYSUTCDATETIME()
     WHERE UserID = @UserID;
 
@@ -540,7 +545,8 @@ BEGIN
     SET NOCOUNT ON;
 
     SELECT ProfileID, UserID, FirstName, LastName, Birthday, Address, 
-           ContactEmail, ContactNum, ProfileImagePath, Description, UpdatedAt
+           ContactEmail, ContactNum, ProfileImagePath, Description, UpdatedAt,
+           ISNULL(IsPublic, 1) AS IsPublic
     FROM dbo.UserProfiles
     WHERE UserID = @UserID;
 END
@@ -553,7 +559,8 @@ BEGIN
     SET NOCOUNT ON;
 
     SELECT ProfileID, UserID, FirstName, LastName, Birthday, Address, 
-           ContactEmail, ContactNum, ProfileImagePath, Description, UpdatedAt
+           ContactEmail, ContactNum, ProfileImagePath, Description, UpdatedAt,
+           ISNULL(IsPublic, 1) AS IsPublic
     FROM dbo.UserProfiles
     WHERE ProfileID = @ProfileID;
 END

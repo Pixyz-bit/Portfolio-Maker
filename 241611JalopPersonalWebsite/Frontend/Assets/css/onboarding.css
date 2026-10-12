@@ -45,6 +45,20 @@
             box-shadow: 0 6px 24px rgba(0, 0, 0, 0.05);
         }
 
+        /* Admin Editing Another User's Portfolio: Symbolized by Full Yellow Card */
+        .card.card-admin-editing {
+            background-color: #fef08a !important; /* warm yellow */
+            border: 3px solid #000000;
+            box-shadow: 8px 8px 0px #000000;
+        }
+
+        .card.card-admin-editing .form-input,
+        .card.card-admin-editing .form-textarea,
+        .card.card-admin-editing .avatar-preview,
+        .card.card-admin-editing .dynamic-item-card {
+            background-color: #ffffff;
+        }
+
         /* Top Action Bar */
         .top-action-bar {
             display: flex;

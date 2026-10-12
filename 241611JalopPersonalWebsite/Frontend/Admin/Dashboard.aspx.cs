@@ -193,7 +193,7 @@ namespace _241611JalopPersonalWebsite.Frontend.Admin
             litSummaryUserId.Text = userId.ToString();
             litSummaryFullName.Text = !string.IsNullOrWhiteSpace(user.FullName) ? user.FullName : user.Email;
             litSummaryEmail.Text = user.Email;
-            litSummaryCreatedAt.Text = FormatPhilippineTime(user.CreatedAt);
+            litSummaryCreatedAt.Text = FormatPhilippineTimeTwoRows(user.CreatedAt);
             litSummaryAvatarInitials.Text = GetInitials(user.FirstName, user.LastName, user.Email);
 
             bool isAdmin = string.Equals(user.Role, "Admin", StringComparison.OrdinalIgnoreCase);
@@ -541,6 +541,18 @@ namespace _241611JalopPersonalWebsite.Frontend.Admin
             {
                 DateTime utc = dt.Kind == DateTimeKind.Utc ? dt : DateTime.SpecifyKind(dt, DateTimeKind.Utc);
                 return TimeZoneInfo.ConvertTimeFromUtc(utc, PhilippineTimeZone).ToString(format);
+            }
+            return string.Empty;
+        }
+
+        public static string FormatPhilippineTimeTwoRows(object dateTimeObj)
+        {
+            if (dateTimeObj == null || dateTimeObj == DBNull.Value) return string.Empty;
+            if (DateTime.TryParse(dateTimeObj.ToString(), out DateTime dt))
+            {
+                DateTime utc = dt.Kind == DateTimeKind.Utc ? dt : DateTime.SpecifyKind(dt, DateTimeKind.Utc);
+                DateTime ph = TimeZoneInfo.ConvertTimeFromUtc(utc, PhilippineTimeZone);
+                return $"<div style='line-height: 1.35;'><span style='font-weight: 700; color: #000000; display: block;'>{ph:dd MMM yyyy}</span><span style='font-size: 0.78rem; color: #64748b; display: block;'>{ph:hh:mm tt}</span></div>";
             }
             return string.Empty;
         }

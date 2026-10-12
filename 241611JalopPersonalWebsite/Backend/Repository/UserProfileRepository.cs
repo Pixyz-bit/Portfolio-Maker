@@ -74,6 +74,7 @@ namespace _241611JalopPersonalWebsite.Repository
                         if (result != null && int.TryParse(result.ToString(), out int newProfileId))
                         {
                             profile.ProfileID = newProfileId;
+                            SetPortfolioVisibility(profile.UserID, profile.IsPublic, out _);
                             return true;
                         }
                         else
@@ -155,6 +156,7 @@ namespace _241611JalopPersonalWebsite.Repository
                         int rowsAffected = DatabaseConnection.ExecuteNonQueryCount(cmd);
                         if (rowsAffected > 0)
                         {
+                            SetPortfolioVisibility(profile.UserID, profile.IsPublic, out _);
                             return true;
                         }
                         else
@@ -287,7 +289,7 @@ namespace _241611JalopPersonalWebsite.Repository
                                ISNULL(p.ProfileImagePath, '') AS ProfileImagePath
                         FROM dbo.Users u
                         LEFT JOIN dbo.UserProfiles p ON u.UserID = p.UserID
-                        WHERE u.IsActive = 1
+                        WHERE u.IsActive = 1 AND ISNULL(p.IsPublic, 1) = 1
                         ORDER BY u.UserID DESC;
                     ";
 
@@ -368,8 +370,82 @@ namespace _241611JalopPersonalWebsite.Repository
             return list;
         }
 
+        private static bool _isPublicColumnChecked = false;
+
+        public static void EnsureIsPublicColumnExists()
+        {
+            if (_isPublicColumnChecked) return;
+            try
+            {
+                using (SqlConnection conn = DatabaseConnection.GetConnection())
+                {
+                    conn.Open();
+                    string checkSql = @"
+                        IF COL_LENGTH(N'dbo.UserProfiles', N'IsPublic') IS NULL
+                        BEGIN
+                            ALTER TABLE dbo.UserProfiles ADD IsPublic BIT NOT NULL CONSTRAINT DF_UserProfiles_IsPublic DEFAULT 1;
+                        END";
+                    using (SqlCommand cmd = new SqlCommand(checkSql, conn))
+                    {
+                        cmd.ExecuteNonQuery();
+                    }
+                }
+                _isPublicColumnChecked = true;
+            }
+            catch
+            {
+                // Ignore DDL failure if constrained by permissions
+            }
+        }
+
+        public static bool SetPortfolioVisibility(int userId, bool isPublic, out string errorMessage)
+        {
+            errorMessage = string.Empty;
+            if (userId <= 0)
+            {
+                errorMessage = "Invalid UserID.";
+                return false;
+            }
+
+            try
+            {
+                EnsureIsPublicColumnExists();
+                using (SqlConnection conn = DatabaseConnection.GetConnection())
+                {
+                    conn.Open();
+                    string sql = @"
+                        UPDATE dbo.UserProfiles
+                        SET IsPublic = @IsPublic,
+                            UpdatedAt = SYSUTCDATETIME()
+                        WHERE UserID = @UserID;
+                    ";
+                    using (SqlCommand cmd = new SqlCommand(sql, conn))
+                    {
+                        cmd.Parameters.Add("@IsPublic", SqlDbType.Bit).Value = isPublic;
+                        cmd.Parameters.Add("@UserID", SqlDbType.Int).Value = userId;
+
+                        int rows = cmd.ExecuteNonQuery();
+                        return rows > 0;
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                errorMessage = $"Database error: {ex.Message}";
+                return false;
+            }
+        }
+
         private static UserProfile MapProfileFromReader(SqlDataReader reader)
         {
+            int isPublicOrd = -1;
+            try { isPublicOrd = reader.GetOrdinal("IsPublic"); } catch { }
+            bool isPublic = true;
+            if (isPublicOrd >= 0 && !reader.IsDBNull(isPublicOrd))
+            {
+                isPublic = Convert.ToBoolean(reader.GetValue(isPublicOrd));
+            }
+
             return new UserProfile
             {
                 ProfileID = reader.GetInt32(reader.GetOrdinal("ProfileID")),
@@ -394,7 +470,8 @@ namespace _241611JalopPersonalWebsite.Repository
                 Description = reader.IsDBNull(reader.GetOrdinal("Description")) 
                     ? null 
                     : reader.GetString(reader.GetOrdinal("Description")),
-                UpdatedAt = reader.GetDateTime(reader.GetOrdinal("UpdatedAt"))
+                UpdatedAt = reader.GetDateTime(reader.GetOrdinal("UpdatedAt")),
+                IsPublic = isPublic
             };
         }
     }

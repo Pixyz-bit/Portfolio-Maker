@@ -12,38 +12,74 @@
         </svg>
     </button>
 
-    <!-- 3rd Photo Component Dropdown -->
+    <!-- Compact Organized Dropdown Menu -->
     <div class="user-menu-dropdown" id="userMenuDropdown">
-        <div class="menu-avatar-wrap">
-            <asp:Image ID="imgAvatar" runat="server" AlternateText="Avatar" ImageUrl="data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='76' height='76' viewBox='0 0 24 24' fill='none' stroke='%23000' stroke-width='1.5'><path d='M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2'></path><circle cx='12' cy='7' r='4'></circle></svg>" />
+        <!-- User Identity Header (Horizontal & Compact) -->
+        <div class="menu-header">
+            <div class="menu-avatar-wrap">
+                <asp:Image ID="imgAvatar" runat="server" AlternateText="Avatar" ImageUrl="data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='44' height='44' viewBox='0 0 24 24' fill='none' stroke='%23000' stroke-width='1.5'><path d='M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2'></path><circle cx='12' cy='7' r='4'></circle></svg>" />
+            </div>
+            <div class="menu-user-meta">
+                <h4 class="menu-user-name"><asp:Literal ID="litFullName" runat="server" Text="User" /></h4>
+                <p class="menu-user-email"><asp:Literal ID="litEmail" runat="server" Text="user@example.com" /></p>
+                <div class="menu-role-tag-wrap">
+                    <asp:Label ID="lblRoleBadge" runat="server" CssClass="menu-role-tag" Text="Owner" />
+                </div>
+            </div>
         </div>
 
-        <h3 class="menu-user-name"><asp:Literal ID="litFullName" runat="server" Text="User" /></h3>
-        <p class="menu-user-email"><asp:Literal ID="litEmail" runat="server" Text="user@example.com" /></p>
+        <!-- Portfolio Visibility Quick Toggle -->
+        <div class="menu-visibility-card">
+            <div class="visibility-status-info">
+                <span class="status-indicator-dot dot-public" id="dotVisibility" runat="server"></span>
+                <span class="visibility-status-text">
+                    <asp:Literal ID="litVisibilityLabel" runat="server" Text="Public Portfolio" />
+                </span>
+            </div>
+            <asp:LinkButton ID="btnToggleVisibility" runat="server" CssClass="visibility-action-btn" OnClick="btnToggleVisibility_Click" ToolTip="Click to toggle portfolio public/private visibility">
+                <asp:Literal ID="litVisibilityAction" runat="server" Text="Make Private" />
+            </asp:LinkButton>
+        </div>
 
-        <div class="menu-actions">
-            <asp:HyperLink ID="lnkDashboard" runat="server" NavigateUrl="~/Frontend/Admin/Dashboard.aspx" CssClass="menu-btn menu-btn-solid">
-                Admin Dashboard
+        <div class="menu-divider"></div>
+
+        <!-- Primary Navigation Actions -->
+        <div class="menu-group">
+            <asp:HyperLink ID="lnkDashboard" runat="server" NavigateUrl="~/Frontend/Admin/Dashboard.aspx" CssClass="menu-item menu-item-admin">
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="9"></rect><rect x="14" y="3" width="7" height="5"></rect><rect x="14" y="12" width="7" height="9"></rect><rect x="3" y="16" width="7" height="5"></rect></svg>
+                <span>Admin Dashboard</span>
             </asp:HyperLink>
-            <asp:HyperLink ID="lnkViewPortfolio" runat="server" NavigateUrl="~/Frontend/User/Portfolio.aspx" CssClass="menu-btn menu-btn-outline">
-                View Portfolio
+            <asp:HyperLink ID="lnkViewPortfolio" runat="server" NavigateUrl="~/Frontend/User/Portfolio.aspx" CssClass="menu-item">
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg>
+                <span>View Portfolio</span>
             </asp:HyperLink>
-            <asp:HyperLink ID="lnkExplorePortfolios" runat="server" NavigateUrl="~/Frontend/User/PublicDashboard.aspx" CssClass="menu-btn menu-btn-outline">
-                Explore Portfolios
+            <asp:HyperLink ID="lnkEditPortfolio" runat="server" NavigateUrl="~/Frontend/User/Onboarding.aspx" CssClass="menu-item">
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path></svg>
+                <span>Edit Portfolio</span>
             </asp:HyperLink>
+            <asp:HyperLink ID="lnkExplorePortfolios" runat="server" NavigateUrl="~/Frontend/User/PublicDashboard.aspx" CssClass="menu-item">
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><polygon points="16.24 7.76 14.12 14.12 7.76 16.24 9.88 9.88 16.24 7.76"></polygon></svg>
+                <span>Explore Portfolios</span>
+            </asp:HyperLink>
+            <asp:HyperLink ID="lnkEditDetails" runat="server" NavigateUrl="Onboarding.aspx" CssClass="menu-item" Visible="false">
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line></svg>
+                <span>Edit Details</span>
+            </asp:HyperLink>
+        </div>
+
+        <div class="menu-divider"></div>
+
+        <!-- Preferences & Sign Out Actions -->
+        <div class="menu-group">
             <asp:PlaceHolder ID="phEditAccountBtn" runat="server">
-                <button type="button" class="menu-btn menu-btn-outline" id="btnUserMenuEditAccount" onclick="openUserAccountModal()">
-                    Account Settings
+                <button type="button" class="menu-item" id="btnUserMenuEditAccount" onclick="openUserAccountModal()">
+                    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg>
+                    <span>Account Settings</span>
                 </button>
             </asp:PlaceHolder>
-            <asp:HyperLink ID="lnkEditPortfolio" runat="server" NavigateUrl="~/Frontend/User/Onboarding.aspx" CssClass="menu-btn menu-btn-outline">
-                Edit Portfolio
-            </asp:HyperLink>
-            <asp:HyperLink ID="lnkEditDetails" runat="server" NavigateUrl="Onboarding.aspx" CssClass="menu-btn menu-btn-outline" Visible="false">
-                Edit Onboarding Portfolio Details
-            </asp:HyperLink>
-            <asp:HyperLink ID="lnkSignOut" runat="server" NavigateUrl="~/Frontend/Login/Login.aspx?action=logout" CssClass="menu-btn menu-btn-outline">
-                Sign Out
+            <asp:HyperLink ID="lnkSignOut" runat="server" NavigateUrl="~/Frontend/Login/Login.aspx?action=logout" CssClass="menu-item menu-item-signout">
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path><polyline points="16 17 21 12 16 7"></polyline><line x1="21" y1="12" x2="9" y2="12"></line></svg>
+                <span>Sign Out</span>
             </asp:HyperLink>
         </div>
     </div>
@@ -87,6 +123,11 @@
                 <label for="<%= chkAccountIsActive.ClientID %>">Account is active and permitted to login</label>
             </div>
         </asp:PlaceHolder>
+
+        <div class="user-account-form-check" style="margin-bottom: 18px;">
+            <asp:CheckBox ID="chkAccountIsPublic" runat="server" Checked="true" />
+            <label for="<%= chkAccountIsPublic.ClientID %>">Make my portfolio public (discoverable in Explore directory)</label>
+        </div>
 
         <div class="user-account-divider"></div>
 

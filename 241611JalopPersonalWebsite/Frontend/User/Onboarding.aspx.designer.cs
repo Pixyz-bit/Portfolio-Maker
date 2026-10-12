@@ -37,9 +37,14 @@ namespace _241611JalopPersonalWebsite.Frontend.User
         protected global::System.Web.UI.WebControls.Label lblSuccessMessage;
 
         /// <summary>
-        /// pnlAdminBanner control.
+        /// mainCard control.
         /// </summary>
-        protected global::System.Web.UI.WebControls.Panel pnlAdminBanner;
+        protected global::System.Web.UI.HtmlControls.HtmlGenericControl mainCard;
+
+        /// <summary>
+        /// pnlAdminBadge control.
+        /// </summary>
+        protected global::System.Web.UI.WebControls.Panel pnlAdminBadge;
 
         /// <summary>
         /// litAdminTargetUserName control.
@@ -50,11 +55,6 @@ namespace _241611JalopPersonalWebsite.Frontend.User
         /// lnkReturnToAdmin control.
         /// </summary>
         protected global::System.Web.UI.WebControls.HyperLink lnkReturnToAdmin;
-
-        /// <summary>
-        /// lnkBackTop control.
-        /// </summary>
-        protected global::System.Web.UI.WebControls.HyperLink lnkBackTop;
 
         /// <summary>
         /// lnkBackStep1 control.
@@ -130,6 +130,11 @@ namespace _241611JalopPersonalWebsite.Frontend.User
         /// txtDescription control.
         /// </summary>
         protected global::System.Web.UI.WebControls.TextBox txtDescription;
+
+        /// <summary>
+        /// chkIsPublic control.
+        /// </summary>
+        protected global::System.Web.UI.WebControls.CheckBox chkIsPublic;
 
         /// <summary>
         /// btnSaveStep1 control.

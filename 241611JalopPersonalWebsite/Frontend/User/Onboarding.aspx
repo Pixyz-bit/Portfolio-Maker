@@ -15,25 +15,17 @@
 </head>
 <body>
     <div class="onboarding-container">
-        <div class="card">
+        <div class="card" id="mainCard" runat="server">
             <form id="onboardingForm" runat="server" enctype="multipart/form-data">
-                <asp:Panel ID="pnlAdminBanner" runat="server" Visible="false" style="background-color: #fef3c7; border: 2px solid #000000; border-radius: 12px; padding: 12px 16px; margin-bottom: 20px; display: flex; align-items: center; justify-content: space-between; gap: 12px; box-shadow: 3px 3px 0px #000; flex-wrap: wrap;">
-                    <div style="display: flex; align-items: center; gap: 8px;">
-                        <span style="background-color: #000; color: #fff; font-size: 0.75rem; font-weight: 800; padding: 3px 8px; border-radius: 6px; text-transform: uppercase; letter-spacing: 0.05em;">Admin Console</span>
-                        <span style="font-size: 0.9rem; font-weight: 700; color: #78350f;">
-                            Editing portfolio content for: <u><asp:Literal ID="litAdminTargetUserName" runat="server" /></u>
-                        </span>
-                    </div>
-                    <asp:HyperLink ID="lnkReturnToAdmin" runat="server" NavigateUrl="~/Frontend/Admin/Dashboard.aspx" CssClass="btn btn-outline btn-sm" style="background: #ffffff; text-decoration: none; padding: 6px 14px; font-weight: 700;">
-                        Return to Admin Console
-                    </asp:HyperLink>
-                </asp:Panel>
-
                 <div class="top-action-bar">
-                    <span class="badge-tag">Portfolio Content Editor</span>
-                    <asp:HyperLink ID="lnkBackTop" runat="server" CssClass="quick-view-btn" NavigateUrl="Portfolio.aspx" ToolTip="Return to previous screen without saving any edits">
-                        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="15 18 9 12 15 6"></polyline></svg>
-                        Back without saving
+                    <div style="display: flex; align-items: center; gap: 8px; flex-wrap: wrap;">
+                        <span class="badge-tag">Portfolio Content Editor</span>
+                        <asp:Panel ID="pnlAdminBadge" runat="server" Visible="false" style="display: inline-flex; align-items: center; gap: 6px; background-color: #000000; color: #ffffff; padding: 4px 10px; border-radius: 6px; font-size: 0.72rem; font-weight: 800; text-transform: uppercase; letter-spacing: 0.05em;">
+                            Admin Editing: <asp:Literal ID="litAdminTargetUserName" runat="server" />
+                        </asp:Panel>
+                    </div>
+                    <asp:HyperLink ID="lnkReturnToAdmin" runat="server" Visible="false" NavigateUrl="~/Frontend/Admin/Dashboard.aspx" CssClass="btn btn-outline btn-sm" style="background: #ffffff; text-decoration: none; padding: 6px 14px; font-weight: 800; font-size: 0.8rem; border: 2px solid #000; border-radius: 8px;">
+                        Return to Admin Console
                     </asp:HyperLink>
                 </div>
 
@@ -146,6 +138,21 @@
                         <div class="form-group">
                             <label for="txtDescription" class="form-label">About Me / Bio</label>
                             <asp:TextBox ID="txtDescription" runat="server" TextMode="MultiLine" Rows="4" CssClass="form-textarea" placeholder="Write a summary about yourself, your background, and your career aspirations..." />
+                        </div>
+
+                        <!-- Portfolio Visibility Choice -->
+                        <div class="visibility-card-setting" style="display: flex; align-items: center; justify-content: space-between; padding: 14px 18px; border: 2px solid #000; border-radius: 12px; background: #fafafa; margin-top: 6px;">
+                            <div>
+                                <div style="font-weight: 800; font-size: 0.92rem; color: #000; display: flex; align-items: center; gap: 8px;">
+                                    <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="2" y1="12" x2="22" y2="12"></line><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1 4-10z"></path></svg>
+                                    Portfolio Visibility
+                                </div>
+                                <p style="font-size: 0.8rem; color: #52525b; margin: 3px 0 0;">Control whether your portfolio is public or private. Public portfolios appear on the Explore directory.</p>
+                            </div>
+                            <div style="display: flex; align-items: center; gap: 8px;">
+                                <asp:CheckBox ID="chkIsPublic" runat="server" Checked="true" style="transform: scale(1.25); cursor: pointer; accent-color: #000;" />
+                                <label for="<%= chkIsPublic.ClientID %>" style="font-size: 0.86rem; font-weight: 700; cursor: pointer; margin-bottom: 0;">Public</label>
+                            </div>
                         </div>
                     </div>
 

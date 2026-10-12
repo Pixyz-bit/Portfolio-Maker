@@ -15,6 +15,7 @@ namespace _241611JalopPersonalWebsite.Model
         public string ProfileImagePath { get; set; }
         public string Description { get; set; }
         public DateTime UpdatedAt { get; set; }
+        public bool IsPublic { get; set; } = true;
         public string FullName => $"{FirstName} {LastName}".Trim();
 
         // public UserProfile()

@@ -93,7 +93,7 @@ namespace _241611JalopPersonalWebsite.Frontend.User
         {
             if (skills == null || skills.Count == 0)
             {
-                return "<span class=\"skill-tag\">General Competencies</span>";
+                return string.Empty;
             }
 
             StringBuilder sb = new StringBuilder();

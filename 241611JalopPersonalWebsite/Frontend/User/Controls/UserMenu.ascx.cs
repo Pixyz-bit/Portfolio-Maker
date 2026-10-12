@@ -8,8 +8,24 @@ namespace _241611JalopPersonalWebsite.Frontend.User.Controls
 {
     public partial class UserMenu : UserControl
     {
+        public bool IsCurrentPortfolioPublic
+        {
+            get => ViewState["IsCurrentPortfolioPublic"] as bool? ?? true;
+            set => ViewState["IsCurrentPortfolioPublic"] = value;
+        }
+
+        public int CurrentTargetUserId
+        {
+            get => ViewState["CurrentTargetUserId"] as int? ?? 0;
+            set => ViewState["CurrentTargetUserId"] = value;
+        }
+
         public void BindUser(UserProfile profile, string email, bool canEditPortfolio = true, bool canEditAccount = true, int targetUserId = 0)
         {
+            int currentUserId = (Session["UserID"] != null && int.TryParse(Session["UserID"].ToString(), out int sId)) ? sId : 0;
+            int activeTargetId = targetUserId > 0 ? targetUserId : currentUserId;
+            CurrentTargetUserId = activeTargetId;
+
             if (profile != null)
             {
                 litFullName.Text = !string.IsNullOrWhiteSpace(profile.FullName) ? profile.FullName : "User";
@@ -39,6 +55,33 @@ namespace _241611JalopPersonalWebsite.Frontend.User.Controls
             bool isAdmin = string.Equals(Session["Role"]?.ToString(), "Admin", StringComparison.OrdinalIgnoreCase);
             phAdminOnlyAccountFields.Visible = isAdmin;
 
+            // Configure Role Tag
+            lblRoleBadge.Text = isAdmin ? "Admin" : "Owner";
+            lblRoleBadge.CssClass = isAdmin ? "menu-role-tag badge-admin" : "menu-role-tag badge-user";
+
+            // Configure Portfolio Visibility
+            bool isPublic = true;
+            if (profile != null)
+            {
+                isPublic = profile.IsPublic;
+            }
+            else if (activeTargetId > 0)
+            {
+                UserProfile targetProf = UserProfileRepository.GetByUserId(activeTargetId, out _);
+                if (targetProf != null) isPublic = targetProf.IsPublic;
+            }
+            IsCurrentPortfolioPublic = isPublic;
+
+            litVisibilityLabel.Text = isPublic ? "Public Portfolio" : "Private Portfolio";
+            litVisibilityAction.Text = isPublic ? "Make Private" : "Make Public";
+            btnToggleVisibility.ToolTip = isPublic ? "Click to make your portfolio private" : "Click to make your portfolio public";
+            dotVisibility.Attributes["class"] = isPublic ? "status-indicator-dot dot-public" : "status-indicator-dot dot-private";
+
+            if (!IsPostBack)
+            {
+                chkAccountIsPublic.Checked = isPublic;
+            }
+
             if (isAdmin)
             {
                 lnkDashboard.Visible = true;
@@ -56,7 +99,6 @@ namespace _241611JalopPersonalWebsite.Frontend.User.Controls
                 chkAccountIsActive.Enabled = false;
             }
 
-            int currentUserId = (Session["UserID"] != null && int.TryParse(Session["UserID"].ToString(), out int sId)) ? sId : 0;
             phEditAccountBtn.Visible = canEditAccount;
             lnkEditPortfolio.Visible = canEditPortfolio;
 
@@ -79,6 +121,25 @@ namespace _241611JalopPersonalWebsite.Frontend.User.Controls
             lnkViewPortfolio.Visible = true;
             lnkEditDetails.Visible = false;
             lnkSignOut.NavigateUrl = "~/Frontend/Login/Login.aspx?action=logout";
+        }
+
+        protected void btnToggleVisibility_Click(object sender, EventArgs e)
+        {
+            int userId = CurrentTargetUserId;
+            if (userId <= 0 && Session["UserID"] != null && int.TryParse(Session["UserID"].ToString(), out int sId))
+            {
+                userId = sId;
+            }
+
+            if (userId > 0)
+            {
+                bool newVisibility = !IsCurrentPortfolioPublic;
+                if (UserProfileRepository.SetPortfolioVisibility(userId, newVisibility, out _))
+                {
+                    IsCurrentPortfolioPublic = newVisibility;
+                    Response.Redirect(Request.RawUrl);
+                }
+            }
         }
 
         protected void btnSaveUserAccount_Click(object sender, EventArgs e)
@@ -140,6 +201,10 @@ namespace _241611JalopPersonalWebsite.Frontend.User.Controls
                 {
                     Session["Role"] = role;
                 }
+
+                // Save portfolio visibility choice
+                UserProfileRepository.SetPortfolioVisibility(userId, chkAccountIsPublic.Checked, out _);
+                IsCurrentPortfolioPublic = chkAccountIsPublic.Checked;
 
                 // Redirect to current page to reflect updated name and credentials everywhere
                 Response.Redirect(Request.RawUrl);

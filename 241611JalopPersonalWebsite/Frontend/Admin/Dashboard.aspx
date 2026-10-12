@@ -190,10 +190,10 @@
                                     </span>
                                 </td>
                                 <td data-label="Registered">
-                                    <%# FormatPhilippineTime(Eval("CreatedAt")) %>
+                                    <%# FormatPhilippineTimeTwoRows(Eval("CreatedAt")) %>
                                 </td>
-                                <td data-label="Actions">
-                                    <div class="actions-cell" style="justify-content: flex-end;">
+                                <td data-label="Actions" style="white-space: nowrap; text-align: right;">
+                                    <div class="actions-cell" style="justify-content: flex-end; flex-wrap: nowrap; white-space: nowrap; gap: 6px;">
                                         <button type="button" 
                                             class='<%# (bool)Eval("IsActive") ? "btn btn-danger btn-sm" : "btn btn-success btn-sm" %>'
                                             onclick='openStatusModal(<%# Eval("UserID") %>, "<%# Server.HtmlEncode(Eval("FullName")?.ToString() ?? Eval("FirstName")?.ToString()) %>", "<%# Server.HtmlEncode(Eval("Email")?.ToString()) %>", <%# Eval("IsActive").ToString().ToLower() %>)'>
@@ -211,12 +211,6 @@
                                             title="Edit user account credentials and role">
                                             Account
                                         </button>
-
-                                        <!-- Delete User Button (Proper Modal Trigger) 
-                                        <button type="button" class="btn btn-danger btn-sm"
-                                            onclick='openDeleteModal(<%# Eval("UserID") %>, "<%# Server.HtmlEncode(Eval("FullName")?.ToString() ?? Eval("FirstName")?.ToString()) %>", "<%# Server.HtmlEncode(Eval("Email")?.ToString()) %>")'>
-                                            Delete
-                                        </button>-->
                                     </div>
                                 </td>
                             </tr>
@@ -412,10 +406,10 @@
                     </button>
                     
                     <asp:HyperLink ID="lnkSummaryPortfolio" runat="server" Target="_blank" CssClass="btn btn-outline btn-sm">
-                        View Live Portfolio
+                        View Portfolio
                     </asp:HyperLink>
 
-                    <asp:HyperLink ID="lnkSummaryEditPortfolio" runat="server" Target="_blank" CssClass="btn btn-solid btn-sm">
+                    <asp:HyperLink ID="lnkSummaryEditPortfolio" runat="server" Target="_blank" CssClass="btn btn-outline btn-sm">
                         Edit Content
                     </asp:HyperLink>
 
@@ -427,7 +421,7 @@
                         Delete
                     </button>-->
                     
-                    <asp:Button ID="btnCloseSummary" runat="server" Text="Close" CssClass="btn btn-outline btn-sm" OnClick="btnCloseSummary_Click" />
+                    <asp:Button ID="btnCloseSummary" runat="server" Text="Close" CssClass="btn btn-solid btn-sm" OnClick="btnCloseSummary_Click" />
                 </div>
             </div>
         </asp:Panel>

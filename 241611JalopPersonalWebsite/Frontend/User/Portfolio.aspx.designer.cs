@@ -42,6 +42,11 @@ namespace _241611JalopPersonalWebsite.Frontend.User
         protected global::System.Web.UI.WebControls.HyperLink lnkAdminEditPortfolio;
 
         /// <summary>
+        /// pnlOwnerPrivateIndicator control.
+        /// </summary>
+        protected global::System.Web.UI.WebControls.Panel pnlOwnerPrivateIndicator;
+
+        /// <summary>
         /// ucUserMenu control.
         /// </summary>
         protected global::_241611JalopPersonalWebsite.Frontend.User.Controls.UserMenu ucUserMenu;
@@ -50,6 +55,26 @@ namespace _241611JalopPersonalWebsite.Frontend.User
         /// lnkGuestSignIn control.
         /// </summary>
         protected global::System.Web.UI.WebControls.HyperLink lnkGuestSignIn;
+
+        /// <summary>
+        /// pnlPrivateNotice control.
+        /// </summary>
+        protected global::System.Web.UI.WebControls.Panel pnlPrivateNotice;
+
+        /// <summary>
+        /// litPrivateOwnerName control.
+        /// </summary>
+        protected global::System.Web.UI.WebControls.Literal litPrivateOwnerName;
+
+        /// <summary>
+        /// lnkPrivateSignIn control.
+        /// </summary>
+        protected global::System.Web.UI.WebControls.HyperLink lnkPrivateSignIn;
+
+        /// <summary>
+        /// pnlPortfolioMain control.
+        /// </summary>
+        protected global::System.Web.UI.WebControls.Panel pnlPortfolioMain;
 
         /// <summary>
         /// ucHero control.

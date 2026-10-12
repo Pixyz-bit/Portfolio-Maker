@@ -287,7 +287,7 @@
             </asp:Panel>
 
             <!-- Main Portfolio Content (Visible if Public OR Viewer is Owner/Admin) -->
-            <asp:Panel ID="pnlPortfolioMain" runat="server">
+            <asp:Panel ID="pnlPortfolioMain" runat="server" CssClass="portfolio-main">
                 <!-- 1. Top Header Card (Hero) -->
                 <uc:HeroSection ID="ucHero" runat="server" />
 

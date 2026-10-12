@@ -1,4 +1,4 @@
-﻿<%@ Page Language="C#" AutoEventWireup="true" CodeBehind="Onboarding.aspx.cs" Inherits="_241611JalopPersonalWebsite.Frontend.User.Onboarding" %>
+<%@ Page Language="C#" AutoEventWireup="true" CodeBehind="Onboarding.aspx.cs" Inherits="_241611JalopPersonalWebsite.Frontend.User.Onboarding" %>
 
 <!DOCTYPE html>
 <html lang="en">
@@ -29,8 +29,15 @@
                     </asp:HyperLink>
                 </asp:Panel>
 
-                <div class="card-header">
+                <div class="top-action-bar">
                     <span class="badge-tag">Portfolio Content Editor</span>
+                    <asp:HyperLink ID="lnkBackTop" runat="server" CssClass="quick-view-btn" NavigateUrl="Portfolio.aspx" ToolTip="Return to previous screen without saving any edits">
+                        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="15 18 9 12 15 6"></polyline></svg>
+                        Back without saving
+                    </asp:HyperLink>
+                </div>
+
+                <div class="card-header">
                     <h1 class="card-title"><asp:Literal ID="litPageTitle" runat="server" Text="Profile Onboarding" /></h1>
                     <p class="card-subtitle"><asp:Literal ID="litPageSubtitle" runat="server" Text="Fill in your information at your own pace. Save & Exit anytime to view the live portfolio." /></p>
                 </div>
@@ -143,7 +150,12 @@
                     </div>
 
                     <div class="wizard-footer">
-                        <div class="footer-actions-left"></div>
+                        <div class="footer-actions-left">
+                            <asp:HyperLink ID="lnkBackStep1" runat="server" CssClass="btn btn-outline" NavigateUrl="Portfolio.aspx" ToolTip="Return without saving changes">
+                                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" style="display:inline-block; vertical-align:-2px; margin-right:4px;"><polyline points="15 18 9 12 15 6"></polyline></svg>
+                                Back without saving
+                            </asp:HyperLink>
+                        </div>
                         <div class="footer-actions-right">
                             <asp:Button ID="btnSaveStep1" runat="server" Text="Save & Exit" CssClass="btn btn-outline" OnClick="btnSaveChanges_Click" CausesValidation="false" OnClientClick="if (!validateStep(1)) return false; serializeDynamicData();" />
                             <button type="button" class="btn btn-solid" onclick="nextStep(1);">Continue</button>

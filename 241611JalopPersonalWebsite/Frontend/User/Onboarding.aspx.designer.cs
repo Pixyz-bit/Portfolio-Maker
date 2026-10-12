@@ -52,6 +52,16 @@ namespace _241611JalopPersonalWebsite.Frontend.User
         protected global::System.Web.UI.WebControls.HyperLink lnkReturnToAdmin;
 
         /// <summary>
+        /// lnkBackTop control.
+        /// </summary>
+        protected global::System.Web.UI.WebControls.HyperLink lnkBackTop;
+
+        /// <summary>
+        /// lnkBackStep1 control.
+        /// </summary>
+        protected global::System.Web.UI.WebControls.HyperLink lnkBackStep1;
+
+        /// <summary>
         /// litPageTitle control.
         /// </summary>
         protected global::System.Web.UI.WebControls.Literal litPageTitle;

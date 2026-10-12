@@ -85,6 +85,7 @@
     <Content Include="Frontend\Assets\css\user-dashboard.css" />
     <Content Include="Frontend\Assets\css\onboarding.css" />
     <Content Include="Frontend\Assets\css\portfolio.css" />
+    <Content Include="Frontend\Assets\css\public-dashboard.css" />
     <Content Include="Frontend\Assets\css\user-menu.css" />
     <Content Include="Frontend\Assets\js\login.js" />
     <Content Include="Frontend\Assets\js\signup.js" />
@@ -99,6 +100,7 @@
     <Content Include="Frontend\User\Dashboard.aspx" />
     <Content Include="Frontend\User\Onboarding.aspx" />
     <Content Include="Frontend\User\Portfolio.aspx" />
+    <Content Include="Frontend\User\PublicDashboard.aspx" />
     <Content Include="Frontend\User\Controls\HeroSection.ascx" />
     <Content Include="Frontend\User\Controls\SummarySection.ascx" />
     <Content Include="Frontend\User\Controls\EducationSection.ascx" />
@@ -161,6 +163,13 @@
     </Compile>
     <Compile Include="Frontend\User\Portfolio.aspx.designer.cs">
       <DependentUpon>Portfolio.aspx</DependentUpon>
+    </Compile>
+    <Compile Include="Frontend\User\PublicDashboard.aspx.cs">
+      <DependentUpon>PublicDashboard.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="Frontend\User\PublicDashboard.aspx.designer.cs">
+      <DependentUpon>PublicDashboard.aspx</DependentUpon>
     </Compile>
     <Compile Include="Frontend\User\Controls\HeroSection.ascx.cs">
       <DependentUpon>HeroSection.ascx</DependentUpon>
@@ -227,6 +236,7 @@
     <Compile Include="Backend\Model\SocialLink.cs" />
     <Compile Include="Backend\Model\UserLogin.cs" />
     <Compile Include="Backend\Model\UserProfile.cs" />
+    <Compile Include="Backend\Model\PublicPortfolioItem.cs" />
     <Compile Include="Backend\Repository\AffiliationRepository.cs" />
     <Compile Include="Backend\Repository\DashboardAnalyticsRepository.cs" />
     <Compile Include="Backend\Repository\DatabaseConnection.cs" />

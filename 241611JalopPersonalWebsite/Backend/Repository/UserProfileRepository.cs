@@ -1,6 +1,8 @@
 using System;
+using System.Collections.Generic;
 using System.Data;
 using System.Data.SqlClient;
+using _241611JalopPersonalWebsite.Backend.Common;
 using _241611JalopPersonalWebsite.Model;
 
 namespace _241611JalopPersonalWebsite.Repository
@@ -263,6 +265,109 @@ namespace _241611JalopPersonalWebsite.Repository
         // =========================================================================
         // HELPER: Safely Map DataReader to UserProfile Model
         // =========================================================================
+        // 5. GET ALL PUBLIC PORTFOLIOS (Active users for public showcase)
+        // =========================================================================
+        public static List<PublicPortfolioItem> GetPublicPortfolios(string searchKeyword, out string errorMessage)
+        {
+            errorMessage = string.Empty;
+            List<PublicPortfolioItem> list = new List<PublicPortfolioItem>();
+
+            try
+            {
+                using (SqlConnection conn = DatabaseConnection.GetConnection())
+                {
+                    conn.Open();
+
+                    string sql = @"
+                        SELECT u.UserID, u.Email, u.CreatedAt,
+                               ISNULL(p.FirstName, '') AS FirstName,
+                               ISNULL(p.LastName, '') AS LastName,
+                               ISNULL(p.Address, '') AS Address,
+                               ISNULL(p.Description, '') AS Description,
+                               ISNULL(p.ProfileImagePath, '') AS ProfileImagePath
+                        FROM dbo.Users u
+                        LEFT JOIN dbo.UserProfiles p ON u.UserID = p.UserID
+                        WHERE u.IsActive = 1
+                        ORDER BY u.UserID DESC;
+                    ";
+
+                    Dictionary<int, PublicPortfolioItem> itemDict = new Dictionary<int, PublicPortfolioItem>();
+
+                    using (SqlCommand cmd = new SqlCommand(sql, conn))
+                    using (SqlDataReader reader = cmd.ExecuteReader())
+                    {
+                        while (reader.Read())
+                        {
+                            int uId = reader.GetInt32(reader.GetOrdinal("UserID"));
+                            var item = new PublicPortfolioItem
+                            {
+                                UserID = uId,
+                                Email = reader.GetString(reader.GetOrdinal("Email")),
+                                CreatedAt = reader.IsDBNull(reader.GetOrdinal("CreatedAt")) ? DateTime.UtcNow : reader.GetDateTime(reader.GetOrdinal("CreatedAt")),
+                                FirstName = reader.GetString(reader.GetOrdinal("FirstName")),
+                                LastName = reader.GetString(reader.GetOrdinal("LastName")),
+                                Address = reader.GetString(reader.GetOrdinal("Address")),
+                                Description = reader.GetString(reader.GetOrdinal("Description")),
+                                ProfileImagePath = reader.GetString(reader.GetOrdinal("ProfileImagePath")),
+                                ObfuscatedToken = UrlObfuscator.EncodeUserId(uId)
+                            };
+
+                            itemDict[uId] = item;
+                            list.Add(item);
+                        }
+                    }
+
+                    // Retrieve skills for these users
+                    if (itemDict.Count > 0)
+                    {
+                        string skillsSql = @"
+                            SELECT s.UserID, s.SkillName
+                            FROM dbo.Skills s
+                            INNER JOIN dbo.Users u ON s.UserID = u.UserID
+                            WHERE u.IsActive = 1
+                            ORDER BY s.SkillID ASC;
+                        ";
+
+                        using (SqlCommand skillCmd = new SqlCommand(skillsSql, conn))
+                        using (SqlDataReader skillReader = skillCmd.ExecuteReader())
+                        {
+                            while (skillReader.Read())
+                            {
+                                int sUserId = skillReader.GetInt32(skillReader.GetOrdinal("UserID"));
+                                string sName = skillReader.GetString(skillReader.GetOrdinal("SkillName"));
+                                if (itemDict.TryGetValue(sUserId, out var pItem))
+                                {
+                                    if (!string.IsNullOrWhiteSpace(sName))
+                                    {
+                                        pItem.Skills.Add(sName);
+                                    }
+                                }
+                            }
+                        }
+                    }
+
+                    // Filter in memory if searchKeyword provided
+                    if (!string.IsNullOrWhiteSpace(searchKeyword))
+                    {
+                        string kw = searchKeyword.Trim().ToLowerInvariant();
+                        list = list.FindAll(i =>
+                            i.FullName.ToLowerInvariant().Contains(kw) ||
+                            i.Email.ToLowerInvariant().Contains(kw) ||
+                            i.Address.ToLowerInvariant().Contains(kw) ||
+                            i.Description.ToLowerInvariant().Contains(kw) ||
+                            i.Skills.Exists(s => s.ToLowerInvariant().Contains(kw))
+                        );
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                errorMessage = $"Error retrieving public portfolios: {ex.Message}";
+            }
+
+            return list;
+        }
+
         private static UserProfile MapProfileFromReader(SqlDataReader reader)
         {
             return new UserProfile

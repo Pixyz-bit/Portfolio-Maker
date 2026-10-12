@@ -53,6 +53,24 @@ namespace _241611JalopPersonalWebsite.Frontend.User
                     litPageSubtitle.Text = "Fill in your information at your own pace. Save & Exit anytime to view your portfolio.";
                 }
 
+                string backUrl;
+                if (isAdmin && userId != loggedInUserId)
+                {
+                    backUrl = ResolveUrl("~/Frontend/Admin/Dashboard.aspx");
+                }
+                else if (isAdmin)
+                {
+                    backUrl = ResolveUrl("~/Frontend/Admin/Dashboard.aspx");
+                }
+                else
+                {
+                    string targetToken = UrlObfuscator.EncodeUserId(userId);
+                    backUrl = ResolveUrl($"~/Frontend/User/Portfolio.aspx?u={targetToken}");
+                }
+
+                lnkBackTop.NavigateUrl = backUrl;
+                lnkBackStep1.NavigateUrl = backUrl;
+
                 // Load existing profile and portfolio data into form
                 LoadExistingData(userId);
             }

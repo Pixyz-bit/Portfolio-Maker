@@ -1,4 +1,4 @@
-﻿<%@ Page Language="C#" AutoEventWireup="true" CodeBehind="Dashboard.aspx.cs" Inherits="_241611JalopPersonalWebsite.Frontend.Admin.Dashboard" %>
+<%@ Page Language="C#" AutoEventWireup="true" CodeBehind="Dashboard.aspx.cs" Inherits="_241611JalopPersonalWebsite.Frontend.Admin.Dashboard" %>
 <%@ Register Src="~/Frontend/User/Controls/UserMenu.ascx" TagPrefix="uc" TagName="UserMenu" %>
 
 <!DOCTYPE html>
@@ -39,7 +39,11 @@
                     <h1 class="page-title">System Dashboard & User Directory</h1>
                     <p class="page-subtitle">Track active accounts, manage privileges, and review user portfolios.</p>
                 </div>
-                <div>
+                <div style="display: flex; gap: 8px;">
+                    <a href="../User/PublicDashboard.aspx" class="btn btn-outline btn-sm">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="10"></circle><polygon points="16.24 7.76 14.12 14.12 7.76 16.24 9.88 9.88 16.24 7.76"></polygon></svg>
+                        Public Showcase
+                    </a>
                     <button type="button" class="btn btn-solid btn-sm" onclick="openAddModal()">
                         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
                         Add New User

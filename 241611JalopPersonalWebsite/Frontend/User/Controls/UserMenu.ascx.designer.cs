@@ -39,6 +39,11 @@ namespace _241611JalopPersonalWebsite.Frontend.User.Controls
         protected global::System.Web.UI.WebControls.HyperLink lnkViewPortfolio;
 
         /// <summary>
+        /// lnkExplorePortfolios control.
+        /// </summary>
+        protected global::System.Web.UI.WebControls.HyperLink lnkExplorePortfolios;
+
+        /// <summary>
         /// lnkEditDetails control.
         /// </summary>
         protected global::System.Web.UI.WebControls.HyperLink lnkEditDetails;

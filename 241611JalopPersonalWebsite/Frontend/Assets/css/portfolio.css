@@ -7,6 +7,7 @@
             --radius-card: 20px;
             --radius-btn: 10px;
             --radius-pill: 999px;
+            --transition: 0.2s ease;
             --text-black: #000000;
             --text-sub: #18181b;
             --text-muted: #52525b;
@@ -76,38 +77,122 @@
         .bar-actions {
             display: flex;
             align-items: center;
-            gap: 12px;
+            gap: 10px;
         }
 
-        .btn-top-link {
-            font-size: 0.85rem;
-            font-weight: 700;
-            color: var(--text-muted);
-            text-decoration: none;
-            padding: 6px 12px;
-            border-radius: 8px;
-            transition: color 0.15s ease;
+        /* Unified Button System (Matching nav-actions) */
+        .btn,
+        a.btn,
+        button.btn,
+        .btn-top-btn,
+        .btn-top-link,
+        .btn-top-action {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+            font-family: inherit;
+            font-size: 0.88rem;
+            font-weight: 800;
+            padding: 10px 18px;
+            border-radius: var(--radius-btn, 10px);
+            cursor: pointer;
+            text-decoration: none !important;
+            transition: var(--transition, 0.2s ease);
+            white-space: nowrap;
+            outline: none;
+            line-height: 1.2;
+            box-sizing: border-box;
+            border: 2px solid #000000;
+            -webkit-appearance: none;
+            appearance: none;
         }
 
-        .btn-top-link:hover {
-            color: #000000;
+        .btn svg,
+        .btn-top-btn svg,
+        .btn-top-link svg,
+        .btn-top-action svg {
+            width: 15px;
+            height: 15px;
+            flex-shrink: 0;
+            display: block;
         }
 
+        .btn-solid,
+        a.btn-solid,
+        button.btn-solid,
+        .btn-top-solid,
         .btn-top-action {
             background-color: #000000;
-            color: #ffffff;
-            padding: 6px 16px;
-            border-radius: 8px;
-            font-size: 0.85rem;
-            font-weight: 700;
-            text-decoration: none;
+            color: #ffffff !important;
             border: 2px solid #000000;
-            transition: all 0.15s ease;
         }
 
+        .btn-solid:hover,
+        a.btn-solid:hover,
+        button.btn-solid:hover,
+        .btn-top-solid:hover,
         .btn-top-action:hover {
+            background-color: #27272a;
+            border-color: #27272a;
+            color: #ffffff !important;
+        }
+
+        .btn-outline,
+        a.btn-outline,
+        button.btn-outline,
+        .btn-top-outline,
+        .btn-top-link {
             background-color: #ffffff;
-            color: #000000;
+            color: #000000 !important;
+            border: 2px solid #000000;
+        }
+
+        .btn-outline:hover,
+        a.btn-outline:hover,
+        button.btn-outline:hover,
+        .btn-top-outline:hover,
+        .btn-top-link:hover {
+            background-color: #000000;
+            color: #ffffff !important;
+        }
+
+        .btn-sm,
+        .btn-top-btn,
+        .btn-top-link,
+        .btn-top-action {
+            padding: 6px 12px;
+            font-size: 0.8rem;
+        }
+
+        @media screen and (max-width: 640px) {
+            .top-action-bar {
+                padding: 10px 16px;
+            }
+
+            .bar-container {
+                flex-direction: column;
+                gap: 12px;
+                align-items: stretch;
+            }
+
+            .bar-brand {
+                justify-content: center;
+            }
+
+            .bar-actions {
+                justify-content: center;
+                flex-wrap: wrap;
+                gap: 8px;
+            }
+
+            .btn-sm,
+            .btn-top-btn,
+            .btn-top-link,
+            .btn-top-action {
+                padding: 5px 10px;
+                font-size: 0.78rem;
+            }
         }
 
         /* Portfolio Layout Wrap */
@@ -120,11 +205,10 @@
             gap: 24px;
         }
 
-        /* Bento Cards (Monochromatic Dot Matrix) */
+        /* Bento Cards (Solid White Background) */
         .bento-card {
-            background-color: var(--card-bg);
-            background-image: radial-gradient(var(--dot-color) 1.2px, transparent 1.2px);
-            background-size: 16px 16px;
+            background-color: #ffffff;
+            background-image: none;
             border: var(--border-width) solid var(--border-black);
             border-radius: var(--radius-card);
             padding: 34px 38px;
@@ -816,9 +900,8 @@
 /* === SocialLinksSection.ascx Styles === */
 /* Social Links Section Component Styles */
     .connect-bar {
-        background-color: var(--card-bg);
-        background-image: radial-gradient(var(--dot-color) 1.2px, transparent 1.2px);
-        background-size: 16px 16px;
+        background-color: #ffffff;
+        background-image: none;
         border: var(--border-width) solid var(--border-black);
         border-radius: var(--radius-pill);
         padding: 12px 30px;

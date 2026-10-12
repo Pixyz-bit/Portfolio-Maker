@@ -65,14 +65,18 @@ namespace _241611JalopPersonalWebsite.Frontend.User.Controls
                 string targetToken = UrlObfuscator.EncodeUserId(targetUserId);
                 lnkEditPortfolio.NavigateUrl = $"~/Frontend/User/Onboarding.aspx?u={targetToken}";
                 lnkEditPortfolio.Text = "Edit User's Portfolio";
+                lnkViewPortfolio.NavigateUrl = $"~/Frontend/User/Portfolio.aspx?u={targetToken}";
+                lnkViewPortfolio.Text = "View User's Portfolio";
             }
             else
             {
                 lnkEditPortfolio.NavigateUrl = "~/Frontend/User/Onboarding.aspx";
                 lnkEditPortfolio.Text = "Edit Portfolio";
+                lnkViewPortfolio.NavigateUrl = "~/Frontend/User/Portfolio.aspx";
+                lnkViewPortfolio.Text = "View Portfolio";
             }
 
-            lnkViewPortfolio.Visible = false;
+            lnkViewPortfolio.Visible = true;
             lnkEditDetails.Visible = false;
             lnkSignOut.NavigateUrl = "~/Frontend/Login/Login.aspx?action=logout";
         }

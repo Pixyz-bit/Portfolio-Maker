@@ -1,4 +1,4 @@
-﻿<%@ Page Language="C#" AutoEventWireup="true" CodeBehind="Dashboard.aspx.cs" Inherits="_241611JalopPersonalWebsite.Frontend.User.Dashboard" %>
+<%@ Page Language="C#" AutoEventWireup="true" CodeBehind="Dashboard.aspx.cs" Inherits="_241611JalopPersonalWebsite.Frontend.User.Dashboard" %>
 
 <!DOCTYPE html>
 <html lang="en">
@@ -35,6 +35,7 @@
                     View Live Portfolio
                 </asp:HyperLink>
                 <a href="Onboarding.aspx" class="btn btn-outline">Edit Onboarding Portfolio Details</a>
+                <a href="PublicDashboard.aspx" class="btn btn-outline">Explore Public Portfolios</a>
                 <a href="../Login/Login.aspx?action=logout" class="btn btn-outline">Sign Out</a>
             </div>
         </div>

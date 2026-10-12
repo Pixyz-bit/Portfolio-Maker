@@ -1,4 +1,4 @@
-﻿<%@ Control Language="C#" AutoEventWireup="true" CodeBehind="UserMenu.ascx.cs" Inherits="_241611JalopPersonalWebsite.Frontend.User.Controls.UserMenu" %>
+<%@ Control Language="C#" AutoEventWireup="true" CodeBehind="UserMenu.ascx.cs" Inherits="_241611JalopPersonalWebsite.Frontend.User.Controls.UserMenu" %>
 
 <link rel="stylesheet" href="<%= Page.ResolveUrl("~/Frontend/Assets/css/user-menu.css") %>" />
 
@@ -25,6 +25,12 @@
             <asp:HyperLink ID="lnkDashboard" runat="server" NavigateUrl="~/Frontend/Admin/Dashboard.aspx" CssClass="menu-btn menu-btn-solid">
                 Admin Dashboard
             </asp:HyperLink>
+            <asp:HyperLink ID="lnkViewPortfolio" runat="server" NavigateUrl="~/Frontend/User/Portfolio.aspx" CssClass="menu-btn menu-btn-outline">
+                View Portfolio
+            </asp:HyperLink>
+            <asp:HyperLink ID="lnkExplorePortfolios" runat="server" NavigateUrl="~/Frontend/User/PublicDashboard.aspx" CssClass="menu-btn menu-btn-outline">
+                Explore Portfolios
+            </asp:HyperLink>
             <asp:PlaceHolder ID="phEditAccountBtn" runat="server">
                 <button type="button" class="menu-btn menu-btn-outline" id="btnUserMenuEditAccount" onclick="openUserAccountModal()">
                     Account Settings
@@ -32,9 +38,6 @@
             </asp:PlaceHolder>
             <asp:HyperLink ID="lnkEditPortfolio" runat="server" NavigateUrl="~/Frontend/User/Onboarding.aspx" CssClass="menu-btn menu-btn-outline">
                 Edit Portfolio
-            </asp:HyperLink>
-            <asp:HyperLink ID="lnkViewPortfolio" runat="server" NavigateUrl="Portfolio.aspx" CssClass="menu-btn menu-btn-outline" Visible="false">
-                View Live Portfolio
             </asp:HyperLink>
             <asp:HyperLink ID="lnkEditDetails" runat="server" NavigateUrl="Onboarding.aspx" CssClass="menu-btn menu-btn-outline" Visible="false">
                 Edit Onboarding Portfolio Details

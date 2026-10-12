@@ -1,4 +1,4 @@
-﻿<%@ Page Language="C#" AutoEventWireup="true" CodeBehind="Login.aspx.cs" Inherits="_241611JalopPersonalWebsite.Frontend.Login.Login" %>
+<%@ Page Language="C#" AutoEventWireup="true" CodeBehind="Login.aspx.cs" Inherits="_241611JalopPersonalWebsite.Frontend.Login.Login" %>
 
 <!DOCTYPE html>
 <html lang="en">
@@ -94,6 +94,9 @@
             <!-- Card Footer -->
             <div class="card-footer">
                 Don't have an account? <a href="Signup.aspx">Create one</a>
+                <div style="margin-top: 8px;">
+                    <a href="../User/PublicDashboard.aspx" style="color: #000; font-weight: 700; text-decoration: underline;">&larr; Browse Public Portfolios</a>
+                </div>
             </div>
         </div>
     </div>

@@ -23,8 +23,8 @@ namespace _241611JalopPersonalWebsite.Frontend.User
                 }
                 else
                 {
-                    // No profile found and unauthenticated
-                    Response.Redirect("~/Frontend/Login/Login.aspx?msg=Please+log+in+to+view+or+setup+your+portfolio");
+                    // No specific portfolio requested and unauthenticated: redirect to public directory
+                    Response.Redirect("~/Frontend/User/PublicDashboard.aspx");
                 }
             }
         }

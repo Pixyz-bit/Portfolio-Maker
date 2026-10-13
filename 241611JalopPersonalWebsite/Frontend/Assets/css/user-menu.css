@@ -143,149 +143,74 @@
     }
 
     /* ==========================================================================
-       Portfolio Visibility Quick Setting Card & Dynamic Toggle Switch
+       Portfolio Visibility Card (Neo-Brutalist Compact Quick Setting)
        ========================================================================== */
     .menu-visibility-card {
-        background: #f8fafc;
-        border: 1.5px solid #e2e8f0;
+        background-color: #ffffff;
+        border: 2px solid #000000;
         border-radius: 12px;
-        padding: 9px 12px;
+        padding: 8px 10px;
         display: flex;
         align-items: center;
         justify-content: space-between;
-        gap: 12px;
+        gap: 10px;
         margin-bottom: 10px;
+        box-shadow: 2px 2px 0px #000000;
         box-sizing: border-box;
         cursor: pointer;
         user-select: none;
-        transition: all 0.22s cubic-bezier(0.16, 1, 0.3, 1);
-        position: relative;
+        transition: transform 0.12s ease, box-shadow 0.12s ease, background-color 0.15s ease;
     }
 
     .menu-visibility-card:hover {
-        border-color: #000000;
-        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
-        transform: translateY(-1px);
+        transform: translate(-1px, -1px);
+        box-shadow: 3px 3px 0px #000000;
+        background-color: #fafafa;
     }
 
-    .menu-visibility-card.is-public,
-    .menu-visibility-card:has(.dot-public) {
-        background: linear-gradient(135deg, #ffffff 0%, #f0fdf4 100%);
-        border-color: #bbf7d0;
+    .menu-visibility-card:active {
+        transform: translate(1px, 1px);
+        box-shadow: 1px 1px 0px #000000;
     }
 
-    .menu-visibility-card.is-public:hover,
-    .menu-visibility-card:has(.dot-public):hover {
-        border-color: #16a34a;
-    }
-
-    .menu-visibility-card.is-private,
-    .menu-visibility-card:has(.dot-private) {
-        background: linear-gradient(135deg, #ffffff 0%, #fffbeb 100%);
-        border-color: #fed7aa;
-    }
-
-    .menu-visibility-card.is-private:hover,
-    .menu-visibility-card:has(.dot-private):hover {
-        border-color: #d97706;
-    }
-
-    .visibility-status-info {
+    /* Text Group */
+    .visibility-card-text {
         display: flex;
         flex-direction: column;
         gap: 2px;
-        flex: 1;
         min-width: 0;
     }
 
-    .visibility-status-header {
-        display: flex;
-        align-items: center;
-        gap: 7px;
+    .visibility-micro-label {
+        font-size: 0.62rem;
+        font-weight: 800;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+        color: #71717a;
+        line-height: 1;
     }
 
     .status-indicator-dot {
-        width: 8px;
-        height: 8px;
-        border-radius: 50%;
-        display: inline-block;
-        flex-shrink: 0;
-        transition: all 0.25s ease;
-    }
-
-    .status-indicator-dot.dot-public {
-        background-color: #16a34a;
-        box-shadow: 0 0 0 3px rgba(22, 163, 74, 0.2);
-        animation: dotPulse 2.4s infinite ease-in-out;
-    }
-
-    .status-indicator-dot.dot-private {
-        background-color: #d97706;
-        box-shadow: 0 0 0 3px rgba(217, 119, 6, 0.2);
-        animation: none;
-    }
-
-    @keyframes dotPulse {
-        0%, 100% {
-            box-shadow: 0 0 0 2px rgba(22, 163, 74, 0.2);
-        }
-        50% {
-            box-shadow: 0 0 0 5px rgba(22, 163, 74, 0.35);
-        }
+        display: none !important;
     }
 
     .visibility-status-text {
         font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif;
         font-size: 0.82rem;
         font-weight: 800;
-        color: #09090b;
+        color: #000000;
         letter-spacing: -0.01em;
         line-height: 1.2;
-    }
-
-    .visibility-status-hint {
-        font-size: 0.69rem;
-        font-weight: 500;
-        color: #71717a;
-        letter-spacing: -0.005em;
-        padding-left: 15px;
-        line-height: 1.2;
-        transition: color 0.2s ease;
         white-space: nowrap;
         overflow: hidden;
         text-overflow: ellipsis;
     }
 
-    .hint-text-public,
-    .hint-text-private {
-        display: none;
-    }
-
-    .menu-visibility-card.is-public .hint-text-public,
-    .menu-visibility-card:has(.dot-public) .hint-text-public {
-        display: inline;
-    }
-
-    .menu-visibility-card.is-private .hint-text-private,
-    .menu-visibility-card:has(.dot-private) .hint-text-private {
-        display: inline;
-    }
-
-    .menu-visibility-card.is-public .visibility-status-hint,
-    .menu-visibility-card:has(.dot-public) .visibility-status-hint {
-        color: #15803d;
-    }
-
-    .menu-visibility-card.is-private .visibility-status-hint,
-    .menu-visibility-card:has(.dot-private) .visibility-status-hint {
-        color: #b45309;
-    }
-
-    /* Toggle Switch Button */
+    /* Neo-Brutalist Toggle Switch Control */
     .visibility-toggle-btn {
         background: transparent;
         border: none;
-        padding: 2px;
+        padding: 0;
         margin: 0;
         cursor: pointer;
         display: inline-flex;
@@ -293,97 +218,83 @@
         outline: none;
         text-decoration: none;
         flex-shrink: 0;
-        border-radius: 9999px;
-        transition: transform 0.15s ease;
     }
 
-    .visibility-toggle-btn:focus-visible {
-        outline: 2px solid #000000;
-        outline-offset: 2px;
+    .visibility-toggle-btn:focus-visible .toggle-track {
+        box-shadow: 0 0 0 2px #ffffff, 0 0 0 4px #000000;
     }
 
-    .visibility-toggle-btn:hover {
-        transform: scale(1.05);
-    }
-
-    .visibility-toggle-btn:active {
-        transform: scale(0.95);
-    }
-
-    /* Toggle Track */
+    /* Track */
     .toggle-track {
-        width: 44px;
+        width: 42px;
         height: 24px;
         border-radius: 9999px;
-        background-color: #cbd5e1;
-        border: 1.5px solid #94a3b8;
+        background-color: #e4e4e7;
+        border: 2px solid #000000;
         position: relative;
+        box-sizing: border-box;
+        cursor: pointer;
+        transition: background-color 0.2s cubic-bezier(0.16, 1, 0.3, 1);
         display: flex;
         align-items: center;
-        box-sizing: border-box;
-        padding: 2px;
-        transition: background-color 0.25s cubic-bezier(0.4, 0, 0.2, 1), 
-                    border-color 0.25s cubic-bezier(0.4, 0, 0.2, 1),
-                    box-shadow 0.25s ease;
     }
 
+    /* When Public (Active) */
     .toggle-track.is-active,
     .menu-visibility-card:has(.dot-public) .toggle-track {
-        background-color: #000000;
-        border-color: #000000;
+        background-color: #16a34a;
     }
 
-    /* Toggle Thumb Knob */
+    /* When Private (Inactive) */
+    .menu-visibility-card:has(.dot-private) .toggle-track:not(.is-active) {
+        background-color: #e4e4e7;
+    }
+
+    /* Thumb Knob: crisp white with 2px black border */
     .toggle-thumb {
-        width: 17px;
-        height: 17px;
+        position: absolute;
+        top: 2px;
+        left: 2px;
+        width: 16px;
+        height: 16px;
         border-radius: 50%;
         background-color: #ffffff;
-        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2), 0 1px 1px rgba(0, 0, 0, 0.1);
-        transform: translateX(0);
-        transition: transform 0.25s cubic-bezier(0.34, 1.56, 0.64, 1), background-color 0.2s ease;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        position: relative;
+        border: 2px solid #000000;
+        box-sizing: border-box;
+        transition: transform 0.22s cubic-bezier(0.34, 1.56, 0.64, 1);
     }
 
+    /* Slide Right when Active */
     .toggle-track.is-active .toggle-thumb,
     .menu-visibility-card:has(.dot-public) .toggle-thumb {
-        transform: translateX(19px);
+        transform: translateX(18px);
     }
 
-    /* Inner Micro-Dot on Knob */
-    .toggle-thumb-dot {
-        width: 5px;
-        height: 5px;
-        border-radius: 50%;
-        background-color: #94a3b8;
-        transition: all 0.2s ease;
+    .menu-visibility-card:has(.dot-private) .toggle-thumb:not(.is-active *) {
+        transform: translateX(0);
     }
 
-    .toggle-track.is-active .toggle-thumb-dot,
-    .menu-visibility-card:has(.dot-public) .toggle-thumb-dot {
-        background-color: #16a34a;
-        box-shadow: 0 0 4px rgba(22, 163, 74, 0.7);
+    /* Subtle loading animation during submit */
+    .toggle-track.is-loading {
+        opacity: 0.85;
     }
 
-    /* Loading State Spinner */
-    .toggle-track.is-loading .toggle-thumb-dot {
-        width: 8px;
-        height: 8px;
-        border: 1.5px solid #000000;
-        border-top-color: transparent;
-        border-radius: 50%;
-        background: transparent;
-        box-shadow: none;
-        animation: switchSpin 0.6s linear infinite;
+    .toggle-track.is-loading .toggle-thumb {
+        animation: thumbLoadingPulse 0.5s infinite alternate ease-in-out;
     }
 
-    @keyframes switchSpin {
-        to {
-            transform: rotate(360deg);
-        }
+    @keyframes thumbLoadingPulse {
+        from { transform: translateX(18px) scale(1); }
+        to { transform: translateX(18px) scale(0.85); }
+    }
+
+    .menu-visibility-card:has(.dot-private) .toggle-track.is-loading .toggle-thumb {
+        animation: thumbLoadingPulsePrivate 0.5s infinite alternate ease-in-out;
+    }
+
+    @keyframes thumbLoadingPulsePrivate {
+        from { transform: translateX(0) scale(1); }
+        to { transform: translateX(0) scale(0.85); }
     }
 
     .sr-only {

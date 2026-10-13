@@ -61,13 +61,14 @@ function exportPortfolioToPdf() {
             }
         }
 
-        // Sync browser address bar with canonical share URL if userId param was not already present
+        // Sync browser address bar with canonical share URL if available
         (function () {
-            var shareUrl = "<%= ShareUrl %>";
-            if (shareUrl && window.history && window.history.replaceState) {
+            var btn = document.getElementById("btnShareLink");
+            var shareUrl = btn ? btn.getAttribute("data-share-url") : "";
+            if (shareUrl && shareUrl.indexOf("<%=") === -1 && window.history && window.history.replaceState) {
                 try {
                     var current = new URL(window.location.href);
-                    if (!current.searchParams.has("userId")) {
+                    if (!current.searchParams.has("u") && !current.searchParams.has("userId")) {
                         window.history.replaceState(null, document.title, shareUrl);
                     }
                 } catch (e) { }

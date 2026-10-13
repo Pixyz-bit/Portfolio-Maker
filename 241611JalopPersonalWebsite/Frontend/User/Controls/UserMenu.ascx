@@ -28,20 +28,16 @@
             </div>
         </div>
 
-        <!-- Portfolio Visibility Quick Toggle -->
-        <div class="menu-visibility-card" id="menuVisibilityCard" title="Click anywhere to toggle portfolio visibility">
-            <div class="visibility-status-info">
-                <div class="visibility-status-header">
-                    <span class="status-indicator-dot dot-public" id="dotVisibility" runat="server"></span>
-                    <span class="visibility-status-text">
-                        <asp:Literal ID="litVisibilityLabel" runat="server" Text="Public Portfolio" />
-                    </span>
-                </div>
-                <div class="visibility-status-hint">
-                    <span class="hint-text-public">Visible in directory &amp; direct link</span>
-                    <span class="hint-text-private">Only accessible by you</span>
-                </div>
+        <!-- Portfolio Visibility Quick Toggle (Neo-Brutalist Compact Card) -->
+        <div class="menu-visibility-card" id="menuVisibilityCard" title="Click to toggle portfolio visibility">
+            <span id="dotVisibility" runat="server" class="status-indicator-dot dot-public" style="display: none;"></span>
+            <div class="visibility-card-text">
+                <span class="visibility-micro-label">Status</span>
+                <span class="visibility-status-text">
+                    <asp:Literal ID="litVisibilityLabel" runat="server" Text="Public Portfolio" />
+                </span>
             </div>
+
             <asp:LinkButton ID="btnToggleVisibility" runat="server" 
                 CssClass="visibility-toggle-btn" 
                 OnClick="btnToggleVisibility_Click" 
@@ -49,9 +45,7 @@
                 role="switch"
                 aria-label="Toggle portfolio visibility">
                 <span class="toggle-track">
-                    <span class="toggle-thumb">
-                        <span class="toggle-thumb-dot"></span>
-                    </span>
+                    <span class="toggle-thumb"></span>
                 </span>
                 <span class="sr-only">
                     <asp:Literal ID="litVisibilityAction" runat="server" Text="Make Private" />

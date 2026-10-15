@@ -1,4 +1,5 @@
 using System;
+using _241611JalopPersonalWebsite.Backend.Common;
 using System.Collections.Generic;
 using System.Text;
 using System.Web.UI;
@@ -7,8 +8,11 @@ using _241611JalopPersonalWebsite.Repository;
 
 namespace _241611JalopPersonalWebsite.Frontend.User
 {
-    public partial class PublicDashboard : Page
+    public partial class PublicDashboard : SecurePage
     {
+        private const int PageSize = 12;
+        private int CurrentPage { get => (int?)ViewState["DirectoryPage"] ?? 1; set => ViewState["DirectoryPage"] = value; }
+
         protected void Page_Load(object sender, EventArgs e)
         {
             SetupNavigationState();
@@ -62,7 +66,15 @@ namespace _241611JalopPersonalWebsite.Frontend.User
 
         private void LoadPortfolios(string search)
         {
-            List<PublicPortfolioItem> portfolios = UserProfileRepository.GetPublicPortfolios(search, out string error);
+            List<PublicPortfolioItem> portfolios = UserProfileRepository.GetPublicPortfolios(search, CurrentPage, PageSize, out int total, out string error);
+            int pages = Math.Max(1, (total + PageSize - 1) / PageSize);
+            CurrentPage = Math.Min(CurrentPage, pages);
+            btnPreviousPage.Enabled = CurrentPage > 1;
+            btnNextPage.Enabled = CurrentPage < pages;
+            litPageNumber.Text = $"Page {CurrentPage} of {pages} · {total} portfolios";
+            pnlPagination.Visible = total > PageSize;
+            lblDirectoryMessage.Text = Server.HtmlEncode(error);
+            pnlDirectoryError.Visible = !string.IsNullOrEmpty(error);
 
             if (string.IsNullOrEmpty(error) && portfolios != null && portfolios.Count > 0)
             {
@@ -80,14 +92,19 @@ namespace _241611JalopPersonalWebsite.Frontend.User
 
         protected void btnSearch_Click(object sender, EventArgs e)
         {
+            CurrentPage = 1;
             LoadPortfolios(txtSearch.Text.Trim());
         }
 
         protected void btnReset_Click(object sender, EventArgs e)
         {
+            CurrentPage = 1;
             txtSearch.Text = string.Empty;
             LoadPortfolios(null);
         }
+
+        protected void btnPreviousPage_Click(object sender, EventArgs e) { CurrentPage = Math.Max(1, CurrentPage - 1); LoadPortfolios(txtSearch.Text.Trim()); }
+        protected void btnNextPage_Click(object sender, EventArgs e) { CurrentPage++; LoadPortfolios(txtSearch.Text.Trim()); }
 
         public static string FormatSkillsPills(List<string> skills)
         {

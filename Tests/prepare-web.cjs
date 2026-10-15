@@ -1,0 +1,11 @@
+const fs=require('fs'),path=require('path');
+const root=path.resolve('.');
+const database=fs.readFileSync('Tests/Temp/web-database.txt','utf8').trim();
+if(!/^PortfolioAudit_[a-f0-9]{32}$/.test(database)) throw Error('Invalid fixture database.');
+const source=path.join(root,'241611JalopPersonalWebsite'),destination=path.join(root,'Tests/Temp/Site');
+fs.cpSync(source,destination,{recursive:true,filter:p=>!p.includes(path.sep+'obj'+path.sep)&&path.basename(p)!=='obj'&&path.basename(p)!=='ConnectionStrings.config'&&path.basename(p)!=='.vs'});
+fs.writeFileSync(path.join(destination,'ConnectionStrings.config'),`<connectionStrings><add name="DefaultConnection" connectionString="Data Source=(localdb)\\MSSQLLocalDB;Initial Catalog=${database};Integrated Security=True;" providerName="System.Data.SqlClient" /></connectionStrings>`);
+let config=fs.readFileSync(path.join(destination,'Web.config'),'utf8');
+config=config.replace(/<customErrors[\s\S]*?<\/customErrors>/,'<customErrors mode="Off" />').replace('existingResponse="Replace"','existingResponse="PassThrough"');
+fs.writeFileSync(path.join(destination,'Web.config'),config);
+console.log('Isolated runtime site prepared.');

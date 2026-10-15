@@ -1,0 +1,22 @@
+[
+  {
+    "Case": "Renamed nonimage",
+    "Accepted": false,
+    "Status": 200
+  },
+  {
+    "Case": "Disallowed extension",
+    "Accepted": false,
+    "Status": 200
+  },
+  {
+    "Case": "Over 2 MB",
+    "Accepted": false,
+    "Status": 200
+  },
+  {
+    "Case": "Valid PNG",
+    "Accepted": true,
+    "Status": 200
+  }
+]

@@ -90,6 +90,7 @@ var currentStep = 1;
             }
 
             var toast = document.createElement('div');
+            toast.setAttribute('role', 'alert');
             toast.className = 'toast-box client-toast ' + (isError ? 'toast-error' : 'toast-success');
 
             var iconSvg = isError
@@ -116,9 +117,11 @@ var currentStep = 1;
         function markInvalid(el) {
             if (!el) return;
             el.classList.add('is-invalid');
+            el.setAttribute('aria-invalid', 'true');
             el.focus();
             var removeHandler = function () {
                 el.classList.remove('is-invalid');
+                el.removeAttribute('aria-invalid');
                 el.removeEventListener('input', removeHandler);
             };
             el.addEventListener('input', removeHandler);
@@ -245,6 +248,7 @@ var currentStep = 1;
                     '</div>' +
                 '</div>';
             container.appendChild(card);
+            if (window.PortfolioAccessibility) PortfolioAccessibility.labelFields(card);
         }
 
         // 2. Skill
@@ -274,6 +278,7 @@ var currentStep = 1;
                     '<input type="text" class="form-input skill-desc" placeholder="e.g. Backend architecture, ADO.NET, REST APIs, Session state" value="' + escapeHtml(data.skillDescription || '') + '" />' +
                 '</div>';
             container.appendChild(card);
+            if (window.PortfolioAccessibility) PortfolioAccessibility.labelFields(card);
         }
 
         // 3. Affiliation
@@ -315,6 +320,7 @@ var currentStep = 1;
                     '</div>' +
                 '</div>';
             container.appendChild(card);
+            if (window.PortfolioAccessibility) PortfolioAccessibility.labelFields(card);
         }
 
         // 4. Hobby
@@ -344,6 +350,7 @@ var currentStep = 1;
                     '<input type="text" class="form-input hobby-desc" placeholder="e.g. Solving algorithmic challenges on LeetCode & Codeforces" value="' + escapeHtml(data.hobbyDescription || '') + '" />' +
                 '</div>';
             container.appendChild(card);
+            if (window.PortfolioAccessibility) PortfolioAccessibility.labelFields(card);
         }
 
         // 5. Social Link
@@ -392,6 +399,7 @@ var currentStep = 1;
                     '</div>' +
                 '</div>';
             container.appendChild(card);
+            if (window.PortfolioAccessibility) PortfolioAccessibility.labelFields(card);
         }
 
         // =========================================================================

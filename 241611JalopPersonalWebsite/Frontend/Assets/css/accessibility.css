@@ -1,0 +1,26 @@
+/* Preserve the existing palette while making keyboard state visible. */
+:is(a, button, input, select, textarea, [tabindex]):focus-visible {
+    outline: 3px solid #166534 !important;
+    outline-offset: 3px !important;
+}
+.directory-pagination {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-wrap: wrap;
+    gap: 16px;
+    margin: 28px 0;
+}
+@media (max-width: 640px) {
+    .step-item { min-width: 44px; min-height: 44px; }
+    .step-indicator { max-width: 100%; overflow-x: auto; padding: 6px 4px; }
+    .step-line { margin-left: 2px; margin-right: 2px; }
+    .card-title { overflow-wrap: anywhere; }
+}
+@media (prefers-reduced-motion: reduce) {
+    html { scroll-behavior: auto; }
+    .modal-box, .user-account-modal-box, .login-modal-box, .toast-box, .active-step {
+        animation: none !important;
+    }
+    .toggle-track, .toggle-thumb, .portfolio-card { transition: none !important; }
+}

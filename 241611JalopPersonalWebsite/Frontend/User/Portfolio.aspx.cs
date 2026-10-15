@@ -8,25 +8,17 @@ using _241611JalopPersonalWebsite.Repository;
 
 namespace _241611JalopPersonalWebsite.Frontend.User
 {
-    public partial class Portfolio : Page
+    public partial class Portfolio : SecurePage
     {
         public string ShareUrl { get; set; } = string.Empty;
 
         protected void Page_Load(object sender, EventArgs e)
         {
-            if (!IsPostBack)
-            {
-                int targetUserId = ResolveTargetUserId();
-                if (targetUserId > 0)
-                {
-                    LoadPortfolio(targetUserId);
-                }
-                else
-                {
-                    // No specific portfolio requested and unauthenticated: redirect to public directory
-                    Response.Redirect("~/Frontend/User/PublicDashboard.aspx");
-                }
-            }
+            int targetUserId = ResolveTargetUserId();
+            if (targetUserId > 0) LoadPortfolio(targetUserId);
+            else if (Request.QueryString["u"] != null || Request.QueryString["userId"] != null)
+                throw new System.Web.HttpException(404, "Portfolio not found.");
+            else Response.Redirect("~/Frontend/User/PublicDashboard.aspx");
         }
 
         public static string FormatPeriod(object startYearObj, object endYearObj)
@@ -81,58 +73,13 @@ namespace _241611JalopPersonalWebsite.Frontend.User
 
         private int ResolveTargetUserId()
         {
-            // 1. Check Obfuscated/Hashed Token QueryString: ?u=TOKEN
-            string token = Request.QueryString["u"];
-            if (!string.IsNullOrWhiteSpace(token))
+            if (Request.QueryString["u"] != null) return UrlObfuscator.DecodeUserId(Request.QueryString["u"]);
+            if (Request.QueryString["userId"] != null)
             {
-                int decodedId = UrlObfuscator.DecodeUserId(token);
-                if (decodedId > 0)
-                {
-                    return decodedId;
-                }
+                if (!int.TryParse(Request.QueryString["userId"], out int id) || id <= 0) return 0;
+                return SessionSecurity.CanEdit(SessionSecurity.CurrentUser(), id) ? id : 0;
             }
-
-            // 2. Direct QueryString: ?userId=X (Allowed for Admin or the authenticated owner)
-            if (Request.QueryString["userId"] != null && int.TryParse(Request.QueryString["userId"], out int qsId) && qsId > 0)
-            {
-                bool isAdmin = string.Equals(Session["Role"]?.ToString(), "Admin", StringComparison.OrdinalIgnoreCase);
-                int loggedInId = (Session["UserID"] != null && int.TryParse(Session["UserID"].ToString(), out int sId)) ? sId : 0;
-
-                if (isAdmin || loggedInId == qsId)
-                {
-                    return qsId;
-                }
-            }
-
-            // 3. Check Session (logged-in user viewing their own portfolio)
-            if (Session["UserID"] != null && int.TryParse(Session["UserID"].ToString(), out int sessionUserId) && sessionUserId > 0)
-            {
-                return sessionUserId;
-            }
-
-            // 4. Fallback for testing: find latest active user in database (only if in development)
-            try
-            {
-                using (SqlConnection conn = DatabaseConnection.GetConnection())
-                {
-                    conn.Open();
-                    string query = "SELECT TOP 1 UserID FROM dbo.Users WHERE IsActive = 1 ORDER BY UserID DESC";
-                    using (SqlCommand cmd = new SqlCommand(query, conn))
-                    {
-                        object result = cmd.ExecuteScalar();
-                        if (result != null && int.TryParse(result.ToString(), out int dbId))
-                        {
-                            return dbId;
-                        }
-                    }
-                }
-            }
-            catch
-            {
-                // Ignore fallback failure
-            }
-
-            return 0;
+            return SessionSecurity.CurrentUser()?.UserID ?? 0;
         }
 
         private void LoadPortfolio(int userId)
@@ -152,17 +99,19 @@ namespace _241611JalopPersonalWebsite.Frontend.User
             ShareUrl = $"{scheme}://{authority}{path}?u={token}";
 
             // 2. Load UserProfile for the portfolio being viewed
-            UserProfile profile = UserProfileRepository.GetByUserId(userId, out string profileError);
+            PortfolioSaveData data = PortfolioReadRepository.Load(userId);
+            UserProfile profile = data.Profile;
+            if (profile == null) throw new System.Web.HttpException(404, "Portfolio not found.");
             if (profile != null)
             {
                 string fullName = profile.FullName;
-                litPageTitle.Text = $"{fullName} | Personal Portfolio";
-                litBrandName.Text = fullName;
-                litFooterName.Text = fullName;
+                litPageTitle.Text = Server.HtmlEncode($"{fullName} | Personal Portfolio");
+                litBrandName.Text = Server.HtmlEncode(fullName);
+                litFooterName.Text = Server.HtmlEncode(fullName);
 
                 if (!string.IsNullOrWhiteSpace(profile.FirstName))
                 {
-                    litBrandInitials.Text = profile.FirstName.Substring(0, 1).ToUpper();
+                    litBrandInitials.Text = Server.HtmlEncode(profile.FirstName.Substring(0, 1).ToUpper());
                 }
             }
             else
@@ -224,7 +173,7 @@ namespace _241611JalopPersonalWebsite.Frontend.User
                     pnlOwnerPrivateIndicator.Visible = false;
                     pnlPrivateNotice.Visible = true;
                     pnlPortfolioMain.Visible = false;
-                    litPrivateOwnerName.Text = profile != null ? (!string.IsNullOrWhiteSpace(profile.FullName) ? profile.FullName : "The user") : "The user";
+                    litPrivateOwnerName.Text = Server.HtmlEncode(profile.FullName);
                     return; // Stop further binding to protect private data
                 }
             }
@@ -239,19 +188,19 @@ namespace _241611JalopPersonalWebsite.Frontend.User
             ucHero.BindProfile(profile);
             ucSummary.BindSummary(profile != null ? profile.Description : null);
 
-            List<Education> educations = EducationRepository.GetByUserId(userId, out _);
+            List<Education> educations = data.Educations;
             ucEducation.BindEducation(educations);
 
-            List<Skill> skills = SkillRepository.GetByUserId(userId, out _);
+            List<Skill> skills = data.Skills;
             ucSkills.BindSkills(skills);
 
-            List<Affiliation> affiliations = AffiliationRepository.GetByUserId(userId, out _);
+            List<Affiliation> affiliations = data.Affiliations;
             ucAffiliations.BindAffiliations(affiliations);
 
-            List<Hobby> hobbies = HobbyRepository.GetByUserId(userId, out _);
+            List<Hobby> hobbies = data.Hobbies;
             ucHobbies.BindHobbies(hobbies);
 
-            List<SocialLink> socialLinks = SocialLinkRepository.GetByUserId(userId, out _);
+            List<SocialLink> socialLinks = data.SocialLinks;
             ucSocialLinks.BindSocialLinks(socialLinks);
         }
     }

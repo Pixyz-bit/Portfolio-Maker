@@ -1,11 +1,12 @@
 using System;
+using _241611JalopPersonalWebsite.Backend.Common;
 using System.Web.UI;
 using _241611JalopPersonalWebsite.Model;
 using _241611JalopPersonalWebsite.Repository;
 
 namespace _241611JalopPersonalWebsite.Frontend.Login
 {
-    public partial class Signup : Page
+    public partial class Signup : SecurePage
     {
         protected void Page_Load(object sender, EventArgs e)
         {
@@ -50,7 +51,7 @@ namespace _241611JalopPersonalWebsite.Frontend.Login
         private void ShowError(string message)
         {
             pnlError.Visible = true;
-            lblErrorMessage.Text = message;
+            lblErrorMessage.Text = Server.HtmlEncode(message);
             ClientScript.RegisterStartupScript(this.GetType(), "SignupErrorLoading", "handleSignupError();", true);
         }
     }

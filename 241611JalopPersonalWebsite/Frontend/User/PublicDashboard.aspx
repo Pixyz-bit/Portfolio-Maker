@@ -13,7 +13,9 @@
     <link rel="stylesheet" href="../Assets/fonts/fonts.css" />
 
     <link rel="stylesheet" href="../Assets/css/public-dashboard.css" />
-    <link rel="stylesheet" href="<%= Page.ResolveUrl("~/Frontend/Assets/css/user-menu.css") %>?v=<%= DateTime.UtcNow.Ticks %>" />
+    <link rel="stylesheet" href="<%= Page.ResolveUrl("~/Frontend/Assets/css/user-menu.css") %>?v=20261013" />
+    <link rel="stylesheet" href="<%= ResolveUrl("~/Frontend/Assets/css/accessibility.css") %>" />
+    <script src="<%= ResolveUrl("~/Frontend/Assets/js/accessibility.js") %>" defer></script>
 </head>
 <body>
     <form id="publicDashboardForm" runat="server">
@@ -61,13 +63,16 @@
                 <div class="search-bar-wrap">
                     <div class="search-input-group">
                         <svg class="search-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
-                        <asp:TextBox ID="txtSearch" runat="server" CssClass="search-input" placeholder="Search by name, skill, keyword, or location..." onkeyup="filterClientCards();" />
+                        <asp:TextBox ID="txtSearch" runat="server" CssClass="search-input" placeholder="Search by name, skill, keyword, or location..." MaxLength="255" aria-label="Search public portfolios" />
                     </div>
                     <asp:Button ID="btnSearch" runat="server" Text="Search" CssClass="btn btn-solid" OnClick="btnSearch_Click" />
                     <asp:Button ID="btnReset" runat="server" Text="Reset" CssClass="btn btn-outline" OnClick="btnReset_Click" />
                 </div>
             </section>
 
+            <asp:Panel ID="pnlDirectoryError" runat="server" Visible="false" role="alert" CssClass="empty-state">
+                <asp:Label ID="lblDirectoryMessage" runat="server" />
+            </asp:Panel>
             <!-- Portfolios Grid -->
             <section>
                 <div class="portfolio-grid" id="portfolioGrid">
@@ -82,8 +87,8 @@
                                     <div class="card-top">
                                         <div class="card-avatar">
                                             <%# !string.IsNullOrWhiteSpace(Eval("ProfileImagePath")?.ToString()) 
-                                                ? $"<img src='{ResolveUrl(Eval("ProfileImagePath").ToString())}' alt='{Server.HtmlEncode(Eval("FullName")?.ToString())}' />"
-                                                : Eval("Initials") %>
+                                                ? $"<img src='{Server.HtmlEncode(ResolveUrl(_241611JalopPersonalWebsite.Backend.Common.InputSafety.SafeImageUrl(Eval("ProfileImagePath").ToString())))}' alt='{Server.HtmlEncode(Eval("FullName")?.ToString())}' />"
+                                                : Server.HtmlEncode(Eval("Initials")?.ToString()) %>
                                         </div>
                                         <div class="card-user-info">
                                             <h2 class="card-user-name"><%# Server.HtmlEncode(Eval("FullName")?.ToString()) %></h2>
@@ -135,6 +140,11 @@
                     </asp:Panel>
                 </div>
             </section>
+            <asp:Panel ID="pnlPagination" runat="server" CssClass="directory-pagination">
+                <asp:Button ID="btnPreviousPage" runat="server" Text="Previous" CssClass="btn btn-outline" OnClick="btnPreviousPage_Click" />
+                <span aria-live="polite"><asp:Literal ID="litPageNumber" runat="server" /></span>
+                <asp:Button ID="btnNextPage" runat="server" Text="Next" CssClass="btn btn-outline" OnClick="btnNextPage_Click" />
+            </asp:Panel>
         </main>
 
         <footer class="public-footer">
@@ -142,33 +152,6 @@
         </footer>
     </form>
 
-    <script type="text/javascript">
-        function filterClientCards() {
-            var input = document.getElementById('<%= txtSearch.ClientID %>');
-            if (!input) return;
-            var filter = input.value.trim().toLowerCase();
-            var cards = document.querySelectorAll('.portfolio-card');
-            var visibleCount = 0;
 
-            cards.forEach(function (card) {
-                var name = card.getAttribute('data-name') || '';
-                var desc = card.getAttribute('data-desc') || '';
-                var skills = card.getAttribute('data-skills') || '';
-                var address = card.getAttribute('data-address') || '';
-
-                if (name.indexOf(filter) > -1 || desc.indexOf(filter) > -1 || skills.indexOf(filter) > -1 || address.indexOf(filter) > -1) {
-                    card.style.display = '';
-                    visibleCount++;
-                } else {
-                    card.style.display = 'none';
-                }
-            });
-
-            var noMatch = document.getElementById('clientNoMatch');
-            if (noMatch) {
-                noMatch.style.display = (visibleCount === 0 && cards.length > 0) ? 'block' : 'none';
-            }
-        }
-    </script>
 </body>
 </html>

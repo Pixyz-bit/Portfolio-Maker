@@ -1,3 +1,4 @@
+function escapeDialogText(value) { return String(value || '').replace(/[&<>"']/g, function(c) { return ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]); }); }
 function getEl(id) {
     return document.getElementById(id) || document.querySelector('[id$="' + id + '"]') || document.querySelector('[name$="' + id + '"]');
 }
@@ -53,7 +54,7 @@ function getEl(id) {
 
             if (isCurrentlyActive) {
                 titleEl.textContent = 'Deactivate User Account';
-                descEl.innerHTML = 'Are you sure you want to deactivate the account for <strong>' + fullName + '</strong> (' + email + ')?<br><br><span style="color: #dc2626; font-size: 0.82rem; font-weight: 600;">The user will be immediately barred from signing in until an administrator reactivates their account.</span>';
+                descEl.innerHTML = 'Are you sure you want to deactivate the account for <strong>' + escapeDialogText(fullName) + '</strong> (' + escapeDialogText(email) + ')?<br><br><span style="color: #dc2626; font-size: 0.82rem; font-weight: 600;">The user will be immediately barred from signing in until an administrator reactivates their account.</span>';
                 iconWrap.style.backgroundColor = '#fee2e2';
                 iconDeactivate.style.display = 'block';
                 iconActivate.style.display = 'none';
@@ -61,7 +62,7 @@ function getEl(id) {
                 confirmBtn.value = 'Yes, Deactivate';
             } else {
                 titleEl.textContent = 'Activate User Account';
-                descEl.innerHTML = 'Are you sure you want to activate the account for <strong>' + fullName + '</strong> (' + email + ')?<br><br><span style="color: #16a34a; font-size: 0.82rem; font-weight: 600;">The user will be granted full access to sign in and update their portfolio.</span>';
+                descEl.innerHTML = 'Are you sure you want to activate the account for <strong>' + escapeDialogText(fullName) + '</strong> (' + escapeDialogText(email) + ')?<br><br><span style="color: #16a34a; font-size: 0.82rem; font-weight: 600;">The user will be granted full access to sign in and update their portfolio.</span>';
                 iconWrap.style.backgroundColor = '#dcfce7';
                 iconDeactivate.style.display = 'none';
                 iconActivate.style.display = 'block';
@@ -90,7 +91,7 @@ function getEl(id) {
         function openDeleteModal(userId, fullName, email) {
             getEl('hfDeleteUserId').value = userId;
             const descEl = document.getElementById('deleteModalDesc');
-            descEl.innerHTML = 'Are you sure you want to permanently delete the account for <strong>' + fullName + '</strong> (' + email + ')?';
+            descEl.innerHTML = 'Are you sure you want to permanently delete the account for <strong>' + escapeDialogText(fullName) + '</strong> (' + escapeDialogText(email) + ')?';
             document.getElementById('deleteModal').classList.add('active');
         }
 

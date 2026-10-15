@@ -9,7 +9,7 @@ using _241611JalopPersonalWebsite.Repository;
 
 namespace _241611JalopPersonalWebsite.Frontend.Login
 {
-    public partial class Login : Page
+    public partial class Login : SecurePage
     {
         protected void Page_Load(object sender, EventArgs e)
         {
@@ -19,7 +19,8 @@ namespace _241611JalopPersonalWebsite.Frontend.Login
                 pnlSuccess.Visible = false;
 
                 // Connection indicator: runs every time Login.aspx is loaded/run
-                LogConnectionStatus();
+                if (Request.IsLocal && string.Equals(System.Configuration.ConfigurationManager.AppSettings["EnableDatabaseDiagnostics"], "true", StringComparison.OrdinalIgnoreCase))
+                    LogConnectionStatus();
 
                 // Handle sign-out / logout action
                 if (string.Equals(Request.QueryString["action"], "logout", StringComparison.OrdinalIgnoreCase))
@@ -86,6 +87,8 @@ namespace _241611JalopPersonalWebsite.Frontend.Login
             {
                 // 2. Establish user session
                 Session["UserID"] = authenticatedUser.UserID;
+                Session["CredentialStamp"] = authenticatedUser.AuthenticationStamp;
+                Session["PostbackKey"] = Guid.NewGuid().ToString("N");
                 Session["UserEmail"] = authenticatedUser.Email;
                 Session["FirstName"] = authenticatedUser.FirstName;
                 Session["LastName"] = authenticatedUser.LastName;
@@ -119,7 +122,7 @@ namespace _241611JalopPersonalWebsite.Frontend.Login
                     ? "../Admin/Dashboard.aspx" 
                     : $"../User/Portfolio.aspx?u={UrlObfuscator.EncodeUserId(authenticatedUser.UserID)}";
 
-                string safeWelcomeName = (welcomeName ?? "User").Replace("\\", "\\\\").Replace("'", "\\'").Replace("\"", "\\\"").Replace("\r", "").Replace("\n", "");
+                string safeWelcomeName = HttpUtility.JavaScriptStringEncode(welcomeName ?? "User");
                 string safeRedirectUrl = redirectUrl.Replace("\\", "\\\\").Replace("'", "\\'").Replace("\"", "\\\"");
 
                 string modalScript = $"showLoginSuccessModal('{safeWelcomeName}', '{safeRedirectUrl}');";
@@ -129,7 +132,7 @@ namespace _241611JalopPersonalWebsite.Frontend.Login
             {
                 // Display exact error message from repository as lower-right toast after loading check
                 pnlError.Visible = true;
-                lblErrorMessage.Text = errorMessage;
+                lblErrorMessage.Text = Server.HtmlEncode(errorMessage);
                 ClientScript.RegisterStartupScript(this.GetType(), "LoginErrorLoading", "handleLoginError();", true);
             }
         }

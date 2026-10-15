@@ -1,0 +1,43 @@
+{
+  "files": 126,
+  "sourceFiles": 103,
+  "sourceBytes": 669374,
+  "missingIncludes": [],
+  "unlistedImages": [
+    "Uploads\\Profiles\\user_25_a0631e94.jpg"
+  ],
+  "fonts": [
+    {
+      "name": "inter-v20-latin-500.woff2",
+      "validHeader": true
+    },
+    {
+      "name": "inter-v20-latin-600.woff2",
+      "validHeader": true
+    },
+    {
+      "name": "inter-v20-latin-700.woff2",
+      "validHeader": true
+    },
+    {
+      "name": "inter-v20-latin-regular.woff2",
+      "validHeader": true
+    },
+    {
+      "name": "plus-jakarta-sans-v12-latin-600.woff2",
+      "validHeader": true
+    },
+    {
+      "name": "plus-jakarta-sans-v12-latin-700.woff2",
+      "validHeader": true
+    },
+    {
+      "name": "plus-jakarta-sans-v12-latin-800.woff2",
+      "validHeader": true
+    },
+    {
+      "name": "plus-jakarta-sans-v12-latin-regular.woff2",
+      "validHeader": true
+    }
+  ]
+}

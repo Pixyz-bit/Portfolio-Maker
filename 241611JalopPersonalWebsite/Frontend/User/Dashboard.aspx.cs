@@ -6,8 +6,10 @@ using _241611JalopPersonalWebsite.Repository;
 
 namespace _241611JalopPersonalWebsite.Frontend.User
 {
-    public partial class Dashboard : Page
+    public partial class Dashboard : SecurePage
     {
+        protected override bool RequiresLogin => true;
+
         protected void Page_Load(object sender, EventArgs e)
         {
             if (Session["UserID"] == null || !int.TryParse(Session["UserID"].ToString(), out int userId))
@@ -21,8 +23,8 @@ namespace _241611JalopPersonalWebsite.Frontend.User
                 UserProfile profile = UserProfileRepository.GetByUserId(userId, out _);
                 if (profile != null)
                 {
-                    litFullName.Text = profile.FullName;
-                    litEmail.Text = !string.IsNullOrWhiteSpace(profile.ContactEmail) ? profile.ContactEmail : (Session["UserEmail"]?.ToString() ?? string.Empty);
+                    litFullName.Text = Server.HtmlEncode(profile.FullName);
+                    litEmail.Text = Server.HtmlEncode(!string.IsNullOrWhiteSpace(profile.ContactEmail) ? profile.ContactEmail : (Session["UserEmail"]?.ToString() ?? string.Empty));
                     
                     if (!string.IsNullOrWhiteSpace(profile.Description))
                     {
@@ -31,12 +33,12 @@ namespace _241611JalopPersonalWebsite.Frontend.User
 
                     if (!string.IsNullOrWhiteSpace(profile.ProfileImagePath))
                     {
-                        imgAvatar.ImageUrl = ResolveUrl(profile.ProfileImagePath);
+                        imgAvatar.ImageUrl = ResolveUrl(InputSafety.SafeImageUrl(profile.ProfileImagePath));
                     }
                 }
                 else if (Session["FullName"] != null)
                 {
-                    litFullName.Text = Session["FullName"].ToString();
+                    litFullName.Text = Server.HtmlEncode(Session["FullName"].ToString());
                     litEmail.Text = Session["UserEmail"]?.ToString() ?? string.Empty;
                 }
 

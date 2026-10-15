@@ -12,6 +12,8 @@
     <link rel="stylesheet" href="../Assets/fonts/fonts.css" />
 
     <link rel="stylesheet" href="../Assets/css/onboarding.css" />
+    <link rel="stylesheet" href="<%= ResolveUrl("~/Frontend/Assets/css/accessibility.css") %>" />
+    <script src="<%= ResolveUrl("~/Frontend/Assets/js/accessibility.js") %>" defer></script>
 </head>
 <body>
     <div class="onboarding-container">

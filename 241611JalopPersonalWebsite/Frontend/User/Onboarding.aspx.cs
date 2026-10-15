@@ -10,8 +10,10 @@ using _241611JalopPersonalWebsite.Repository;
 
 namespace _241611JalopPersonalWebsite.Frontend.User
 {
-    public partial class Onboarding : Page
+    public partial class Onboarding : SecurePage
     {
+        protected override bool RequiresLogin => true;
+
         protected void Page_Load(object sender, EventArgs e)
         {
             // Verify user authentication and resolve target user
@@ -44,8 +46,8 @@ namespace _241611JalopPersonalWebsite.Frontend.User
                     mainCard.Attributes["class"] = "card card-admin-editing";
                     pnlAdminBadge.Visible = true;
                     lnkReturnToAdmin.Visible = true;
-                    litAdminTargetUserName.Text = targetName;
-                    litPageTitle.Text = $"Edit Portfolio: {targetName}";
+                    litAdminTargetUserName.Text = Server.HtmlEncode(targetName);
+                    litPageTitle.Text = Server.HtmlEncode($"Edit Portfolio: {targetName}");
                     litPageSubtitle.Text = "You are editing this user's live portfolio information with Administrator authority.";
                 }
                 else
@@ -120,7 +122,8 @@ namespace _241611JalopPersonalWebsite.Frontend.User
         private void LoadExistingData(int userId)
         {
             // 1. Load UserProfile
-            UserProfile profile = UserProfileRepository.GetByUserId(userId, out _);
+            PortfolioSaveData data = PortfolioReadRepository.Load(userId);
+            UserProfile profile = data.Profile;
             if (profile != null)
             {
                 txtFirstName.Text = profile.FirstName ?? string.Empty;
@@ -137,7 +140,7 @@ namespace _241611JalopPersonalWebsite.Frontend.User
 
                 if (!string.IsNullOrWhiteSpace(profile.ProfileImagePath))
                 {
-                    imgProfilePreview.ImageUrl = ResolveUrl(profile.ProfileImagePath);
+                    imgProfilePreview.ImageUrl = ResolveUrl(InputSafety.SafeImageUrl(profile.ProfileImagePath));
                     hfExistingImagePath.Value = profile.ProfileImagePath;
                 }
 
@@ -166,7 +169,7 @@ namespace _241611JalopPersonalWebsite.Frontend.User
             }
 
             // 2. Load Educations
-            List<Education> educations = EducationRepository.GetByUserId(userId, out _) ?? new List<Education>();
+            List<Education> educations = data.Educations;
             var eduDtoList = new List<object>();
             foreach (var e in educations)
             {
@@ -175,7 +178,7 @@ namespace _241611JalopPersonalWebsite.Frontend.User
             hfEducationsJson.Value = new JavaScriptSerializer().Serialize(eduDtoList);
 
             // 3. Load Skills
-            List<Skill> skills = SkillRepository.GetByUserId(userId, out _) ?? new List<Skill>();
+            List<Skill> skills = data.Skills;
             var skillDtoList = new List<object>();
             foreach (var s in skills)
             {
@@ -184,7 +187,7 @@ namespace _241611JalopPersonalWebsite.Frontend.User
             hfSkillsJson.Value = new JavaScriptSerializer().Serialize(skillDtoList);
 
             // 4. Load Affiliations
-            List<Affiliation> affiliations = AffiliationRepository.GetByUserId(userId, out _) ?? new List<Affiliation>();
+            List<Affiliation> affiliations = data.Affiliations;
             var affilDtoList = new List<object>();
             foreach (var a in affiliations)
             {
@@ -193,7 +196,7 @@ namespace _241611JalopPersonalWebsite.Frontend.User
             hfAffiliationsJson.Value = new JavaScriptSerializer().Serialize(affilDtoList);
 
             // 5. Load Hobbies
-            List<Hobby> hobbies = HobbyRepository.GetByUserId(userId, out _) ?? new List<Hobby>();
+            List<Hobby> hobbies = data.Hobbies;
             var hobbyDtoList = new List<object>();
             foreach (var h in hobbies)
             {
@@ -202,7 +205,7 @@ namespace _241611JalopPersonalWebsite.Frontend.User
             hfHobbiesJson.Value = new JavaScriptSerializer().Serialize(hobbyDtoList);
 
             // 6. Load Social Links
-            List<SocialLink> socialLinks = SocialLinkRepository.GetByUserId(userId, out _) ?? new List<SocialLink>();
+            List<SocialLink> socialLinks = data.SocialLinks;
             var socialDtoList = new List<object>();
             foreach (var sl in socialLinks)
             {
@@ -228,455 +231,72 @@ namespace _241611JalopPersonalWebsite.Frontend.User
 
         private void SavePortfolioData(bool redirectToDashboard)
         {
-            pnlError.Visible = false;
-            pnlSuccess.Visible = false;
-
+            pnlError.Visible = false; pnlSuccess.Visible = false;
             int userId = GetCurrentUserId();
-            if (userId <= 0)
-            {
-                ShowError("Session expired or invalid. Please log in again.");
-                return;
-            }
-
-            // Validate personal info (fallback to session if empty)
-            string firstName = txtFirstName.Text.Trim();
-            string lastName = txtLastName.Text.Trim();
-
-            if (string.IsNullOrWhiteSpace(firstName) && Session["FirstName"] != null)
-            {
-                firstName = Session["FirstName"].ToString();
-            }
-
-            if (string.IsNullOrWhiteSpace(lastName) && Session["LastName"] != null)
-            {
-                lastName = Session["LastName"].ToString();
-            }
-
-            if (string.IsNullOrWhiteSpace(firstName) || string.IsNullOrWhiteSpace(lastName))
-            {
-                ShowError("Please enter your First Name and Last Name on Step 1 to save your portfolio.");
-                hfCurrentStep.Value = "1";
-                return;
-            }
-
-            // Validate Public Contact Email (if provided)
-            string contactEmail = txtContactEmail.Text.Trim();
-            if (!string.IsNullOrWhiteSpace(contactEmail))
-            {
-                if (!Regex.IsMatch(contactEmail, @"^[^@\s]+@[^@\s]+\.[^@\s]+$"))
-                {
-                    ShowError("Please enter a valid Public Contact Email address (e.g. name@example.com).");
-                    hfCurrentStep.Value = "1";
-                    return;
-                }
-            }
-
-            // Validate Contact Number (must be exactly 11 digits if provided)
-            string contactNum = txtContactNum.Text.Trim();
-            if (!string.IsNullOrWhiteSpace(contactNum))
-            {
-                string cleanPhone = Regex.Replace(contactNum, @"\D", "");
-                if (cleanPhone.Length != 11)
-                {
-                    ShowError("Contact / Mobile Number must be exactly 11 digits (e.g. 09123456789).");
-                    hfCurrentStep.Value = "1";
-                    return;
-                }
-                contactNum = cleanPhone;
-            }
-
+            var actor = SessionSecurity.CurrentUser();
+            if (!SessionSecurity.CanEdit(actor, userId)) { ShowError("Please sign in with permission to edit this portfolio."); return; }
+            string uploadedImage = null;
+            bool committed = false;
+            string uploadDirectory = Server.MapPath("~/Uploads/Profiles/");
             try
             {
-                // =========================================================================
-                // 1. Handle Profile Picture Upload
-                // =========================================================================
-                string profileImagePath = hfExistingImagePath.Value;
-
+                DateTime? birthday = null;
+                if (!string.IsNullOrWhiteSpace(txtBirthday.Text))
+                {
+                    if (!DateTime.TryParseExact(txtBirthday.Text, "yyyy-MM-dd", System.Globalization.CultureInfo.InvariantCulture,
+                        System.Globalization.DateTimeStyles.None, out DateTime value)) throw new ArgumentException("Enter a valid birthday.");
+                    birthday = value;
+                }
+                var data = new PortfolioSaveData
+                {
+                    Profile = new UserProfile { UserID = userId, FirstName = txtFirstName.Text.Trim(), LastName = txtLastName.Text.Trim(),
+                        Birthday = birthday, Address = txtAddress.Text.Trim(), ContactEmail = txtContactEmail.Text.Trim(),
+                        ContactNum = System.Text.RegularExpressions.Regex.Replace(txtContactNum.Text.Trim(), @"\D", ""),
+                        Description = txtDescription.Text.Trim(), IsPublic = chkIsPublic.Checked },
+                    Educations = PortfolioSaveData.ParseSection<Education>(hfEducationsJson.Value, "Education"),
+                    Skills = PortfolioSaveData.ParseSection<Skill>(hfSkillsJson.Value, "Skills"),
+                    Affiliations = PortfolioSaveData.ParseSection<Affiliation>(hfAffiliationsJson.Value, "Affiliations"),
+                    Hobbies = PortfolioSaveData.ParseSection<Hobby>(hfHobbiesJson.Value, "Hobbies"),
+                    SocialLinks = PortfolioSaveData.ParseSection<SocialLink>(hfSocialLinksJson.Value, "Social links")
+                };
+                data.Validate();
                 if (fileProfileImage.HasFile)
                 {
-                    string fileExt = Path.GetExtension(fileProfileImage.FileName).ToLower();
-                    if (fileExt != ".jpg" && fileExt != ".jpeg" && fileExt != ".png" && fileExt != ".webp")
-                    {
-                        ShowError("Please upload a valid image file (.jpg, .jpeg, .png, or .webp).");
-                        return;
-                    }
-
-                    if (fileProfileImage.PostedFile.ContentLength > 2 * 1024 * 1024)
-                    {
-                        ShowError("Profile picture size must be less than 2MB.");
-                        return;
-                    }
-
-                    string uploadDir = Server.MapPath("~/Uploads/Profiles/");
-                    if (!Directory.Exists(uploadDir))
-                    {
-                        Directory.CreateDirectory(uploadDir);
-                    }
-
-                    string uniqueFileName = $"user_{userId}_{Guid.NewGuid().ToString("N").Substring(0, 8)}{fileExt}";
-                    string fullPath = Path.Combine(uploadDir, uniqueFileName);
-                    fileProfileImage.SaveAs(fullPath);
-
-                    profileImagePath = $"~/Uploads/Profiles/{uniqueFileName}";
-                    hfExistingImagePath.Value = profileImagePath;
-                    imgProfilePreview.ImageUrl = ResolveUrl(profileImagePath);
+                    uploadedImage = ProfileImages.Save(fileProfileImage.PostedFile, userId, uploadDirectory);
+                    data.Profile.ProfileImagePath = uploadedImage;
                 }
-
-                // =========================================================================
-                // 2. Persist UserProfile using dedicated UserProfileRepository
-                // =========================================================================
-                DateTime? birthday = null;
-                if (!string.IsNullOrWhiteSpace(txtBirthday.Text) && DateTime.TryParse(txtBirthday.Text, out DateTime parsedBday))
+                if (!PortfolioSaveRepository.Save(data, actor.UserID, out string previousImage, out string error))
                 {
-                    birthday = parsedBday;
+                    if (!committed && uploadedImage != null) ProfileImages.Delete(uploadedImage, uploadDirectory);
+                    ShowError(error); return;
                 }
-
-                UserProfile existingProfile = UserProfileRepository.GetByUserId(userId, out _);
-                if (existingProfile != null)
+                committed = true;
+                if (uploadedImage != null && previousImage != uploadedImage) ProfileImages.Delete(previousImage, uploadDirectory);
+                if (actor.UserID == userId)
                 {
-                    existingProfile.FirstName = firstName;
-                    existingProfile.LastName = lastName;
-                    existingProfile.Birthday = birthday;
-                    existingProfile.Address = txtAddress.Text.Trim();
-                    existingProfile.ContactEmail = contactEmail;
-                    existingProfile.ContactNum = contactNum;
-                    existingProfile.ProfileImagePath = profileImagePath;
-                    existingProfile.Description = txtDescription.Text.Trim();
-                    existingProfile.IsPublic = chkIsPublic.Checked;
-
-                    if (!UserProfileRepository.Update(existingProfile, out string updateError))
-                    {
-                        ShowError($"Failed to update profile: {updateError}");
-                        return;
-                    }
+                    Session["FirstName"] = data.Profile.FirstName; Session["LastName"] = data.Profile.LastName;
+                    Session["FullName"] = data.Profile.FullName;
                 }
-                else
-                {
-                    UserProfile newProfile = new UserProfile
-                    {
-                        UserID = userId,
-                        FirstName = firstName,
-                        LastName = lastName,
-                        Birthday = birthday,
-                        Address = txtAddress.Text.Trim(),
-                        ContactEmail = contactEmail,
-                        ContactNum = contactNum,
-                        ProfileImagePath = profileImagePath,
-                        Description = txtDescription.Text.Trim(),
-                        IsPublic = chkIsPublic.Checked
-                    };
-
-                    if (!UserProfileRepository.Create(newProfile, out string createError))
-                    {
-                        ShowError($"Failed to create profile: {createError}");
-                        return;
-                    }
-                }
-
-                // Update Session state only if editing own profile
-                int loggedInUserId = (Session["UserID"] != null && int.TryParse(Session["UserID"].ToString(), out int lid)) ? lid : 0;
-                if (userId == loggedInUserId)
-                {
-                    Session["FirstName"] = firstName;
-                    Session["LastName"] = lastName;
-                    Session["FullName"] = $"{firstName} {lastName}".Trim();
-                }
-
-                var serializer = new JavaScriptSerializer();
-
-                // =========================================================================
-                // 3. Persist Education Records using EducationRepository
-                // =========================================================================
-                List<Education> existingEdu = EducationRepository.GetByUserId(userId, out _);
-                if (existingEdu != null)
-                {
-                    foreach (var edu in existingEdu)
-                    {
-                        EducationRepository.Delete(edu.EducationID, out _);
-                    }
-                }
-
-                if (!string.IsNullOrWhiteSpace(hfEducationsJson.Value))
-                {
-                    try
-                    {
-                        var eduItems = serializer.Deserialize<List<EducationInputDto>>(hfEducationsJson.Value);
-                        if (eduItems != null)
-                        {
-                            foreach (var item in eduItems)
-                            {
-                                if (!string.IsNullOrWhiteSpace(item.CourseName) && !string.IsNullOrWhiteSpace(item.University))
-                                {
-                                    Education edu = new Education
-                                    {
-                                        UserID = userId,
-                                        CourseName = item.CourseName.Trim(),
-                                        University = item.University.Trim(),
-                                        StartYear = string.IsNullOrWhiteSpace(item.StartYear) ? "2020" : item.StartYear.Trim(),
-                                        EndYear = item.EndYear?.Trim()
-                                    };
-                                    EducationRepository.Create(edu, out _);
-                                }
-                            }
-                        }
-                    }
-                    catch (Exception ex)
-                    {
-                        System.Diagnostics.Debug.WriteLine("Error parsing educations JSON: " + ex.Message);
-                    }
-                }
-
-                // =========================================================================
-                // 4. Persist Skills using SkillRepository
-                // =========================================================================
-                List<Skill> existingSkills = SkillRepository.GetByUserId(userId, out _);
-                if (existingSkills != null)
-                {
-                    foreach (var s in existingSkills)
-                    {
-                        SkillRepository.Delete(s.SkillID, out _);
-                    }
-                }
-
-                if (!string.IsNullOrWhiteSpace(hfSkillsJson.Value))
-                {
-                    try
-                    {
-                        var skillItems = serializer.Deserialize<List<SkillInputDto>>(hfSkillsJson.Value);
-                        if (skillItems != null)
-                        {
-                            foreach (var item in skillItems)
-                            {
-                                SaveSkillIfNotEmpty(userId, item.SkillName, item.SkillDescription);
-                            }
-                        }
-                    }
-                    catch (Exception ex)
-                    {
-                        System.Diagnostics.Debug.WriteLine("Error parsing skills JSON: " + ex.Message);
-                    }
-                }
-
-                // =========================================================================
-                // 5. Persist Affiliations using AffiliationRepository
-                // =========================================================================
-                List<Affiliation> existingAffiliations = AffiliationRepository.GetByUserId(userId, out _);
-                if (existingAffiliations != null)
-                {
-                    foreach (var a in existingAffiliations)
-                    {
-                        AffiliationRepository.Delete(a.AffiliationID, out _);
-                    }
-                }
-
-                if (!string.IsNullOrWhiteSpace(hfAffiliationsJson.Value))
-                {
-                    try
-                    {
-                        var affilItems = serializer.Deserialize<List<AffiliationInputDto>>(hfAffiliationsJson.Value);
-                        if (affilItems != null)
-                        {
-                            foreach (var item in affilItems)
-                            {
-                                SaveAffiliationIfNotEmpty(userId, item.OrganizationName, item.Position, item.StartYear, item.EndYear);
-                            }
-                        }
-                    }
-                    catch (Exception ex)
-                    {
-                        System.Diagnostics.Debug.WriteLine("Error parsing affiliations JSON: " + ex.Message);
-                    }
-                }
-
-                // =========================================================================
-                // 6. Persist Hobbies using HobbyRepository
-                // =========================================================================
-                List<Hobby> existingHobbies = HobbyRepository.GetByUserId(userId, out _);
-                if (existingHobbies != null)
-                {
-                    foreach (var h in existingHobbies)
-                    {
-                        HobbyRepository.Delete(h.HobbyID, out _);
-                    }
-                }
-
-                if (!string.IsNullOrWhiteSpace(hfHobbiesJson.Value))
-                {
-                    try
-                    {
-                        var hobbyItems = serializer.Deserialize<List<HobbyInputDto>>(hfHobbiesJson.Value);
-                        if (hobbyItems != null)
-                        {
-                            foreach (var item in hobbyItems)
-                            {
-                                SaveHobbyIfNotEmpty(userId, item.HobbyName, item.HobbyDescription);
-                            }
-                        }
-                    }
-                    catch (Exception ex)
-                    {
-                        System.Diagnostics.Debug.WriteLine("Error parsing hobbies JSON: " + ex.Message);
-                    }
-                }
-
-                // =========================================================================
-                // 7. Persist Social Links using SocialLinkRepository (Final Step)
-                // =========================================================================
-                List<SocialLink> existingLinks = SocialLinkRepository.GetByUserId(userId, out _);
-                if (existingLinks != null)
-                {
-                    foreach (var sl in existingLinks)
-                    {
-                        SocialLinkRepository.Delete(sl.SocialLinkID, out _);
-                    }
-                }
-
-                if (!string.IsNullOrWhiteSpace(hfSocialLinksJson.Value))
-                {
-                    try
-                    {
-                        var socialItems = serializer.Deserialize<List<SocialLinkInputDto>>(hfSocialLinksJson.Value);
-                        if (socialItems != null)
-                        {
-                            foreach (var item in socialItems)
-                            {
-                                SaveSocialLinkIfNotEmpty(userId, item.SocialLinkName, item.Link);
-                            }
-                        }
-                    }
-                    catch (Exception ex)
-                    {
-                        System.Diagnostics.Debug.WriteLine("Error parsing social links JSON: " + ex.Message);
-                    }
-                }
-
-                // =========================================================================
-                // 8. Result Handling
-                // =========================================================================
                 pnlSuccess.Visible = true;
-
-                if (redirectToDashboard)
-                {
-                    int currentSessionId = (Session["UserID"] != null && int.TryParse(Session["UserID"].ToString(), out int sid)) ? sid : 0;
-                    string targetUrl;
-                    if (userId == currentSessionId)
-                    {
-                        lblSuccessMessage.Text = "Portfolio details successfully saved! Redirecting to your portfolio...";
-                        targetUrl = "Portfolio.aspx";
-                    }
-                    else
-                    {
-                        lblSuccessMessage.Text = "User portfolio successfully updated! Redirecting to portfolio preview...";
-                        string targetToken = UrlObfuscator.EncodeUserId(userId);
-                        targetUrl = $"Portfolio.aspx?u={targetToken}";
-                    }
-
-                    string redirectScript = $"setTimeout(function(){{ window.location.href = '{targetUrl}'; }}, 1500);";
-                    ClientScript.RegisterStartupScript(this.GetType(), "OnboardingRedirect", redirectScript, true);
-                }
-                else
-                {
-                    lblSuccessMessage.Text = "Changes saved successfully! Your portfolio data has been updated in the database.";
-                }
+                lblSuccessMessage.Text = "Portfolio saved successfully. Redirecting to your portfolio…";
+                string target = "Portfolio.aspx?u=" + UrlObfuscator.EncodeUserId(userId);
+                ClientScript.RegisterStartupScript(GetType(), "OnboardingRedirect",
+                    "setTimeout(function(){window.location.href='" + target + "';},1500);", true);
             }
+            catch (ArgumentException ex) { if (!committed && uploadedImage != null) ProfileImages.Delete(uploadedImage, uploadDirectory); ShowError(ex.Message); }
             catch (Exception ex)
             {
-                ShowError($"An unexpected error occurred while saving: {ex.Message}");
-            }
-        }
-
-        private void SaveSkillIfNotEmpty(int userId, string skillName, string description)
-        {
-            if (!string.IsNullOrWhiteSpace(skillName))
-            {
-                SkillRepository.Create(new Skill
-                {
-                    UserID = userId,
-                    SkillName = skillName.Trim(),
-                    SkillDescription = description?.Trim()
-                }, out _);
-            }
-        }
-
-        private void SaveAffiliationIfNotEmpty(int userId, string orgName, string position, string startYear, string endYear)
-        {
-            if (!string.IsNullOrWhiteSpace(orgName) && !string.IsNullOrWhiteSpace(position))
-            {
-                AffiliationRepository.Create(new Affiliation
-                {
-                    UserID = userId,
-                    OrganizationName = orgName.Trim(),
-                    Position = position.Trim(),
-                    StartYear = string.IsNullOrWhiteSpace(startYear) ? "2022" : startYear.Trim(),
-                    EndYear = endYear?.Trim()
-                }, out _);
-            }
-        }
-
-        private void SaveHobbyIfNotEmpty(int userId, string hobbyName, string description)
-        {
-            if (!string.IsNullOrWhiteSpace(hobbyName))
-            {
-                HobbyRepository.Create(new Hobby
-                {
-                    UserID = userId,
-                    HobbyName = hobbyName.Trim(),
-                    HobbyDescription = description?.Trim()
-                }, out _);
-            }
-        }
-
-        private void SaveSocialLinkIfNotEmpty(int userId, string platformName, string url)
-        {
-            if (!string.IsNullOrWhiteSpace(url))
-            {
-                SocialLinkRepository.Create(new SocialLink
-                {
-                    UserID = userId,
-                    SocialLinkName = platformName,
-                    Link = url.Trim()
-                }, out _);
+                if (!committed && uploadedImage != null) ProfileImages.Delete(uploadedImage, uploadDirectory);
+                System.Diagnostics.Trace.TraceError("Portfolio editor failed: {0}", ex);
+                ShowError("The portfolio could not be saved. Please try again.");
             }
         }
 
         private void ShowError(string message)
         {
             pnlError.Visible = true;
-            lblErrorMessage.Text = message;
+            lblErrorMessage.Text = Server.HtmlEncode(message);
         }
 
-        private class EducationInputDto
-        {
-            public string CourseName { get; set; }
-            public string University { get; set; }
-            public string StartYear { get; set; }
-            public string EndYear { get; set; }
-        }
-
-        private class SkillInputDto
-        {
-            public string SkillName { get; set; }
-            public string SkillDescription { get; set; }
-        }
-
-        private class AffiliationInputDto
-        {
-            public string OrganizationName { get; set; }
-            public string Position { get; set; }
-            public string StartYear { get; set; }
-            public string EndYear { get; set; }
-        }
-
-        private class HobbyInputDto
-        {
-            public string HobbyName { get; set; }
-            public string HobbyDescription { get; set; }
-        }
-
-        private class SocialLinkInputDto
-        {
-            public string SocialLinkName { get; set; }
-            public string Link { get; set; }
-        }
     }
 }

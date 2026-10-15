@@ -1,4 +1,5 @@
 using System;
+using _241611JalopPersonalWebsite.Backend.Common;
 using System.Web.UI;
 using _241611JalopPersonalWebsite.Model;
 
@@ -10,7 +11,7 @@ namespace _241611JalopPersonalWebsite.Frontend.User.Controls
         {
             if (profile != null)
             {
-                litFullName.Text = profile.FullName;
+                litFullName.Text = Server.HtmlEncode(profile.FullName);
 
                 // Birthday
                 if (profile.Birthday.HasValue)
@@ -59,7 +60,7 @@ namespace _241611JalopPersonalWebsite.Frontend.User.Controls
                 // Profile Image
                 if (!string.IsNullOrWhiteSpace(profile.ProfileImagePath))
                 {
-                    imgAvatar.ImageUrl = ResolveUrl(profile.ProfileImagePath);
+                    imgAvatar.ImageUrl = ResolveUrl(InputSafety.SafeImageUrl(profile.ProfileImagePath));
                 }
             }
             else

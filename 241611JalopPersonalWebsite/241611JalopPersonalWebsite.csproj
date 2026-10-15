@@ -45,6 +45,8 @@
   <ItemGroup>
     <Reference Include="Microsoft.CSharp" />
     <Reference Include="System.Web.DynamicData" />
+    <Reference Include="PresentationCore" />
+    <Reference Include="WindowsBase" />
     <Reference Include="System.Web.Entity" />
     <Reference Include="System.Web.ApplicationServices" />
     <Reference Include="System.ComponentModel.DataAnnotations" />
@@ -89,12 +91,15 @@
     <Content Include="Frontend\Assets\css\public-dashboard.css" />
     <Content Include="Frontend\Assets\css\user-menu.css" />
     <Content Include="Frontend\Assets\js\login.js" />
+    <Content Include="Frontend\Assets\js\accessibility.js" />
+    <Content Include="Frontend\Assets\css\accessibility.css" />
     <Content Include="Frontend\Assets\js\signup.js" />
     <Content Include="Frontend\Assets\js\admin-dashboard.js" />
     <Content Include="Frontend\Assets\js\onboarding.js" />
     <Content Include="Frontend\Assets\js\portfolio.js" />
     <Content Include="Frontend\Assets\js\user-menu.js" />
     <Content Include="Default.aspx" />
+    <Content Include="Frontend\NotFound.aspx" />
     <Content Include="Frontend\Admin\Dashboard.aspx" />
     <Content Include="Frontend\Login\Login.aspx" />
     <Content Include="Frontend\Login\Signup.aspx" />
@@ -229,6 +234,13 @@
       <DependentUpon>UserMenu.ascx</DependentUpon>
     </Compile>
     <Compile Include="Backend\Common\UrlObfuscator.cs" />
+    <Compile Include="Backend\Common\InputSafety.cs" />
+    <Compile Include="Backend\Common\PasswordSecurity.cs" />
+    <Compile Include="Backend\Common\SessionSecurity.cs" />
+    <Compile Include="Backend\Common\ProfileImages.cs" />
+    <Compile Include="Backend\Model\PortfolioSaveData.cs" />
+    <Compile Include="Backend\Repository\PortfolioSaveRepository.cs" />
+    <Compile Include="Backend\Repository\PortfolioReadRepository.cs" />
     <Compile Include="Backend\Model\Affiliation.cs" />
     <Compile Include="Backend\Model\DashboardAnalytics.cs" />
     <Compile Include="Backend\Model\Education.cs" />

@@ -1,5 +1,5 @@
 # 🚀 Portfolio Maker
-http://pixyz-bit.runasp.net/Frontend/User/Portfolio.aspx?userId=1
+[Open Portfolio Maker](http://pixyz-bit.runasp.net/Frontend/User/PublicDashboard.aspx)
 
 An interactive, database-driven web application built with **ASP.NET Web Forms (C#)** and **Microsoft SQL Server** that empowers students, developers, and professionals to build, customize, and publish their personal portfolios without writing code.
 
@@ -12,7 +12,7 @@ Portfolio Maker transforms personal web presentation into a streamlined, automat
 - **Interactive 5-Step Onboarding:** Step-by-step wizard guiding users through personal details, avatar uploads, education credentials, skill proficiencies, organizational affiliations, hobbies, and social links.
 - **Modular Component Engine:** Public portfolios are dynamically rendered using modular ASP.NET User Controls (`.ascx`), ensuring lightweight page loads and reusable layout components.
 - **Real-Time Client & Server Validation:** Validates contact numbers (11 digits), email formatting, and required inputs with animated retro-brutalist toast notifications and inline feedback.
-- **100% Stored Procedure Architecture:** Data interactions are governed by parameterized SQL Server Stored Procedures via ADO.NET for robust security and performance.
+- **Parameterized Data Access:** ADO.NET uses stored procedures and parameterized SQL, with transactional portfolio saves and paginated directory queries.
 - **Self-Contained & Offline-Ready:** Embeds local typography and clean CSS tokens without external CDN dependencies.
 - **Role-Based Access Control:** Separate workflows for registered portfolio owners and administrative users with dashboard metrics.
 

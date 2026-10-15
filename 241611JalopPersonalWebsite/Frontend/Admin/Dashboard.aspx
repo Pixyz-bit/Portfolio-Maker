@@ -13,7 +13,9 @@
     <link rel="stylesheet" href="../Assets/fonts/fonts.css" />
 
     <link rel="stylesheet" href="../Assets/css/admin-dashboard.css" />
-    <link rel="stylesheet" href="<%= Page.ResolveUrl("~/Frontend/Assets/css/user-menu.css") %>?v=<%= DateTime.UtcNow.Ticks %>" />
+    <link rel="stylesheet" href="<%= Page.ResolveUrl("~/Frontend/Assets/css/user-menu.css") %>?v=20261013" />
+    <link rel="stylesheet" href="<%= ResolveUrl("~/Frontend/Assets/css/accessibility.css") %>" />
+    <script src="<%= ResolveUrl("~/Frontend/Assets/js/accessibility.js") %>" defer></script>
 </head>
 <body>
     <form id="adminForm" runat="server">
@@ -120,15 +122,15 @@
             <section class="content-card">
                 <div class="table-toolbar">
                     <div class="filter-group">
-                        <asp:TextBox ID="txtSearch" runat="server" CssClass="input-box search-input" placeholder="Search by name or email address..." autocomplete="off" />
-                        
-                        <asp:DropDownList ID="ddlStatusFilter" runat="server" CssClass="select-box">
+                        <asp:TextBox aria-label="Search user accounts" ID="txtSearch" runat="server" CssClass="input-box search-input" placeholder="Search by name or email address..." autocomplete="off" />
+
+                        <asp:DropDownList aria-label="Filter by account status" ID="ddlStatusFilter" runat="server" CssClass="select-box">
                             <asp:ListItem Value="" Text="All Statuses" />
                             <asp:ListItem Value="active" Text="Active Accounts" />
                             <asp:ListItem Value="inactive" Text="Deactivated Accounts" />
                         </asp:DropDownList>
 
-                        <asp:DropDownList ID="ddlRoleFilter" runat="server" CssClass="select-box">
+                        <asp:DropDownList aria-label="Filter by system role" ID="ddlRoleFilter" runat="server" CssClass="select-box">
                             <asp:ListItem Value="" Text="All Roles" />
                             <asp:ListItem Value="admin" Text="Administrators" />
                             <asp:ListItem Value="user" Text="Standard Users" />
@@ -154,34 +156,34 @@
                                 <tbody>
                         </HeaderTemplate>
                         <ItemTemplate>
-                            <tr class="user-data-row" 
-                                data-name="<%# Server.HtmlEncode((Eval("FullName")?.ToString() ?? "").ToLowerInvariant()) %>" 
-                                data-email="<%# Server.HtmlEncode((Eval("Email")?.ToString() ?? "").ToLowerInvariant()) %>" 
-                                data-role="<%# Server.HtmlEncode((Eval("Role")?.ToString() ?? "").ToLowerInvariant()) %>" 
+                            <tr class="user-data-row"
+                                data-name="<%# Server.HtmlEncode((Eval("FullName")?.ToString() ?? "").ToLowerInvariant()) %>"
+                                data-email="<%# Server.HtmlEncode((Eval("Email")?.ToString() ?? "").ToLowerInvariant()) %>"
+                                data-role="<%# Server.HtmlEncode((Eval("Role")?.ToString() ?? "").ToLowerInvariant()) %>"
                                 data-status="<%# (bool)Eval("IsActive") ? "active" : "inactive" %>">
                                 <td data-label="User Account">
-                                    <asp:LinkButton ID="btnUserClick" runat="server" 
-                                        CommandName="ViewSummary" 
-                                        CommandArgument='<%# Eval("UserID") %>' 
-                                        CssClass="user-cell-btn" 
+                                    <asp:LinkButton ID="btnUserClick" runat="server"
+                                        CommandName="ViewSummary"
+                                        CommandArgument='<%# Eval("UserID") %>'
+                                        CssClass="user-cell-btn"
                                         ToolTip="Click to view comprehensive user summary">
                                         <div class="user-initials">
-                                            <%# GetInitials(Eval("FirstName")?.ToString(), Eval("LastName")?.ToString(), Eval("Email")?.ToString()) %>
+                                            <%#: GetInitials(Eval("FirstName")?.ToString(), Eval("LastName")?.ToString(), Eval("Email")?.ToString()) %>
                                         </div>
                                         <div>
                                             <div class="user-name-cell">
-                                                <%# Eval("FullName") %>
+                                                <%#: Eval("FullName") %>
                                                 <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#64748b" stroke-width="2"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path><polyline points="15 3 21 3 21 9"></polyline><line x1="10" y1="14" x2="21" y2="3"></line></svg>
                                             </div>
                                             <div class="user-email-cell">
-                                                <%# Eval("Email") %>
+                                                <%#: Eval("Email") %>
                                             </div>
                                         </div>
                                     </asp:LinkButton>
                                 </td>
                                 <td data-label="Role">
                                     <span class="badge <%# string.Equals(Eval("Role")?.ToString(), "Admin", StringComparison.OrdinalIgnoreCase) ? "badge-admin" : "badge-user" %>">
-                                        <%# Eval("Role") %>
+                                        <%#: Eval("Role") %>
                                     </span>
                                 </td>
                                 <td data-label="Status">
@@ -195,9 +197,9 @@
                                 </td>
                                 <td data-label="Actions" style="white-space: nowrap; text-align: right;">
                                     <div class="actions-cell" style="justify-content: flex-end; flex-wrap: nowrap; white-space: nowrap; gap: 6px;">
-                                        <button type="button" 
+                                        <button type="button"
                                             class='<%# (bool)Eval("IsActive") ? "btn btn-danger btn-sm" : "btn btn-success btn-sm" %>'
-                                            onclick='openStatusModal(<%# Eval("UserID") %>, "<%# Server.HtmlEncode(Eval("FullName")?.ToString() ?? Eval("FirstName")?.ToString()) %>", "<%# Server.HtmlEncode(Eval("Email")?.ToString()) %>", <%# Eval("IsActive").ToString().ToLower() %>)'>
+                                            onclick='openStatusModal(<%# Eval("UserID") %>, "<%# EncodeScriptAttribute(Eval("FullName")?.ToString() ?? Eval("FirstName")?.ToString()) %>", "<%# EncodeScriptAttribute(Eval("Email")?.ToString()) %>", <%# Eval("IsActive").ToString().ToLower() %>)'>
                                             <%# (bool)Eval("IsActive") ? "Deactivate" : "Activate" %>
                                         </button>
 
@@ -208,7 +210,7 @@
                                         </a>
 
                                         <button type="button" class="btn btn-outline btn-sm"
-                                            onclick='openEditModal(<%# Eval("UserID") %>, "<%# Server.HtmlEncode(Eval("FirstName")?.ToString()) %>", "<%# Server.HtmlEncode(Eval("LastName")?.ToString()) %>", "<%# Server.HtmlEncode(Eval("Email")?.ToString()) %>", "<%# Eval("Role") %>", <%# Eval("IsActive").ToString().ToLower() %>)'
+                                            onclick='openEditModal(<%# Eval("UserID") %>, "<%# EncodeScriptAttribute(Eval("FirstName")?.ToString()) %>", "<%# EncodeScriptAttribute(Eval("LastName")?.ToString()) %>", "<%# EncodeScriptAttribute(Eval("Email")?.ToString()) %>", "<%# EncodeScriptAttribute(Eval("Role")?.ToString()) %>", <%# Eval("IsActive").ToString().ToLower() %>)'
                                             title="Edit user account credentials and role">
                                             Account
                                         </button>
@@ -244,7 +246,7 @@
         <asp:Panel ID="pnlUserSummaryModal" runat="server" Visible="false" CssClass="modal-overlay active">
             <div class="modal-box modal-box-lg">
                 <asp:LinkButton ID="btnCloseSummaryX" runat="server" CssClass="close-modal-btn" OnClick="btnCloseSummary_Click">&times;</asp:LinkButton>
-                
+
                 <h3 class="modal-title">User Account Summary</h3>
                 <p class="modal-desc">Detailed profile information, activity statistics, and administrative controls.</p>
 
@@ -336,8 +338,8 @@
                         <HeaderTemplate><ul style="padding-left: 18px; font-size: 0.88rem;"></HeaderTemplate>
                         <ItemTemplate>
                             <li style="margin-bottom: 4px;">
-                                <strong><%# Eval("CourseName") %></strong> at <%# Eval("University") %> 
-                                <span style="color: var(--text-muted);">(<%# Eval("StartYear") %> - <%# Eval("EndYear") %>)</span>
+                                <strong><%#: Eval("CourseName") %></strong> at <%#: Eval("University") %>
+                                <span style="color: var(--text-muted);">(<%#: Eval("StartYear") %> - <%#: Eval("EndYear") %>)</span>
                             </li>
                         </ItemTemplate>
                         <FooterTemplate></ul></FooterTemplate>
@@ -351,8 +353,8 @@
                         <HeaderTemplate><ul style="padding-left: 18px; font-size: 0.88rem;"></HeaderTemplate>
                         <ItemTemplate>
                             <li style="margin-bottom: 4px;">
-                                <strong><%# Eval("Position") %></strong> at <%# Eval("OrganizationName") %> 
-                                <span style="color: var(--text-muted);">(<%# FormatPeriod(Eval("StartYear"), Eval("EndYear")) %>)</span>
+                                <strong><%#: Eval("Position") %></strong> at <%#: Eval("OrganizationName") %>
+                                <span style="color: var(--text-muted);">(<%#: FormatPeriod(Eval("StartYear"), Eval("EndYear")) %>)</span>
                             </li>
                         </ItemTemplate>
                         <FooterTemplate></ul></FooterTemplate>
@@ -366,7 +368,7 @@
                         <div class="summary-pill-list">
                             <asp:Repeater ID="rptSummarySkills" runat="server">
                                 <ItemTemplate>
-                                    <span class="summary-pill"><%# Eval("SkillName") %></span>
+                                    <span class="summary-pill"><%#: Eval("SkillName") %></span>
                                 </ItemTemplate>
                             </asp:Repeater>
                             <asp:Label ID="lblNoSkills" runat="server" Text="No skills listed." Visible="false" ForeColor="#64748b" style="font-size: 0.85rem;" />
@@ -378,7 +380,7 @@
                         <div class="summary-pill-list">
                             <asp:Repeater ID="rptSummaryHobbies" runat="server">
                                 <ItemTemplate>
-                                    <span class="summary-pill"><%# Eval("HobbyName") %></span>
+                                    <span class="summary-pill"><%#: Eval("HobbyName") %></span>
                                 </ItemTemplate>
                             </asp:Repeater>
                             <asp:Label ID="lblNoHobbies" runat="server" Text="No hobbies listed." Visible="false" ForeColor="#64748b" style="font-size: 0.85rem;" />
@@ -391,9 +393,9 @@
                     <div class="summary-pill-list">
                         <asp:Repeater ID="rptSummarySocialLinks" runat="server">
                             <ItemTemplate>
-                                <a href='<%# FormatSocialUrl(Eval("Link")) %>' target="_blank" rel="noopener noreferrer" class="summary-pill summary-pill-link" title='<%# Eval("Link") %>'>
+                                <a href='<%# FormatSocialUrl(Eval("Link")) %>' target="_blank" rel="noopener noreferrer" class="summary-pill summary-pill-link" title='<%#: Eval("Link") %>'>
                                     <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path><polyline points="15 3 21 3 21 9"></polyline><line x1="10" y1="14" x2="21" y2="3"></line></svg>
-                                    <span><%# Eval("SocialLinkName") %></span>
+                                    <span><%#: Eval("SocialLinkName") %></span>
                                 </a>
                             </ItemTemplate>
                         </asp:Repeater>
@@ -405,7 +407,7 @@
                     <button type="button" id="btnSummaryStatusTrigger" runat="server" class="btn btn-sm" onclick="openStatusModalFromSummary()">
                         <asp:Literal ID="litSummaryStatusBtnText" runat="server" Text="Deactivate" />
                     </button>
-                    
+
                     <asp:HyperLink ID="lnkSummaryPortfolio" runat="server" Target="_blank" CssClass="btn btn-outline btn-sm">
                         View Portfolio
                     </asp:HyperLink>
@@ -421,7 +423,7 @@
                     <!--<button type="button" class="btn btn-danger btn-sm" onclick="openDeleteModalFromSummary()">
                         Delete
                     </button>-->
-                    
+
                     <asp:Button ID="btnCloseSummary" runat="server" Text="Close" CssClass="btn btn-solid btn-sm" OnClick="btnCloseSummary_Click" />
                 </div>
             </div>
@@ -429,8 +431,8 @@
 
         <div class="modal-overlay" id="statusModal">
             <div class="modal-box" style="max-width: 480px; text-align: center;">
-                <button type="button" class="close-modal-btn" onclick="closeStatusModal()">&times;</button>
-                
+                <button type="button" class="close-modal-btn" aria-label="Close dialog" onclick="closeStatusModal()">&times;</button>
+
                 <div id="statusModalIconWrap" style="width: 60px; height: 60px; border-radius: 50%; border: 2.5px solid #000; margin: 0 auto 16px; display: flex; align-items: center; justify-content: center; background-color: #fee2e2;">
                     <svg id="statusModalIconDeactivate" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#dc2626" stroke-width="2.5"><circle cx="12" cy="12" r="10"></circle><line x1="4.93" y1="4.93" x2="19.07" y2="19.07"></line></svg>
                     <svg id="statusModalIconActivate" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#16a34a" stroke-width="2.5" style="display: none;"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg>
@@ -455,8 +457,8 @@
 
         <div class="modal-overlay" id="deleteModal">
             <div class="modal-box" style="max-width: 480px; text-align: center;">
-                <button type="button" class="close-modal-btn" onclick="closeDeleteModal()">&times;</button>
-                
+                <button type="button" class="close-modal-btn" aria-label="Close dialog" onclick="closeDeleteModal()">&times;</button>
+
                 <div style="width: 60px; height: 60px; border-radius: 50%; border: 2.5px solid #000; margin: 0 auto 16px; display: flex; align-items: center; justify-content: center; background-color: #fee2e2;">
                     <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#dc2626" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
                         <polyline points="3 6 5 6 21 6"></polyline>
@@ -491,33 +493,33 @@
 
         <div class="modal-overlay" id="addModal">
             <div class="modal-box">
-                <button type="button" class="close-modal-btn" onclick="closeAddModal()">&times;</button>
+                <button type="button" class="close-modal-btn" aria-label="Close dialog" onclick="closeAddModal()">&times;</button>
                 <h3 class="modal-title">Create User Account</h3>
                 <p class="modal-desc">Provision a new account with specified administrative privileges.</p>
 
                 <div class="form-row">
                     <div>
-                        <label class="form-label">First Name</label>
+                        <label class="form-label" for="<%= txtAddFirstName.ClientID %>">First Name</label>
                         <asp:TextBox ID="txtAddFirstName" runat="server" CssClass="form-control" placeholder="Jane" />
                     </div>
                     <div>
-                        <label class="form-label">Last Name</label>
+                        <label class="form-label" for="<%= txtAddLastName.ClientID %>">Last Name</label>
                         <asp:TextBox ID="txtAddLastName" runat="server" CssClass="form-control" placeholder="Doe" />
                     </div>
                 </div>
 
                 <div class="form-group">
-                    <label class="form-label">Email Address</label>
+                    <label class="form-label" for="<%= txtAddEmail.ClientID %>">Email Address</label>
                     <asp:TextBox ID="txtAddEmail" runat="server" TextMode="Email" CssClass="form-control" placeholder="jane.doe@example.com" />
                 </div>
 
                 <div class="form-group">
-                    <label class="form-label">Initial Password</label>
+                    <label class="form-label" for="<%= txtAddPassword.ClientID %>">Initial Password</label>
                     <asp:TextBox ID="txtAddPassword" runat="server" TextMode="Password" CssClass="form-control" placeholder="Min. 6 characters" />
                 </div>
 
                 <div class="form-group">
-                    <label class="form-label">System Role</label>
+                    <label class="form-label" for="<%= ddlAddRole.ClientID %>">System Role</label>
                     <asp:DropDownList ID="ddlAddRole" runat="server" CssClass="form-control">
                         <asp:ListItem Value="User" Text="User (Standard Portfolio Owner)" />
                         <asp:ListItem Value="Admin" Text="Admin (Console & System Access)" />
@@ -538,7 +540,7 @@
 
         <div class="modal-overlay" id="editModal">
             <div class="modal-box">
-                <button type="button" class="close-modal-btn" onclick="closeEditModal()">&times;</button>
+                <button type="button" class="close-modal-btn" aria-label="Close dialog" onclick="closeEditModal()">&times;</button>
                 <h3 class="modal-title">Edit User Account</h3>
                 <p class="modal-desc">Update credentials, system role, and access status.</p>
 
@@ -546,22 +548,22 @@
 
                 <div class="form-row">
                     <div>
-                        <label class="form-label">First Name</label>
+                        <label class="form-label" for="<%= txtEditFirstName.ClientID %>">First Name</label>
                         <asp:TextBox ID="txtEditFirstName" runat="server" CssClass="form-control" />
                     </div>
                     <div>
-                        <label class="form-label">Last Name</label>
+                        <label class="form-label" for="<%= txtEditLastName.ClientID %>">Last Name</label>
                         <asp:TextBox ID="txtEditLastName" runat="server" CssClass="form-control" />
                     </div>
                 </div>
 
                 <div class="form-group">
-                    <label class="form-label">Email Address</label>
+                    <label class="form-label" for="<%= txtEditEmail.ClientID %>">Email Address</label>
                     <asp:TextBox ID="txtEditEmail" runat="server" TextMode="Email" CssClass="form-control" />
                 </div>
 
                 <div class="form-group">
-                    <label class="form-label">System Role</label>
+                    <label class="form-label" for="<%= ddlEditRole.ClientID %>">System Role</label>
                     <asp:DropDownList ID="ddlEditRole" runat="server" CssClass="form-control">
                         <asp:ListItem Value="User" Text="User (Standard Portfolio Owner)" />
                         <asp:ListItem Value="Admin" Text="Admin (Console & System Access)" />
@@ -580,10 +582,10 @@
                     </label>
                     <div class="form-row" style="margin-bottom: 0;">
                         <div>
-                            <asp:TextBox ID="txtEditNewPassword" runat="server" TextMode="Password" CssClass="form-control" placeholder="New password (min 6)" />
+                            <asp:TextBox aria-label="New password" ID="txtEditNewPassword" runat="server" TextMode="Password" CssClass="form-control" placeholder="New password (min 6)" />
                         </div>
                         <div>
-                            <asp:TextBox ID="txtEditConfirmPassword" runat="server" TextMode="Password" CssClass="form-control" placeholder="Confirm new password" />
+                            <asp:TextBox aria-label="Confirm new password" ID="txtEditConfirmPassword" runat="server" TextMode="Password" CssClass="form-control" placeholder="Confirm new password" />
                         </div>
                     </div>
                 </div>

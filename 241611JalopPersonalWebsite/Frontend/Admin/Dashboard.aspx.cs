@@ -8,8 +8,10 @@ using _241611JalopPersonalWebsite.Repository;
 
 namespace _241611JalopPersonalWebsite.Frontend.Admin
 {
-    public partial class Dashboard : Page
+    public partial class Dashboard : SecurePage
     {
+        protected override bool RequiresAdmin => true;
+
         protected void Page_Load(object sender, EventArgs e)
         {
             // Security verification: Ensure authenticated session has Admin role
@@ -26,9 +28,9 @@ namespace _241611JalopPersonalWebsite.Frontend.Admin
 
             if (!IsPostBack)
             {
-                litAdminName.Text = (adminProfile != null && !string.IsNullOrWhiteSpace(adminProfile.FullName))
+                litAdminName.Text = Server.HtmlEncode((adminProfile != null && !string.IsNullOrWhiteSpace(adminProfile.FullName))
                     ? adminProfile.FullName
-                    : (!string.IsNullOrWhiteSpace(Session["FullName"]?.ToString()) ? Session["FullName"].ToString() : "Administrator");
+                    : (!string.IsNullOrWhiteSpace(Session["FullName"]?.ToString()) ? Session["FullName"].ToString() : "Administrator"));
 
                 LoadAnalytics();
                 LoadUsers();
@@ -191,10 +193,10 @@ namespace _241611JalopPersonalWebsite.Frontend.Admin
             hfSummaryEmailRaw.Value = user.Email ?? string.Empty;
             hfSummaryRoleRaw.Value = user.Role ?? "User";
             litSummaryUserId.Text = userId.ToString();
-            litSummaryFullName.Text = !string.IsNullOrWhiteSpace(user.FullName) ? user.FullName : user.Email;
-            litSummaryEmail.Text = user.Email;
+            litSummaryFullName.Text = Server.HtmlEncode(!string.IsNullOrWhiteSpace(user.FullName) ? user.FullName : user.Email);
+            litSummaryEmail.Text = Server.HtmlEncode(user.Email);
             litSummaryCreatedAt.Text = FormatPhilippineTimeTwoRows(user.CreatedAt);
-            litSummaryAvatarInitials.Text = GetInitials(user.FirstName, user.LastName, user.Email);
+            litSummaryAvatarInitials.Text = Server.HtmlEncode(GetInitials(user.FirstName, user.LastName, user.Email));
 
             bool isAdmin = string.Equals(user.Role, "Admin", StringComparison.OrdinalIgnoreCase);
             litSummaryRoleBadge.Text = $"<span class='badge {(isAdmin ? "badge-admin" : "badge-user")}'>{user.Role}</span>";
@@ -203,9 +205,9 @@ namespace _241611JalopPersonalWebsite.Frontend.Admin
             // 5. Bind Personal Details
             if (profile != null)
             {
-                litSummaryContactEmail.Text = !string.IsNullOrWhiteSpace(profile.ContactEmail) ? profile.ContactEmail : user.Email;
-                litSummaryContactNum.Text = !string.IsNullOrWhiteSpace(profile.ContactNum) ? profile.ContactNum : "None specified";
-                litSummaryAddress.Text = !string.IsNullOrWhiteSpace(profile.Address) ? profile.Address : "None specified";
+                litSummaryContactEmail.Text = Server.HtmlEncode(!string.IsNullOrWhiteSpace(profile.ContactEmail) ? profile.ContactEmail : user.Email);
+                litSummaryContactNum.Text = Server.HtmlEncode(!string.IsNullOrWhiteSpace(profile.ContactNum) ? profile.ContactNum : "None specified");
+                litSummaryAddress.Text = Server.HtmlEncode(!string.IsNullOrWhiteSpace(profile.Address) ? profile.Address : "None specified");
                 
                 if (profile.Birthday.HasValue)
                 {
@@ -222,9 +224,9 @@ namespace _241611JalopPersonalWebsite.Frontend.Admin
             }
             else
             {
-                litSummaryContactEmail.Text = user.Email;
-                litSummaryContactNum.Text = "None specified";
-                litSummaryAddress.Text = "None specified";
+                litSummaryContactEmail.Text = Server.HtmlEncode(user.Email);
+                litSummaryContactNum.Text = Server.HtmlEncode("None specified");
+                litSummaryAddress.Text = Server.HtmlEncode("None specified");
                 litSummaryBirthday.Text = "Not specified";
                 litSummaryBio.Text = "Profile has not yet been initialized.";
             }
@@ -487,28 +489,22 @@ namespace _241611JalopPersonalWebsite.Frontend.Admin
             return $"{start} - {end}";
         }
 
-        public static string FormatSocialUrl(object rawUrl)
-        {
-            string url = rawUrl?.ToString()?.Trim() ?? string.Empty;
-            if (string.IsNullOrEmpty(url)) return "#";
-            if (!url.StartsWith("http://", StringComparison.OrdinalIgnoreCase) && !url.StartsWith("https://", StringComparison.OrdinalIgnoreCase))
-            {
-                return "https://" + url;
-            }
-            return url;
-        }
+        public static string EncodeScriptAttribute(string value) => System.Web.HttpUtility.HtmlAttributeEncode(System.Web.HttpUtility.JavaScriptStringEncode(value ?? string.Empty)).Replace("'", "&#39;");
+
+        public static string FormatSocialUrl(object rawUrl) => InputSafety.SafeWebUrl(rawUrl);
+
 
         private void ShowSuccess(string message)
         {
             pnlSuccess.Visible = true;
-            lblSuccessMessage.Text = message;
+            lblSuccessMessage.Text = Server.HtmlEncode(message);
             pnlError.Visible = false;
         }
 
         private void ShowError(string message)
         {
             pnlError.Visible = true;
-            lblErrorMessage.Text = message;
+            lblErrorMessage.Text = Server.HtmlEncode(message);
             pnlSuccess.Visible = false;
         }
 

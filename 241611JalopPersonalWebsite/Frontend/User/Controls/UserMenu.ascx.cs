@@ -28,18 +28,18 @@ namespace _241611JalopPersonalWebsite.Frontend.User.Controls
 
             if (profile != null)
             {
-                litFullName.Text = !string.IsNullOrWhiteSpace(profile.FullName) ? profile.FullName : "User";
-                litEmail.Text = !string.IsNullOrWhiteSpace(profile.ContactEmail) ? profile.ContactEmail : (email ?? string.Empty);
+                litFullName.Text = Server.HtmlEncode(!string.IsNullOrWhiteSpace(profile.FullName) ? profile.FullName : "User");
+                litEmail.Text = Server.HtmlEncode(email ?? string.Empty);
 
                 if (!string.IsNullOrWhiteSpace(profile.ProfileImagePath))
                 {
-                    imgAvatar.ImageUrl = ResolveUrl(profile.ProfileImagePath);
+                    imgAvatar.ImageUrl = ResolveUrl(InputSafety.SafeImageUrl(profile.ProfileImagePath));
                 }
             }
             else
             {
-                litFullName.Text = !string.IsNullOrWhiteSpace(Session["FullName"]?.ToString()) ? Session["FullName"].ToString() : "Welcome";
-                litEmail.Text = email ?? Session["UserEmail"]?.ToString() ?? string.Empty;
+                litFullName.Text = Server.HtmlEncode(!string.IsNullOrWhiteSpace(Session["FullName"]?.ToString()) ? Session["FullName"].ToString() : "Welcome");
+                litEmail.Text = Server.HtmlEncode(email ?? Session["UserEmail"]?.ToString() ?? string.Empty);
             }
 
             // Pre-populate Edit Account modal fields if not postback
@@ -47,9 +47,7 @@ namespace _241611JalopPersonalWebsite.Frontend.User.Controls
             {
                 txtAccountFirstName.Text = profile?.FirstName ?? Session["FirstName"]?.ToString() ?? string.Empty;
                 txtAccountLastName.Text = profile?.LastName ?? Session["LastName"]?.ToString() ?? string.Empty;
-                txtAccountEmail.Text = !string.IsNullOrWhiteSpace(profile?.ContactEmail) 
-                    ? profile.ContactEmail 
-                    : (email ?? Session["UserEmail"]?.ToString() ?? string.Empty);
+                txtAccountEmail.Text = email ?? Session["UserEmail"]?.ToString() ?? string.Empty;
             }
 
             bool isAdmin = string.Equals(Session["Role"]?.ToString(), "Admin", StringComparison.OrdinalIgnoreCase);
@@ -61,7 +59,7 @@ namespace _241611JalopPersonalWebsite.Frontend.User.Controls
 
             // Configure Portfolio Visibility
             bool isPublic = true;
-            if (profile != null)
+            if (profile != null && profile.UserID == activeTargetId)
             {
                 isPublic = profile.IsPublic;
             }
@@ -79,7 +77,7 @@ namespace _241611JalopPersonalWebsite.Frontend.User.Controls
 
             if (!IsPostBack)
             {
-                chkAccountIsPublic.Checked = isPublic;
+                chkAccountIsPublic.Checked = profile?.IsPublic ?? true;
             }
 
             if (isAdmin)
@@ -87,7 +85,7 @@ namespace _241611JalopPersonalWebsite.Frontend.User.Controls
                 lnkDashboard.Visible = true;
                 lnkDashboard.NavigateUrl = "~/Frontend/Admin/Dashboard.aspx";
                 litDashboardLabel.Text = "Admin Dashboard";
-                ddlAccountRole.SelectedValue = "Admin";
+                if (!IsPostBack) ddlAccountRole.SelectedValue = "Admin";
                 ddlAccountRole.Enabled = true;
                 chkAccountIsActive.Enabled = true;
             }
@@ -125,21 +123,13 @@ namespace _241611JalopPersonalWebsite.Frontend.User.Controls
 
         protected void btnToggleVisibility_Click(object sender, EventArgs e)
         {
-            int userId = CurrentTargetUserId;
-            if (userId <= 0 && Session["UserID"] != null && int.TryParse(Session["UserID"].ToString(), out int sId))
-            {
-                userId = sId;
-            }
-
-            if (userId > 0)
-            {
-                bool newVisibility = !IsCurrentPortfolioPublic;
-                if (UserProfileRepository.SetPortfolioVisibility(userId, newVisibility, out _))
-                {
-                    IsCurrentPortfolioPublic = newVisibility;
-                    Response.Redirect(Request.RawUrl);
-                }
-            }
+            int targetId = CurrentTargetUserId;
+            if (!SessionSecurity.CanEdit(SessionSecurity.CurrentUser(), targetId))
+            { ShowModalAlert("You do not have permission to change this portfolio's visibility.", true); return; }
+            // Toggle the current database state, rather than a potentially stale UI snapshot.
+            if (!UserProfileRepository.TogglePortfolioVisibility(targetId, out string error))
+            { ShowModalAlert(error, true); return; }
+            Response.Redirect(Request.RawUrl);
         }
 
         protected void btnSaveUserAccount_Click(object sender, EventArgs e)
@@ -150,6 +140,7 @@ namespace _241611JalopPersonalWebsite.Frontend.User.Controls
                 return;
             }
 
+            if (!SessionSecurity.CanEdit(SessionSecurity.CurrentUser(), userId)) { ShowModalAlert("Please sign in again.", true); return; }
             string firstName = txtAccountFirstName.Text.Trim();
             string lastName = txtAccountLastName.Text.Trim();
             string email = txtAccountEmail.Text.Trim();
@@ -187,11 +178,6 @@ namespace _241611JalopPersonalWebsite.Frontend.User.Controls
 
             if (UserRepository.AdminUpdateUser(userId, firstName, lastName, email, role, isActive, out string updateError))
             {
-                if (!string.IsNullOrEmpty(newPassword))
-                {
-                    UserRepository.AdminResetPassword(userId, newPassword, out _);
-                }
-
                 Session["FirstName"] = firstName;
                 Session["LastName"] = lastName;
                 Session["FullName"] = $"{firstName} {lastName}".Trim();
@@ -203,8 +189,18 @@ namespace _241611JalopPersonalWebsite.Frontend.User.Controls
                 }
 
                 // Save portfolio visibility choice
-                UserProfileRepository.SetPortfolioVisibility(userId, chkAccountIsPublic.Checked, out _);
+                if (!UserProfileRepository.SetPortfolioVisibility(userId, chkAccountIsPublic.Checked, out _))
+                { ShowModalAlert("Account details were saved, but portfolio visibility could not be updated. Please try again.", true); return; }
                 IsCurrentPortfolioPublic = chkAccountIsPublic.Checked;
+
+                if (!string.IsNullOrEmpty(newPassword))
+                {
+                    if (!UserRepository.AdminResetPassword(userId, newPassword, out _))
+                    { ShowModalAlert("Account details were updated, but the password could not be changed. Try again.", true); return; }
+                    Session.Clear();
+                    Response.Redirect("~/Frontend/Login/Login.aspx?msg=Password+changed.+Please+sign+in+again.");
+                    return;
+                }
 
                 // Redirect to current page to reflect updated name and credentials everywhere
                 Response.Redirect(Request.RawUrl);
@@ -220,7 +216,7 @@ namespace _241611JalopPersonalWebsite.Frontend.User.Controls
             pnlUserAccountModalMsg.Visible = true;
             pnlUserAccountModalMsg.CssClass = isError ? "user-account-toast alert-danger" : "user-account-toast alert-success";
             pnlUserAccountModalMsg.Style.Clear();
-            litUserAccountModalMsg.Text = message;
+            litUserAccountModalMsg.Text = Server.HtmlEncode(message);
 
             // Keep modal open so the user sees the validation message, and auto-dismiss toast after 5s
             string script = "openUserAccountModal(); setTimeout(function() { var t = document.getElementById('" + pnlUserAccountModalMsg.ClientID + "'); if(t) t.style.display='none'; }, 5000);";

@@ -102,21 +102,16 @@ namespace _241611JalopPersonalWebsite.Repository
         /// </summary>
         public static int ExecuteNonQueryCount(SqlCommand cmd)
         {
-            try
+            // Stored procedures use SELECT @@ROWCOUNT; execute once and preserve errors.
+            // Plain text commands use their native affected-row count.
+            if (cmd.CommandType == CommandType.StoredProcedure)
             {
-                object scalar = cmd.ExecuteScalar();
-                if (scalar != null && int.TryParse(scalar.ToString(), out int scalarCount))
-                {
-                    return scalarCount;
-                }
+                object result = cmd.ExecuteScalar();
+                if (result == null || result == DBNull.Value || !int.TryParse(result.ToString(), out int count))
+                    throw new InvalidOperationException("The stored procedure did not return an affected-row count.");
+                return count;
             }
-            catch
-            {
-                // Fallback for standard non-query statements without scalar results
-            }
-
-            int nonQuery = cmd.ExecuteNonQuery();
-            return nonQuery >= 0 ? nonQuery : 0;
+            return Math.Max(0, cmd.ExecuteNonQuery());
         }
 
         public static bool IsLocalEnvironment()

@@ -1,0 +1,6 @@
+JSON object parsed as skills count: 0
+Known default seed password authenticates administrator: True
+Admin overlong name accepted: True; stored length: 50
+Image re-encoding bytes: input=653825; stored PNG=6062589
+Account deletion returned success: True; avatar file remains: True
+Existing image assets decoded successfully: 11

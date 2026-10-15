@@ -45,7 +45,8 @@ namespace _241611JalopPersonalWebsite.Repository
             }
             catch (Exception ex)
             {
-                errorMessage = $"Database error: {ex.Message}";
+                System.Diagnostics.Trace.TraceError("Database operation failed: {0}", ex);
+                errorMessage = "The database operation could not be completed. Please try again.";
                 return analytics;
             }
         }
@@ -78,7 +79,8 @@ namespace _241611JalopPersonalWebsite.Repository
             }
             catch (Exception ex)
             {
-                errorMessage = $"Database error: {ex.Message}";
+                System.Diagnostics.Trace.TraceError("Database operation failed: {0}", ex);
+                errorMessage = "The database operation could not be completed. Please try again.";
                 return 0;
             }
         }
@@ -111,7 +113,8 @@ namespace _241611JalopPersonalWebsite.Repository
             }
             catch (Exception ex)
             {
-                errorMessage = $"Database error: {ex.Message}";
+                System.Diagnostics.Trace.TraceError("Database operation failed: {0}", ex);
+                errorMessage = "The database operation could not be completed. Please try again.";
                 return 0;
             }
         }
@@ -144,7 +147,8 @@ namespace _241611JalopPersonalWebsite.Repository
             }
             catch (Exception ex)
             {
-                errorMessage = $"Database error: {ex.Message}";
+                System.Diagnostics.Trace.TraceError("Database operation failed: {0}", ex);
+                errorMessage = "The database operation could not be completed. Please try again.";
                 return 0;
             }
         }

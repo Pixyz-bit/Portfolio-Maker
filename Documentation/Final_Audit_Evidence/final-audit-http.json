@@ -1,0 +1,260 @@
+[
+  {
+    "Area": "Onboarding",
+    "Case": "Save button btnSaveStep1",
+    "Result": "ACCEPTED",
+    "Details": "HTTP 200"
+  },
+  {
+    "Area": "Onboarding",
+    "Case": "Save button btnSaveStep2",
+    "Result": "ACCEPTED",
+    "Details": "HTTP 200"
+  },
+  {
+    "Area": "Onboarding",
+    "Case": "Save button btnSaveStep3",
+    "Result": "ACCEPTED",
+    "Details": "HTTP 200"
+  },
+  {
+    "Area": "Onboarding",
+    "Case": "Save button btnSaveStep4",
+    "Result": "ACCEPTED",
+    "Details": "HTTP 200"
+  },
+  {
+    "Area": "Onboarding",
+    "Case": "Save button btnSaveStep5",
+    "Result": "ACCEPTED",
+    "Details": "HTTP 200"
+  },
+  {
+    "Area": "Onboarding",
+    "Case": "Save button btnCompleteOnboarding",
+    "Result": "ACCEPTED",
+    "Details": "HTTP 200"
+  },
+  {
+    "Area": "Onboarding",
+    "Case": "Missing first name",
+    "Result": "REJECTED",
+    "Details": "HTTP 200"
+  },
+  {
+    "Area": "Onboarding",
+    "Case": "Invalid contact email",
+    "Result": "REJECTED",
+    "Details": "HTTP 200"
+  },
+  {
+    "Area": "Onboarding",
+    "Case": "Ten digit contact number",
+    "Result": "REJECTED",
+    "Details": "HTTP 200"
+  },
+  {
+    "Area": "Onboarding",
+    "Case": "Letters embedded in phone number",
+    "Result": "ACCEPTED",
+    "Details": "HTTP 200"
+  },
+  {
+    "Area": "Onboarding",
+    "Case": "Birthday in future",
+    "Result": "REJECTED",
+    "Details": "HTTP 200"
+  },
+  {
+    "Area": "Onboarding",
+    "Case": "Malformed birthday",
+    "Result": "REJECTED",
+    "Details": "HTTP 200"
+  },
+  {
+    "Area": "Onboarding",
+    "Case": "Birthday before 1900",
+    "Result": "REJECTED",
+    "Details": "HTTP 200"
+  },
+  {
+    "Area": "Onboarding",
+    "Case": "Biography over 20000 characters",
+    "Result": "REJECTED",
+    "Details": "HTTP 200"
+  },
+  {
+    "Area": "Onboarding",
+    "Case": "Literal HTML in biography",
+    "Result": "REJECTED",
+    "Details": "HTTP 500"
+  },
+  {
+    "Area": "Onboarding",
+    "Case": "Controlled validation for literal HTML",
+    "Result": "ISSUE",
+    "Details": "HTTP 500"
+  },
+  {
+    "Area": "Onboarding",
+    "Case": "JSON null array item",
+    "Result": "REJECTED",
+    "Details": "HTTP 200"
+  },
+  {
+    "Area": "Onboarding",
+    "Case": "JSON not an array",
+    "Result": "ACCEPTED",
+    "Details": "HTTP 200"
+  },
+  {
+    "Area": "Onboarding",
+    "Case": "Missing JSON payload",
+    "Result": "REJECTED",
+    "Details": "HTTP 200"
+  },
+  {
+    "Area": "Onboarding",
+    "Case": "101 skills",
+    "Result": "REJECTED",
+    "Details": "HTTP 200"
+  },
+  {
+    "Area": "Onboarding",
+    "Case": "Skill over 100 characters",
+    "Result": "REJECTED",
+    "Details": "HTTP 200"
+  },
+  {
+    "Area": "Onboarding",
+    "Case": "Unsafe social scheme",
+    "Result": "REJECTED",
+    "Details": "HTTP 200"
+  },
+  {
+    "Area": "Onboarding",
+    "Case": "Reversed education years",
+    "Result": "ACCEPTED",
+    "Details": "HTTP 200"
+  },
+  {
+    "Area": "Onboarding",
+    "Case": "Nonnumeric education year",
+    "Result": "ACCEPTED",
+    "Details": "HTTP 200"
+  },
+  {
+    "Area": "Onboarding",
+    "Case": "Unicode name and apostrophe",
+    "Result": "ACCEPTED",
+    "Details": "HTTP 200"
+  },
+  {
+    "Area": "Signup",
+    "Case": "Empty first name",
+    "Result": "REJECTED",
+    "Details": "HTTP 200"
+  },
+  {
+    "Area": "Signup",
+    "Case": "Invalid email",
+    "Result": "REJECTED",
+    "Details": "HTTP 200"
+  },
+  {
+    "Area": "Signup",
+    "Case": "Five character password",
+    "Result": "REJECTED",
+    "Details": "HTTP 200"
+  },
+  {
+    "Area": "Signup",
+    "Case": "Password mismatch",
+    "Result": "REJECTED",
+    "Details": "HTTP 200"
+  },
+  {
+    "Area": "Signup",
+    "Case": "Duplicate email",
+    "Result": "REJECTED",
+    "Details": "HTTP 200"
+  },
+  {
+    "Area": "Signup",
+    "Case": "Duplicate email feedback",
+    "Result": "ISSUE",
+    "Details": "Duplicate error should explain account already exists"
+  },
+  {
+    "Area": "Signup",
+    "Case": "51 character name",
+    "Result": "ACCEPTED",
+    "Details": "HTTP 200"
+  },
+  {
+    "Area": "Signup",
+    "Case": "Overlong name truncation",
+    "Result": "ISSUE",
+    "Details": "Stored length 50"
+  },
+  {
+    "Area": "Signup",
+    "Case": "Valid standard account",
+    "Result": "ACCEPTED",
+    "Details": "HTTP 200"
+  },
+  {
+    "Area": "Admin",
+    "Case": "Invalid password edit partially commits account",
+    "Result": "ISSUE",
+    "Details": "Name written before password validation"
+  },
+  {
+    "Area": "Admin",
+    "Case": "Status set False",
+    "Result": "PASS",
+    "Details": ""
+  },
+  {
+    "Area": "Admin",
+    "Case": "Status set True",
+    "Result": "PASS",
+    "Details": ""
+  },
+  {
+    "Area": "Account",
+    "Case": "Administrator reset password works",
+    "Result": "PASS",
+    "Details": ""
+  },
+  {
+    "Area": "Permissions",
+    "Case": "Standard user cannot access admin dashboard",
+    "Result": "PASS",
+    "Details": ""
+  },
+  {
+    "Area": "Permissions",
+    "Case": "Non-owner visibility switch shown",
+    "Result": "ISSUE",
+    "Details": "Server still denies mutation"
+  },
+  {
+    "Area": "Privacy",
+    "Case": "Deactivated public portfolio remains reachable",
+    "Result": "ISSUE",
+    "Details": ""
+  },
+  {
+    "Area": "Admin",
+    "Case": "Self-deactivation through own account settings",
+    "Result": "ISSUE",
+    "Details": ""
+  },
+  {
+    "Area": "Admin",
+    "Case": "Delete account cascades to profile",
+    "Result": "PASS",
+    "Details": ""
+  }
+]

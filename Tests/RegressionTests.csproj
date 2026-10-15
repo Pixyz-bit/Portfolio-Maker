@@ -1,0 +1,24 @@
+<Project ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFrameworkVersion>v4.7.2</TargetFrameworkVersion>
+    <OutputPath>bin\</OutputPath>
+    <AssemblyName>PortfolioRegressionTests</AssemblyName>
+    <LangVersion>latest</LangVersion>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="System" />
+    <Reference Include="System.Core" />
+    <Reference Include="System.Data" />
+    <Reference Include="System.Web" />
+    <Reference Include="System.Web.Extensions" />
+    <Reference Include="PresentationCore" />
+    <Reference Include="WindowsBase" />
+    <Compile Include="RegressionTests.cs" />
+    <ProjectReference Include="..\241611JalopPersonalWebsite\241611JalopPersonalWebsite.csproj">
+      <Project>{3AB94EA9-52C1-4F19-A26A-377958E73A52}</Project>
+      <Name>241611JalopPersonalWebsite</Name>
+    </ProjectReference>
+  </ItemGroup>
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+</Project>

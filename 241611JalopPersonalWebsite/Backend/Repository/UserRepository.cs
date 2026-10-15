@@ -1,4 +1,5 @@
 using System;
+using _241611JalopPersonalWebsite.Backend.Common;
 using System.Collections.Generic;
 using System.Data;
 using System.Data.SqlClient;
@@ -100,7 +101,8 @@ namespace _241611JalopPersonalWebsite.Repository
             }
             catch (Exception ex)
             {
-                errorMessage = ex.Message;
+                System.Diagnostics.Trace.TraceError("Database operation failed: {0}", ex);
+                errorMessage = "The database operation could not be completed. Please try again.";
                 return false;
             }
         }
@@ -160,9 +162,7 @@ namespace _241611JalopPersonalWebsite.Repository
                                 return false;
                             }
 
-                            string enteredPasswordHash = HashPassword(password).Trim();
-                            bool passwordMatches = string.Equals(dbPasswordHash, enteredPasswordHash, StringComparison.OrdinalIgnoreCase)
-                                                || string.Equals(dbPasswordHash, password.Trim(), StringComparison.Ordinal);
+                            bool passwordMatches = PasswordSecurity.Verify(password, dbPasswordHash, out bool needsUpgrade);
 
                             if (!passwordMatches)
                             {
@@ -170,12 +170,26 @@ namespace _241611JalopPersonalWebsite.Repository
                                 return false;
                             }
 
+                            reader.Close();
+                            if (needsUpgrade)
+                            {
+                                string upgraded = HashPassword(password);
+                                using (var upgrade = new SqlCommand("UPDATE dbo.Users SET PasswordHash=@New WHERE UserID=@ID AND PasswordHash=@Old AND IsActive=1; SELECT @@ROWCOUNT;", conn))
+                                {
+                                    upgrade.Parameters.Add("@New", SqlDbType.NVarChar,255).Value = upgraded;
+                                    upgrade.Parameters.Add("@Old", SqlDbType.NVarChar,255).Value = dbPasswordHash;
+                                    upgrade.Parameters.Add("@ID", SqlDbType.Int).Value = userId;
+                                    if (Convert.ToInt32(upgrade.ExecuteScalar()) != 1) { errorMessage = "Account changed. Please sign in again."; return false; }
+                                }
+                                dbPasswordHash = upgraded;
+                            }
                             authenticatedUser = new UserLogin
                             {
                                 UserID = userId,
                                 FirstName = firstName,
                                 LastName = lastName,
                                 Email = dbEmail,
+                                AuthenticationStamp = dbPasswordHash,
                                 Role = role,
                                 IsActive = isActive,
                                 CreatedAt = createdAt
@@ -188,7 +202,8 @@ namespace _241611JalopPersonalWebsite.Repository
             }
             catch (Exception ex)
             {
-                errorMessage = $"Database error: {ex.Message}";
+                System.Diagnostics.Trace.TraceError("Database operation failed: {0}", ex);
+                errorMessage = "The database operation could not be completed. Please try again.";
                 return false;
             }
         }
@@ -253,9 +268,7 @@ namespace _241611JalopPersonalWebsite.Repository
                         }
 
                         string dbHash = result.ToString();
-                        string currentHash = HashPassword(currentPassword);
-                        bool isCurrentValid = string.Equals(dbHash, currentHash, StringComparison.OrdinalIgnoreCase)
-                                           || string.Equals(dbHash, currentPassword, StringComparison.Ordinal);
+                        bool isCurrentValid = PasswordSecurity.Verify(currentPassword, dbHash, out _);
 
                         if (!isCurrentValid)
                         {
@@ -286,7 +299,8 @@ namespace _241611JalopPersonalWebsite.Repository
             }
             catch (Exception ex)
             {
-                errorMessage = $"Database error: {ex.Message}";
+                System.Diagnostics.Trace.TraceError("Database operation failed: {0}", ex);
+                errorMessage = "The database operation could not be completed. Please try again.";
                 return false;
             }
         }
@@ -338,7 +352,8 @@ namespace _241611JalopPersonalWebsite.Repository
             }
             catch (Exception ex)
             {
-                errorMessage = ex.Message;
+                System.Diagnostics.Trace.TraceError("Database operation failed: {0}", ex);
+                errorMessage = "The database operation could not be completed. Please try again.";
                 return false;
             }
         }
@@ -393,7 +408,8 @@ namespace _241611JalopPersonalWebsite.Repository
             }
             catch (Exception ex)
             {
-                errorMessage = $"Error retrieving user directory: {ex.Message}";
+                System.Diagnostics.Trace.TraceError("Database operation failed: {0}", ex);
+                errorMessage = "The database operation could not be completed. Please try again.";
             }
 
             return userList;
@@ -446,7 +462,8 @@ namespace _241611JalopPersonalWebsite.Repository
             }
             catch (Exception ex)
             {
-                errorMessage = $"Error retrieving user details: {ex.Message}";
+                System.Diagnostics.Trace.TraceError("Database operation failed: {0}", ex);
+                errorMessage = "The database operation could not be completed. Please try again.";
                 return null;
             }
         }
@@ -488,7 +505,8 @@ namespace _241611JalopPersonalWebsite.Repository
             }
             catch (Exception ex)
             {
-                errorMessage = $"Error changing user status: {ex.Message}";
+                System.Diagnostics.Trace.TraceError("Database operation failed: {0}", ex);
+                errorMessage = "The database operation could not be completed. Please try again.";
                 return false;
             }
         }
@@ -528,7 +546,8 @@ namespace _241611JalopPersonalWebsite.Repository
             }
             catch (Exception ex)
             {
-                errorMessage = $"Error updating user role: {ex.Message}";
+                System.Diagnostics.Trace.TraceError("Database operation failed: {0}", ex);
+                errorMessage = "The database operation could not be completed. Please try again.";
                 return false;
             }
         }
@@ -601,7 +620,8 @@ namespace _241611JalopPersonalWebsite.Repository
             }
             catch (Exception ex)
             {
-                errorMessage = ex.Message;
+                System.Diagnostics.Trace.TraceError("Database operation failed: {0}", ex);
+                errorMessage = "The database operation could not be completed. Please try again.";
                 return false;
             }
         }
@@ -666,7 +686,8 @@ namespace _241611JalopPersonalWebsite.Repository
             }
             catch (Exception ex)
             {
-                errorMessage = ex.Message;
+                System.Diagnostics.Trace.TraceError("Database operation failed: {0}", ex);
+                errorMessage = "The database operation could not be completed. Please try again.";
                 return false;
             }
         }
@@ -714,7 +735,8 @@ namespace _241611JalopPersonalWebsite.Repository
             }
             catch (Exception ex)
             {
-                errorMessage = $"Error resetting password: {ex.Message}";
+                System.Diagnostics.Trace.TraceError("Database operation failed: {0}", ex);
+                errorMessage = "The database operation could not be completed. Please try again.";
                 return false;
             }
         }
@@ -755,29 +777,12 @@ namespace _241611JalopPersonalWebsite.Repository
             }
             catch (Exception ex)
             {
-                errorMessage = $"Error deleting user: {ex.Message}";
+                System.Diagnostics.Trace.TraceError("Database operation failed: {0}", ex);
+                errorMessage = "The database operation could not be completed. Please try again.";
                 return false;
             }
         }
 
-        // =========================================================================
-        // 5. HELPER: SHA-256 Password Hashing
-        // =========================================================================
-        public static string HashPassword(string plainTextPassword)
-        {
-            if (string.IsNullOrEmpty(plainTextPassword))
-                return string.Empty;
-
-            using (SHA256 sha256 = SHA256.Create())
-            {
-                byte[] bytes = sha256.ComputeHash(Encoding.UTF8.GetBytes(plainTextPassword));
-                StringBuilder sb = new StringBuilder();
-                for (int i = 0; i < bytes.Length; i++)
-                {
-                    sb.Append(bytes[i].ToString("x2"));
-                }
-                return sb.ToString();
-            }
-        }
+        public static string HashPassword(string plainTextPassword) => PasswordSecurity.Hash(plainTextPassword);
     }
 }

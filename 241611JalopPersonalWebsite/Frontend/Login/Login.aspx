@@ -15,6 +15,8 @@
     <link rel="stylesheet" href="../Assets/css/login.css" />
 
     <script src="../Assets/js/login.js"></script>
+    <link rel="stylesheet" href="<%= ResolveUrl("~/Frontend/Assets/css/accessibility.css") %>" />
+    <script src="<%= ResolveUrl("~/Frontend/Assets/js/accessibility.js") %>" defer></script>
 </head>
 <body>
     <div class="login-container">

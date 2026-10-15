@@ -9,10 +9,10 @@
         <ItemTemplate>
             <div class="timeline-item">
                 <div class="timeline-row">
-                    <span class="timeline-primary"><%# Eval("CourseName") %></span>
-                    <span class="timeline-period"><%# FormatPeriod(Eval("StartYear"), Eval("EndYear")) %></span>
+                    <span class="timeline-primary"><%#: Eval("CourseName") %></span>
+                    <span class="timeline-period"><%#: FormatPeriod(Eval("StartYear"), Eval("EndYear")) %></span>
                 </div>
-                <div class="timeline-sub"><%# Eval("University") %></div>
+                <div class="timeline-sub"><%#: Eval("University") %></div>
             </div>
         </ItemTemplate>
         <FooterTemplate>

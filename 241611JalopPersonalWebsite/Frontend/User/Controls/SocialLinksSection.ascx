@@ -4,9 +4,9 @@
     <div class="connect-links">
         <asp:Repeater ID="rptSocialLinks" runat="server">
             <ItemTemplate>
-                <a href='<%# Eval("Link") %>' target="_blank" rel="noopener noreferrer" class="social-pill-btn">
+                <a href='<%# _241611JalopPersonalWebsite.Backend.Common.InputSafety.SafeWebUrl(Eval("Link")) %>' target="_blank" rel="noopener noreferrer" class="social-pill-btn">
                     <%# GetSocialIcon(Eval("SocialLinkName") as string) %>
-                    <span><%# Eval("SocialLinkName") %></span>
+                    <span><%#: Eval("SocialLinkName") %></span>
                 </a>
             </ItemTemplate>
         </asp:Repeater>

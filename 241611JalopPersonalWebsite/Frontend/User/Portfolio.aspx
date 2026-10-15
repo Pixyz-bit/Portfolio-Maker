@@ -19,8 +19,8 @@
     <!-- Local Offline Fonts: Plus Jakarta Sans & Inter -->
     <link rel="stylesheet" href="<%= Page.ResolveUrl("~/Frontend/Assets/fonts/fonts.css") %>" />
 
-    <link rel="stylesheet" href="<%= Page.ResolveUrl("~/Frontend/Assets/css/portfolio.css") %>?v=<%= DateTime.UtcNow.Ticks %>" />
-    <link rel="stylesheet" href="<%= Page.ResolveUrl("~/Frontend/Assets/css/user-menu.css") %>?v=<%= DateTime.UtcNow.Ticks %>" />
+    <link rel="stylesheet" href="<%= Page.ResolveUrl("~/Frontend/Assets/css/portfolio.css") %>?v=20261013" />
+    <link rel="stylesheet" href="<%= Page.ResolveUrl("~/Frontend/Assets/css/user-menu.css") %>?v=20261013" />
 
     <style>
         /* Top Navigation Button System matching nav-actions */
@@ -192,6 +192,8 @@
             flex-wrap: wrap;
         }
     </style>
+    <link rel="stylesheet" href="<%= ResolveUrl("~/Frontend/Assets/css/accessibility.css") %>" />
+    <script src="<%= ResolveUrl("~/Frontend/Assets/js/accessibility.js") %>" defer></script>
 </head>
 <body>
     <form id="portfolioForm" runat="server">

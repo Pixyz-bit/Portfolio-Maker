@@ -8,8 +8,8 @@
         </HeaderTemplate>
         <ItemTemplate>
             <div class="list-item">
-                <div class="list-title"><%# Eval("HobbyName") %></div>
-                <div class="list-desc"><%# Eval("HobbyDescription") %></div>
+                <div class="list-title"><%#: Eval("HobbyName") %></div>
+                <div class="list-desc"><%#: Eval("HobbyDescription") %></div>
             </div>
         </ItemTemplate>
         <FooterTemplate>

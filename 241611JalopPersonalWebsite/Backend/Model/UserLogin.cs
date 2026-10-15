@@ -12,6 +12,7 @@ namespace _241611JalopPersonalWebsite.Model
         public string LastName { get; set; }
         public string Email { get; set; }
         public string Password { get; set; }
+        public string AuthenticationStamp { get; set; }
         public string Role { get; set; } = "User";
         public bool IsActive { get; set; } = true;
         public DateTime CreatedAt { get; set; } = DateTime.UtcNow;

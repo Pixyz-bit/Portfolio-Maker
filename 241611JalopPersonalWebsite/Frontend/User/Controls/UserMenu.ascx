@@ -100,30 +100,30 @@
 <!-- EDIT USER ACCOUNT MODAL (Matching Photo 1) -->
 <div class="user-account-modal-overlay" id="userAccountModalOverlay" style="display: none;">
     <div class="user-account-modal-box">
-        <button type="button" class="user-account-close-btn" onclick="closeUserAccountModal()">&times;</button>
+        <button type="button" class="user-account-close-btn" aria-label="Close account settings" onclick="closeUserAccountModal()">&times;</button>
         
         <h3 class="user-account-modal-title">Edit User Account</h3>
         <p class="user-account-modal-desc">Update credentials, system role, and access status.</p>
 
         <div class="user-account-form-row">
             <div class="user-account-form-group">
-                <label class="user-account-label">First Name</label>
+                <label class="user-account-label" for="<%= txtAccountFirstName.ClientID %>">First Name</label>
                 <asp:TextBox ID="txtAccountFirstName" runat="server" CssClass="user-account-input" placeholder="First Name" />
             </div>
             <div class="user-account-form-group">
-                <label class="user-account-label">Last Name</label>
+                <label class="user-account-label" for="<%= txtAccountLastName.ClientID %>">Last Name</label>
                 <asp:TextBox ID="txtAccountLastName" runat="server" CssClass="user-account-input" placeholder="Last Name" />
             </div>
         </div>
 
         <div class="user-account-form-group" style="margin-bottom: 16px;">
-            <label class="user-account-label">Email Address</label>
+            <label class="user-account-label" for="<%= txtAccountEmail.ClientID %>">Email Address</label>
             <asp:TextBox ID="txtAccountEmail" runat="server" TextMode="Email" CssClass="user-account-input" placeholder="email@example.com" />
         </div>
 
         <asp:PlaceHolder ID="phAdminOnlyAccountFields" runat="server">
             <div class="user-account-form-group" style="margin-bottom: 16px;">
-                <label class="user-account-label">System Role</label>
+                <label class="user-account-label" for="<%= ddlAccountRole.ClientID %>">System Role</label>
                 <asp:DropDownList ID="ddlAccountRole" runat="server" CssClass="user-account-input">
                     <asp:ListItem Value="User" Text="User (Standard Portfolio Owner)" />
                     <asp:ListItem Value="Admin" Text="Administrator (Full Access)" />
@@ -150,10 +150,10 @@
 
         <div class="user-account-form-row" style="margin-bottom: 24px;">
             <div class="user-account-form-group">
-                <asp:TextBox ID="txtAccountNewPassword" runat="server" TextMode="Password" CssClass="user-account-input" placeholder="New password (min 6)" />
+                <asp:TextBox aria-label="New password" ID="txtAccountNewPassword" runat="server" TextMode="Password" CssClass="user-account-input" placeholder="New password (min 6)" />
             </div>
             <div class="user-account-form-group">
-                <asp:TextBox ID="txtAccountConfirmPassword" runat="server" TextMode="Password" CssClass="user-account-input" placeholder="Confirm new password" />
+                <asp:TextBox aria-label="Confirm new password" ID="txtAccountConfirmPassword" runat="server" TextMode="Password" CssClass="user-account-input" placeholder="Confirm new password" />
             </div>
         </div>
 
@@ -166,7 +166,7 @@
 
 <!-- Floating Lower-Right Toast Container for User Account Alerts -->
 <div class="user-account-toast-container" id="userAccountToastContainer">
-    <asp:Panel ID="pnlUserAccountModalMsg" runat="server" Visible="false" CssClass="user-account-toast">
+    <asp:Panel role="alert" ID="pnlUserAccountModalMsg" runat="server" Visible="false" CssClass="user-account-toast">
         <div class="user-account-toast-content">
             <span style="font-size: 1.1rem; line-height: 1;">&#9888;</span>
             <asp:Literal ID="litUserAccountModalMsg" runat="server" />

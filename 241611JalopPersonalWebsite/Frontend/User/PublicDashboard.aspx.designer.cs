@@ -62,5 +62,11 @@ namespace _241611JalopPersonalWebsite.Frontend.User
         /// pnlNoPortfolios control.
         /// </summary>
         protected global::System.Web.UI.WebControls.Panel pnlNoPortfolios;
+        protected global::System.Web.UI.WebControls.Panel pnlDirectoryError;
+        protected global::System.Web.UI.WebControls.Label lblDirectoryMessage;
+        protected global::System.Web.UI.WebControls.Panel pnlPagination;
+        protected global::System.Web.UI.WebControls.Button btnPreviousPage;
+        protected global::System.Web.UI.WebControls.Button btnNextPage;
+        protected global::System.Web.UI.WebControls.Literal litPageNumber;
     }
 }

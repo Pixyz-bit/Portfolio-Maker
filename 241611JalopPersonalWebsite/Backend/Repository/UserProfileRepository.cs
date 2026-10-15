@@ -87,7 +87,8 @@ namespace _241611JalopPersonalWebsite.Repository
             }
             catch (Exception ex)
             {
-                errorMessage = $"Database error: {ex.Message}";
+                System.Diagnostics.Trace.TraceError("Database operation failed: {0}", ex);
+                errorMessage = "The database operation could not be completed. Please try again.";
                 return false;
             }
         }
@@ -169,7 +170,8 @@ namespace _241611JalopPersonalWebsite.Repository
             }
             catch (Exception ex)
             {
-                errorMessage = $"Database error: {ex.Message}";
+                System.Diagnostics.Trace.TraceError("Database operation failed: {0}", ex);
+                errorMessage = "The database operation could not be completed. Please try again.";
                 return false;
             }
         }
@@ -213,7 +215,8 @@ namespace _241611JalopPersonalWebsite.Repository
             }
             catch (Exception ex)
             {
-                errorMessage = $"Database error: {ex.Message}";
+                System.Diagnostics.Trace.TraceError("Database operation failed: {0}", ex);
+                errorMessage = "The database operation could not be completed. Please try again.";
                 return null;
             }
         }
@@ -259,7 +262,8 @@ namespace _241611JalopPersonalWebsite.Repository
             }
             catch (Exception ex)
             {
-                errorMessage = $"Database error: {ex.Message}";
+                System.Diagnostics.Trace.TraceError("Database operation failed: {0}", ex);
+                errorMessage = "The database operation could not be completed. Please try again.";
                 return null;
             }
         }
@@ -270,104 +274,76 @@ namespace _241611JalopPersonalWebsite.Repository
         // 5. GET ALL PUBLIC PORTFOLIOS (Active users for public showcase)
         // =========================================================================
         public static List<PublicPortfolioItem> GetPublicPortfolios(string searchKeyword, out string errorMessage)
-        {
-            errorMessage = string.Empty;
-            List<PublicPortfolioItem> list = new List<PublicPortfolioItem>();
+            => GetPublicPortfolios(searchKeyword, 1, 12, out _, out errorMessage);
 
+        public static List<PublicPortfolioItem> GetPublicPortfolios(string searchKeyword, int page, int pageSize, out int total, out string errorMessage)
+        {
+            total = 0; errorMessage = string.Empty;
+            var list = new List<PublicPortfolioItem>();
+            var byId = new Dictionary<int, PublicPortfolioItem>();
+            string keyword = (searchKeyword ?? string.Empty).Trim();
+            if (keyword.Length > 255) keyword = keyword.Substring(0, 255);
+            string pattern = "%" + keyword.Replace("~", "~~").Replace("%", "~%").Replace("_", "~_").Replace("[", "~[") + "%";
+            const string filter = @"u.IsActive=1 AND ISNULL(p.IsPublic,1)=1 AND
+                (@Empty=1 OR CONCAT(p.FirstName,N' ',p.LastName) LIKE @Search ESCAPE '~' OR u.Email LIKE @Search ESCAPE '~'
+                OR p.Address LIKE @Search ESCAPE '~' OR p.Description LIKE @Search ESCAPE '~'
+                OR EXISTS(SELECT 1 FROM dbo.Skills k WHERE k.UserID=u.UserID AND k.SkillName LIKE @Search ESCAPE '~'))";
+            string sql = @"DECLARE @Total INT=(SELECT COUNT(*) FROM dbo.Users u LEFT JOIN dbo.UserProfiles p ON p.UserID=u.UserID WHERE " + filter + @");
+                DECLARE @LastPage INT=CASE WHEN @Total=0 THEN 1 ELSE (@Total-1)/@Size+1 END;
+                IF @Page>@LastPage SET @Page=@LastPage;
+                SELECT @Total;
+                SELECT u.UserID,u.Email,u.CreatedAt,ISNULL(p.FirstName,N'') FirstName,ISNULL(p.LastName,N'') LastName,
+                    ISNULL(p.Address,N'') Address,ISNULL(p.Description,N'') Description,ISNULL(p.ProfileImagePath,N'') ProfileImagePath
+                INTO #Page FROM dbo.Users u LEFT JOIN dbo.UserProfiles p ON p.UserID=u.UserID WHERE " + filter + @"
+                ORDER BY u.UserID DESC OFFSET (@Page-1)*@Size ROWS FETCH NEXT @Size ROWS ONLY;
+                SELECT * FROM #Page ORDER BY UserID DESC;
+                SELECT s.UserID,s.SkillName FROM dbo.Skills s INNER JOIN #Page p ON p.UserID=s.UserID ORDER BY s.SkillID;";
             try
             {
-                using (SqlConnection conn = DatabaseConnection.GetConnection())
+                using (var conn = DatabaseConnection.GetConnection())
+                using (var cmd = new SqlCommand(sql, conn))
                 {
+                    cmd.Parameters.Add("@Search", SqlDbType.NVarChar, 1024).Value = pattern;
+                    cmd.Parameters.Add("@Empty", SqlDbType.Bit).Value = keyword.Length == 0;
+                    cmd.Parameters.Add("@Page", SqlDbType.Int).Value = Math.Max(1, page);
+                    cmd.Parameters.Add("@Size", SqlDbType.Int).Value = Math.Max(1, Math.Min(50, pageSize));
                     conn.Open();
-
-                    string sql = @"
-                        SELECT u.UserID, u.Email, u.CreatedAt,
-                               ISNULL(p.FirstName, '') AS FirstName,
-                               ISNULL(p.LastName, '') AS LastName,
-                               ISNULL(p.Address, '') AS Address,
-                               ISNULL(p.Description, '') AS Description,
-                               ISNULL(p.ProfileImagePath, '') AS ProfileImagePath
-                        FROM dbo.Users u
-                        LEFT JOIN dbo.UserProfiles p ON u.UserID = p.UserID
-                        WHERE u.IsActive = 1 AND ISNULL(p.IsPublic, 1) = 1
-                        ORDER BY u.UserID DESC;
-                    ";
-
-                    Dictionary<int, PublicPortfolioItem> itemDict = new Dictionary<int, PublicPortfolioItem>();
-
-                    using (SqlCommand cmd = new SqlCommand(sql, conn))
-                    using (SqlDataReader reader = cmd.ExecuteReader())
+                    using (var reader = cmd.ExecuteReader())
                     {
+                        if (reader.Read()) total = reader.GetInt32(0);
+                        reader.NextResult();
                         while (reader.Read())
                         {
-                            int uId = reader.GetInt32(reader.GetOrdinal("UserID"));
-                            var item = new PublicPortfolioItem
-                            {
-                                UserID = uId,
-                                Email = reader.GetString(reader.GetOrdinal("Email")),
-                                CreatedAt = reader.IsDBNull(reader.GetOrdinal("CreatedAt")) ? DateTime.UtcNow : reader.GetDateTime(reader.GetOrdinal("CreatedAt")),
-                                FirstName = reader.GetString(reader.GetOrdinal("FirstName")),
-                                LastName = reader.GetString(reader.GetOrdinal("LastName")),
-                                Address = reader.GetString(reader.GetOrdinal("Address")),
-                                Description = reader.GetString(reader.GetOrdinal("Description")),
-                                ProfileImagePath = reader.GetString(reader.GetOrdinal("ProfileImagePath")),
-                                ObfuscatedToken = UrlObfuscator.EncodeUserId(uId)
-                            };
-
-                            itemDict[uId] = item;
-                            list.Add(item);
+                            int id = (int)reader["UserID"];
+                            var item = new PublicPortfolioItem { UserID=id, Email=(string)reader["Email"], CreatedAt=(DateTime)reader["CreatedAt"],
+                                FirstName=(string)reader["FirstName"], LastName=(string)reader["LastName"], Address=(string)reader["Address"],
+                                Description=(string)reader["Description"], ProfileImagePath=(string)reader["ProfileImagePath"], ObfuscatedToken=UrlObfuscator.EncodeUserId(id) };
+                            list.Add(item); byId[id]=item;
                         }
-                    }
-
-                    // Retrieve skills for these users
-                    if (itemDict.Count > 0)
-                    {
-                        string skillsSql = @"
-                            SELECT s.UserID, s.SkillName
-                            FROM dbo.Skills s
-                            INNER JOIN dbo.Users u ON s.UserID = u.UserID
-                            WHERE u.IsActive = 1
-                            ORDER BY s.SkillID ASC;
-                        ";
-
-                        using (SqlCommand skillCmd = new SqlCommand(skillsSql, conn))
-                        using (SqlDataReader skillReader = skillCmd.ExecuteReader())
-                        {
-                            while (skillReader.Read())
-                            {
-                                int sUserId = skillReader.GetInt32(skillReader.GetOrdinal("UserID"));
-                                string sName = skillReader.GetString(skillReader.GetOrdinal("SkillName"));
-                                if (itemDict.TryGetValue(sUserId, out var pItem))
-                                {
-                                    if (!string.IsNullOrWhiteSpace(sName))
-                                    {
-                                        pItem.Skills.Add(sName);
-                                    }
-                                }
-                            }
-                        }
-                    }
-
-                    // Filter in memory if searchKeyword provided
-                    if (!string.IsNullOrWhiteSpace(searchKeyword))
-                    {
-                        string kw = searchKeyword.Trim().ToLowerInvariant();
-                        list = list.FindAll(i =>
-                            i.FullName.ToLowerInvariant().Contains(kw) ||
-                            i.Email.ToLowerInvariant().Contains(kw) ||
-                            i.Address.ToLowerInvariant().Contains(kw) ||
-                            i.Description.ToLowerInvariant().Contains(kw) ||
-                            i.Skills.Exists(s => s.ToLowerInvariant().Contains(kw))
-                        );
+                        reader.NextResult();
+                        while (reader.Read()) if (byId.TryGetValue((int)reader["UserID"], out var item)) item.Skills.Add((string)reader["SkillName"]);
                     }
                 }
             }
-            catch (Exception ex)
-            {
-                errorMessage = $"Error retrieving public portfolios: {ex.Message}";
-            }
-
+            catch (Exception ex) { System.Diagnostics.Trace.TraceError("Directory search failed: {0}", ex); errorMessage="Portfolios could not be loaded. Please try again."; }
             return list;
+        }
+
+        public static bool TogglePortfolioVisibility(int userId, out string errorMessage)
+        {
+            errorMessage = string.Empty;
+            try
+            {
+                using (var conn = DatabaseConnection.GetConnection())
+                using (var cmd = new SqlCommand("UPDATE dbo.UserProfiles SET IsPublic=CASE WHEN IsPublic=1 THEN 0 ELSE 1 END, UpdatedAt=SYSUTCDATETIME() WHERE UserID=@ID", conn))
+                {
+                    cmd.Parameters.Add("@ID", SqlDbType.Int).Value=userId; conn.Open();
+                    if (cmd.ExecuteNonQuery()>0) return true;
+                    errorMessage="Portfolio not found.";
+                }
+            }
+            catch (Exception ex) { System.Diagnostics.Trace.TraceError("Visibility update failed: {0}", ex); errorMessage="Visibility could not be changed. Please try again."; }
+            return false;
         }
 
         private static bool _isPublicColumnChecked = false;
@@ -409,7 +385,6 @@ namespace _241611JalopPersonalWebsite.Repository
 
             try
             {
-                EnsureIsPublicColumnExists();
                 using (SqlConnection conn = DatabaseConnection.GetConnection())
                 {
                     conn.Open();
@@ -431,7 +406,8 @@ namespace _241611JalopPersonalWebsite.Repository
             }
             catch (Exception ex)
             {
-                errorMessage = $"Database error: {ex.Message}";
+                System.Diagnostics.Trace.TraceError("Database operation failed: {0}", ex);
+                errorMessage = "The database operation could not be completed. Please try again.";
                 return false;
             }
         }

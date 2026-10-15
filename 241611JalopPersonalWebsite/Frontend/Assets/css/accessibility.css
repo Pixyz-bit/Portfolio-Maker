@@ -11,6 +11,24 @@
     gap: 16px;
     margin: 28px 0;
 }
+.form-error {
+    color: #991b1b;
+    background: #fef2f2;
+    border: 1px solid currentColor;
+    border-radius: 8px;
+    padding: 12px;
+    margin: 12px 0 16px;
+    overflow-wrap: anywhere;
+}
+[aria-invalid="true"] { border-color: #991b1b !important; }
+:is(.btn,.btn-sm,.step-item,.user-menu-btn,.menu-item,.visibility-toggle-btn,.close-modal-btn,.toast-close-btn,.toggle-password,.password-toggle-btn,.btn-remove) {
+    min-width: 44px;
+    min-height: 44px;
+}
+button, input[type="submit"] { min-width: 44px; min-height: 44px; }
+:is(input:not([type="checkbox"]):not([type="radio"]):not([type="hidden"]):not([type="file"]), select) { min-height: 44px; }
+.form-hint { font-size: .875rem; line-height: 1.5; }
+label[for*="chk"] { min-height: 44px; display: inline-flex; align-items: center; }
 @media (max-width: 640px) {
     .step-item { min-width: 44px; min-height: 44px; }
     .step-indicator { max-width: 100%; overflow-x: auto; padding: 6px 4px; }

@@ -32,19 +32,7 @@ function togglePasswordVisibility(inputId, button) {
             }
         }
 
-        function handleSignupError() {
-            showLoadingScreen('Validating Registration...', 'Checking account availability...');
-            setTimeout(function () {
-                hideLoadingScreen();
-                var errToast = document.querySelector('.toast-box.toast-error');
-                if (errToast) {
-                    setTimeout(function () {
-                        var btn = errToast.querySelector('.toast-close-btn');
-                        if (btn) dismissToast(btn);
-                    }, 5000);
-                }
-            }, 650);
-        }
+        function handleSignupError() { hideLoadingScreen(); }
 
         function handleSignupSuccess() {
             showLoadingScreen('Account Created!', 'Redirecting you to sign in...');

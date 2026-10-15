@@ -37,13 +37,26 @@
                 previousFocus.set(dialog, document.activeElement);
                 openDialogs.push(dialog);
                 var field = dialog.querySelector('input:not([type="hidden"]):not([type="submit"]),select,textarea');
-                var target = field && visible(field) ? field : focusable(dialog)[0];
+                var invalid = dialog.querySelector('[aria-invalid="true"]');
+                var target = invalid && visible(invalid) ? invalid : field && visible(field) ? field : focusable(dialog)[0];
                 if (!target) { dialog.tabIndex = -1; target = dialog; }
                 target.focus();
             } else if (!isOpen && index >= 0) {
                 openDialogs.splice(index, 1);
                 var previous = previousFocus.get(dialog);
-                if (previous && previous.isConnected && visible(previous)) previous.focus();
+                if (previous && previous !== document.body && previous !== document.documentElement && previous.isConnected && visible(previous)) previous.focus();
+                else {
+                    // A full-page validation postback loses the original opener.
+                    var opener = dialog.id === 'addModal' ? document.querySelector('button[onclick="openAddModal()"]') : null;
+                    if (dialog.id === 'editModal') {
+                        var target = document.querySelector('input[id$="hfEditUserId"]');
+                        opener = Array.from(document.querySelectorAll('button[onclick]')).find(function (button) {
+                            return target && button.getAttribute('onclick').indexOf('openEditModal(' + target.value + ',') === 0;
+                        });
+                    }
+                    opener = opener || document.getElementById('btnUserMenuToggle');
+                    if (opener && visible(opener)) opener.focus();
+                }
             }
         });
     }
@@ -76,6 +89,11 @@
     document.addEventListener('DOMContentLoaded', function () {
         labelFields(document);
         syncDialogs();
+        document.querySelectorAll('button svg,a svg').forEach(function (icon) { icon.setAttribute('aria-hidden','true'); icon.setAttribute('focusable','false'); });
+        if (!openDialogs.length) {
+            var error = Array.from(document.querySelectorAll('[role="alert"]')).find(visible);
+            if (error) { error.tabIndex=-1; error.focus(); }
+        }
         new MutationObserver(syncDialogs).observe(document.body, { subtree: true, attributes: true, attributeFilter: ['style', 'class'] });
     });
     window.PortfolioAccessibility = { labelFields: labelFields };

@@ -5,7 +5,7 @@ function getEl(id) {
 var currentStep = 1;
         var totalSteps = 5;
 
-        function setStep(step) {
+        function setStep(step, focusContent) {
             currentStep = step;
             getEl('hfCurrentStep').value = step;
 
@@ -16,6 +16,7 @@ var currentStep = 1;
                 if (sec) sec.classList.remove('active-step');
                 if (ind) {
                     ind.classList.remove('active');
+                    ind.removeAttribute('aria-current');
                     if (i < step) ind.classList.add('completed');
                     else ind.classList.remove('completed');
                 }
@@ -25,7 +26,7 @@ var currentStep = 1;
             var activeSec = document.getElementById('step' + step);
             var activeInd = document.getElementById('indicator' + step);
             if (activeSec) activeSec.classList.add('active-step');
-            if (activeInd) activeInd.classList.add('active');
+            if (activeInd) { activeInd.classList.add('active'); activeInd.setAttribute('aria-current','step'); }
 
             // Update connector lines between bubbles
             for (var j = 1; j < totalSteps; j++) {
@@ -39,26 +40,31 @@ var currentStep = 1;
                 }
             }
 
-            window.scrollTo({ top: 0, behavior: 'smooth' });
+            if (focusContent && activeSec) {
+                var heading = activeSec.querySelector('.section-title');
+                if (heading) { heading.tabIndex=-1; heading.focus({ preventScroll: true }); }
+            }
+            var reducedMotion = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+            window.scrollTo({ top: 0, behavior: reducedMotion ? 'auto' : 'smooth' });
         }
 
         function nextStep(current) {
             if (validateStep(current)) {
                 if (current < totalSteps) {
-                    setStep(current + 1);
+                    setStep(current + 1, true);
                 }
             }
         }
 
         function prevStep(current) {
             if (current > 1) {
-                setStep(current - 1);
+                setStep(current - 1, true);
             }
         }
 
         function jumpToStep(step) {
             // Allow jumping freely between steps
-            setStep(step);
+            setStep(step, true);
         }
 
         function escapeToastHtml(str) {
@@ -103,12 +109,12 @@ var currentStep = 1;
                     '<span class="toast-title">' + escapeToastHtml(title || (isError ? 'Validation Error' : 'Notice')) + '</span>' +
                     '<span class="toast-message">' + escapeToastHtml(message) + '</span>' +
                 '</div>' +
-                '<button type="button" class="toast-close-btn" onclick="dismissToast(this)">&times;</button>';
+                '<button type="button" class="toast-close-btn" aria-label="Dismiss message" onclick="dismissToast(this)">&times;</button>';
 
             container.appendChild(toast);
 
             // Auto dismiss after 5 seconds
-            setTimeout(function () {
+            if (!isError) setTimeout(function () {
                 var btn = toast.querySelector('.toast-close-btn');
                 if (btn) dismissToast(btn);
             }, 5000);
@@ -577,7 +583,7 @@ var currentStep = 1;
             }
 
             // Auto-dismiss any active toasts after 5 seconds
-            var activeToasts = document.querySelectorAll('.toast-box');
+            var activeToasts = document.querySelectorAll('.toast-box.toast-success');
             activeToasts.forEach(function (t) {
                 setTimeout(function () {
                     var btn = t.querySelector('.toast-close-btn');

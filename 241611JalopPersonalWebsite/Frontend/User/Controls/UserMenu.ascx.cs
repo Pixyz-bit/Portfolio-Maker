@@ -33,7 +33,7 @@ namespace _241611JalopPersonalWebsite.Frontend.User.Controls
 
                 if (!string.IsNullOrWhiteSpace(profile.ProfileImagePath))
                 {
-                    imgAvatar.ImageUrl = ResolveUrl(InputSafety.SafeImageUrl(profile.ProfileImagePath));
+                    imgAvatar.ImageUrl = ResolveUrl(ProfileImages.Url(profile.UserID, profile.ProfileImagePath));
                 }
             }
             else
@@ -87,7 +87,10 @@ namespace _241611JalopPersonalWebsite.Frontend.User.Controls
                 litDashboardLabel.Text = "Admin Dashboard";
                 if (!IsPostBack) ddlAccountRole.SelectedValue = "Admin";
                 ddlAccountRole.Enabled = true;
-                chkAccountIsActive.Enabled = true;
+                // Account Settings always edits the signed-in account. Status changes
+                // belong in the user directory, where a different account is selected.
+                chkAccountIsActive.Checked = true;
+                chkAccountIsActive.Enabled = false;
             }
             else
             {
@@ -99,6 +102,7 @@ namespace _241611JalopPersonalWebsite.Frontend.User.Controls
 
             phEditAccountBtn.Visible = canEditAccount;
             lnkEditPortfolio.Visible = canEditPortfolio;
+            menuVisibilityCard.Visible = canEditPortfolio && SessionSecurity.CanEdit(SessionSecurity.CurrentUser(), activeTargetId);
 
             if (targetUserId > 0 && targetUserId != currentUserId && isAdmin)
             {
@@ -150,6 +154,9 @@ namespace _241611JalopPersonalWebsite.Frontend.User.Controls
             bool isAdmin = string.Equals(Session["Role"]?.ToString(), "Admin", StringComparison.OrdinalIgnoreCase);
             string role = isAdmin ? ddlAccountRole.SelectedValue : (Session["Role"]?.ToString() ?? "User");
             bool isActive = isAdmin ? chkAccountIsActive.Checked : true;
+
+            if (!isActive)
+            { ShowModalAlert("You cannot deactivate your own active session.", true); return; }
 
             if (string.IsNullOrWhiteSpace(firstName))
             {
@@ -218,8 +225,8 @@ namespace _241611JalopPersonalWebsite.Frontend.User.Controls
             pnlUserAccountModalMsg.Style.Clear();
             litUserAccountModalMsg.Text = Server.HtmlEncode(message);
 
-            // Keep modal open so the user sees the validation message, and auto-dismiss toast after 5s
-            string script = "openUserAccountModal(); setTimeout(function() { var t = document.getElementById('" + pnlUserAccountModalMsg.ClientID + "'); if(t) t.style.display='none'; }, 5000);";
+            // Errors stay available until corrected or the dialog is dismissed.
+            string script = "openUserAccountModal();";
             ScriptManager.RegisterStartupScript(this.Page, this.GetType(), "OpenUserAccountModalOnError", script, true);
         }
     }

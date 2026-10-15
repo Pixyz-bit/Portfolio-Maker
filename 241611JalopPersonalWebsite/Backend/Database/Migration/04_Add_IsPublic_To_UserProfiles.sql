@@ -4,8 +4,7 @@
 -- 2. Updates stored procedures to support portfolio visibility
 -- ==========================================================
 
-USE IPTPersonalWebsite;
-GO
+-- Uses the selected connection database; see manifest.txt for execution order.
 
 -- 1. Add IsPublic Column (Defaults to 1 = Public)
 IF COL_LENGTH(N'dbo.UserProfiles', N'IsPublic') IS NULL

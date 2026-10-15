@@ -14,8 +14,8 @@
 
     <link rel="stylesheet" href="../Assets/css/public-dashboard.css" />
     <link rel="stylesheet" href="<%= Page.ResolveUrl("~/Frontend/Assets/css/user-menu.css") %>?v=20261013" />
-    <link rel="stylesheet" href="<%= ResolveUrl("~/Frontend/Assets/css/accessibility.css") %>" />
-    <script src="<%= ResolveUrl("~/Frontend/Assets/js/accessibility.js") %>" defer></script>
+    <link rel="stylesheet" href="<%= ResolveUrl("~/Frontend/Assets/css/accessibility.css") %>?v=20261015e" />
+    <script src="<%= ResolveUrl("~/Frontend/Assets/js/accessibility.js") %>?v=20261015e" defer></script>
 </head>
 <body>
     <form id="publicDashboardForm" runat="server">
@@ -87,7 +87,7 @@
                                     <div class="card-top">
                                         <div class="card-avatar">
                                             <%# !string.IsNullOrWhiteSpace(Eval("ProfileImagePath")?.ToString()) 
-                                                ? $"<img src='{Server.HtmlEncode(ResolveUrl(_241611JalopPersonalWebsite.Backend.Common.InputSafety.SafeImageUrl(Eval("ProfileImagePath").ToString())))}' alt='{Server.HtmlEncode(Eval("FullName")?.ToString())}' />"
+                                                ? $"<img src='{Server.HtmlEncode(ResolveUrl(_241611JalopPersonalWebsite.Backend.Common.ProfileImages.Url(Convert.ToInt32(Eval("UserID")), Eval("ProfileImagePath").ToString())))}' alt='{Server.HtmlEncode(Eval("FullName")?.ToString())}' />"
                                                 : Server.HtmlEncode(Eval("Initials")?.ToString()) %>
                                         </div>
                                         <div class="card-user-info">
@@ -135,8 +135,8 @@
                     </div>
 
                     <asp:Panel ID="pnlNoPortfolios" runat="server" Visible="false" CssClass="empty-state">
-                        <h3>No public portfolios available</h3>
-                        <p>No portfolios are currently toggled public. Check back soon!</p>
+                        <h3><asp:Literal ID="litEmptyDirectoryTitle" runat="server" /></h3>
+                        <p><asp:Literal ID="litEmptyDirectoryDescription" runat="server" /></p>
                     </asp:Panel>
                 </div>
             </section>

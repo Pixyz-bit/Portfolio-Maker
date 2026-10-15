@@ -68,5 +68,7 @@ namespace _241611JalopPersonalWebsite.Frontend.User
         protected global::System.Web.UI.WebControls.Button btnPreviousPage;
         protected global::System.Web.UI.WebControls.Button btnNextPage;
         protected global::System.Web.UI.WebControls.Literal litPageNumber;
+        protected global::System.Web.UI.WebControls.Literal litEmptyDirectoryTitle;
+        protected global::System.Web.UI.WebControls.Literal litEmptyDirectoryDescription;
     }
 }

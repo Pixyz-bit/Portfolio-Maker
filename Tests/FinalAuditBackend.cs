@@ -22,7 +22,9 @@ internal static class FinalAuditBackend
         using(var output=new StreamWriter(Path.Combine(root,"Tests/Temp/final-audit-backend.txt")))
         {
             Action<string> report=s=>{Console.WriteLine(s);output.WriteLine(s);output.Flush();};
-            report("JSON object parsed as skills count: "+PortfolioSaveData.ParseSection<Skill>("{}","Skills").Count);
+            bool objectRejected=false;
+            try { PortfolioSaveData.ParseSection<Skill>("{}","Skills"); } catch(ArgumentException) { objectRejected=true; }
+            report("JSON object rejected without clearing skills: "+objectRejected);
             bool seeded=UserRepository.Login("admin@iptwebsite.com","admin123",out var seededUser,out _);
             report("Known default seed password authenticates administrator: "+(seeded&&seededUser.Role=="Admin"));
             bool created=UserRepository.AdminCreateUser(new string('N',70),"Fixture","backend-long@example.test","Example-password","User",true,out string error);

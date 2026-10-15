@@ -30,7 +30,7 @@ foreach($case in @(
     @{Name='Renamed nonimage';File='fake.jpg';Bytes=[Text.Encoding]::UTF8.GetBytes('not an image');Mime='image/jpeg'},
     @{Name='Disallowed extension';File='fake.txt';Bytes=[Text.Encoding]::UTF8.GetBytes('not an image');Mime='text/plain'},
     @{Name='Over 2 MB';File='large.png';Bytes=[byte[]]::new(2097153);Mime='image/png'},
-    @{Name='Valid PNG';File='portrait.png';Bytes=[IO.File]::ReadAllBytes((Join-Path $PSScriptRoot 'Temp/Site/Uploads/Profiles/audit-private.png'));Mime='image/png'}
+    @{Name='Valid PNG';File='portrait.png';Bytes=[IO.File]::ReadAllBytes((Join-Path $PSScriptRoot '../241611JalopPersonalWebsite/Uploads/Profiles/user_11_52f2c6ad.png'));Mime='image/png'}
 )) {
     $fields=Get-AuditFields (Request-Audit '/Frontend/User/Onboarding.aspx').Content
     $fields.btnSaveStep1='Save & Exit'

@@ -26,17 +26,7 @@ namespace _241611JalopPersonalWebsite.Repository
                 return false;
             }
 
-            if (string.IsNullOrWhiteSpace(profile.FirstName))
-            {
-                errorMessage = "First Name is required.";
-                return false;
-            }
-
-            if (string.IsNullOrWhiteSpace(profile.LastName))
-            {
-                errorMessage = "Last Name is required.";
-                return false;
-            }
+            if (!InputSafety.ValidateNames(profile.FirstName, profile.LastName, out errorMessage)) return false;
 
             try
             {
@@ -110,17 +100,7 @@ namespace _241611JalopPersonalWebsite.Repository
                 return false;
             }
 
-            if (string.IsNullOrWhiteSpace(profile.FirstName))
-            {
-                errorMessage = "First Name is required.";
-                return false;
-            }
-
-            if (string.IsNullOrWhiteSpace(profile.LastName))
-            {
-                errorMessage = "Last Name is required.";
-                return false;
-            }
+            if (!InputSafety.ValidateNames(profile.FirstName, profile.LastName, out errorMessage)) return false;
 
             try
             {

@@ -12,8 +12,8 @@
     <link rel="stylesheet" href="../Assets/fonts/fonts.css" />
 
     <link rel="stylesheet" href="../Assets/css/user-dashboard.css" />
-    <link rel="stylesheet" href="<%= ResolveUrl("~/Frontend/Assets/css/accessibility.css") %>" />
-    <script src="<%= ResolveUrl("~/Frontend/Assets/js/accessibility.js") %>" defer></script>
+    <link rel="stylesheet" href="<%= ResolveUrl("~/Frontend/Assets/css/accessibility.css") %>?v=20261015e" />
+    <script src="<%= ResolveUrl("~/Frontend/Assets/js/accessibility.js") %>?v=20261015e" defer></script>
 </head>
 <body>
     <div class="dashboard-container">

@@ -90,5 +90,16 @@ namespace _241611JalopPersonalWebsite.Frontend.Admin
         protected global::System.Web.UI.WebControls.TextBox txtEditNewPassword;
         protected global::System.Web.UI.WebControls.TextBox txtEditConfirmPassword;
         protected global::System.Web.UI.WebControls.Button btnUpdateUser;
+        protected global::System.Web.UI.WebControls.Literal litNoUsersTitle;
+        protected global::System.Web.UI.WebControls.Literal litNoUsersDescription;
+        protected global::System.Web.UI.WebControls.Panel pnlUsersPagination;
+        protected global::System.Web.UI.WebControls.Button btnSearchUsers;
+        protected global::System.Web.UI.WebControls.Button btnPreviousUsers;
+        protected global::System.Web.UI.WebControls.Button btnNextUsers;
+        protected global::System.Web.UI.WebControls.Literal litUsersPage;
+        protected global::System.Web.UI.WebControls.Panel pnlAddError;
+        protected global::System.Web.UI.WebControls.Literal litAddError;
+        protected global::System.Web.UI.WebControls.Panel pnlEditError;
+        protected global::System.Web.UI.WebControls.Literal litEditError;
     }
 }

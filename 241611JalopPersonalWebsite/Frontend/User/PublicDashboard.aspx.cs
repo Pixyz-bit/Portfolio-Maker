@@ -75,6 +75,9 @@ namespace _241611JalopPersonalWebsite.Frontend.User
             pnlPagination.Visible = total > PageSize;
             lblDirectoryMessage.Text = Server.HtmlEncode(error);
             pnlDirectoryError.Visible = !string.IsNullOrEmpty(error);
+            bool searching = !string.IsNullOrWhiteSpace(search);
+            litEmptyDirectoryTitle.Text = searching ? "No matching public portfolios" : "No public portfolios available";
+            litEmptyDirectoryDescription.Text = searching ? "Try another keyword or reset your search to see all public portfolios." : "No portfolios are currently public. Check back soon!";
 
             if (string.IsNullOrEmpty(error) && portfolios != null && portfolios.Count > 0)
             {
@@ -86,7 +89,8 @@ namespace _241611JalopPersonalWebsite.Frontend.User
             {
                 rptPortfolios.DataSource = null;
                 rptPortfolios.DataBind();
-                pnlNoPortfolios.Visible = true;
+                pnlNoPortfolios.Visible = string.IsNullOrEmpty(error);
+                if (!string.IsNullOrEmpty(error)) pnlPagination.Visible = false;
             }
         }
 

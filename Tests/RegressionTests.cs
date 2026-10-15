@@ -8,6 +8,7 @@ using System.Text;
 using System.Text.RegularExpressions;
 using System.Web;
 using System.Web.SessionState;
+using System.Threading.Tasks;
 using _241611JalopPersonalWebsite.Backend.Common;
 using _241611JalopPersonalWebsite.Model;
 using _241611JalopPersonalWebsite.Repository;
@@ -29,10 +30,14 @@ internal static class RegressionTests
             connection = master.Replace("Initial Catalog=master", "Initial Catalog=" + database);
             Environment.SetEnvironmentVariable("SQLCONNSTR_DefaultConnection", connection);
             string schema = File.ReadAllText(Path.Combine(root, "241611JalopPersonalWebsite/Backend/Database/Migration/01_Schema.sql"));
-            RunBatches(schema.Substring(schema.IndexOf("-- 3. Create Users Table", StringComparison.Ordinal)));
-            foreach (var migration in new[] { "02_Alter_Profile_Affiliations_SocialLinks.sql", "04_Add_IsPublic_To_UserProfiles.sql", "03_StoredProcedures.sql" })
-                RunBatches(Regex.Replace(File.ReadAllText(Path.Combine(root, "241611JalopPersonalWebsite/Backend/Database/Migration/" + migration)), @"(?im)^\s*USE\s+[^\r\n]+;\s*$", ""));
-            TestPasswords(); TestSaves(); TestSearch(); TestExecuteOnce(); TestSessions(); TestImages();
+            foreach (var migration in File.ReadAllLines(Path.Combine(root,"241611JalopPersonalWebsite/Backend/Database/Migration/manifest.txt")))
+            {
+                string script=File.ReadAllText(Path.Combine(root,"241611JalopPersonalWebsite/Backend/Database/Migration",migration));
+                Assert(!Regex.IsMatch(script,@"(?im)^\s*(USE|CREATE\s+DATABASE)\b"), "migration keeps selected database: " + migration);
+                RunBatches(script);
+            }
+            TestBootstrap(); TestPasswords(); TestSaves(); TestSchemaRerun(schema); TestAdministrators(); TestSearch(); TestExecuteOnce(); TestSessions(); TestImages();
+            TestAccountValidation(); TestAdminPagingAndSummary(); TestImageDeletion();
             var readBack = PortfolioReadRepository.Load(Convert.ToInt32(Sql("SELECT UserID FROM dbo.Users WHERE Email=N'owner@example.test'")));
             Assert(readBack.Profile.FirstName == "Mira" && readBack.Educations.Count == 1 && readBack.SocialLinks.Count == 1, "batched portfolio reader returns profile and sections");
             if (args.Length > 1 && args[1] == "--prepare-web")
@@ -70,6 +75,49 @@ internal static class RegressionTests
     private static object Sql(string sql) { using (var conn = new SqlConnection(connection)) { conn.Open(); return new SqlCommand(sql, conn).ExecuteScalar(); } }
     private static void RunBatches(string sql) { foreach (string batch in Regex.Split(sql, @"^\s*GO\s*$", RegexOptions.Multiline | RegexOptions.IgnoreCase)) if (!string.IsNullOrWhiteSpace(batch)) Sql(batch); }
     private static string Legacy(string password) { using (var sha = SHA256.Create()) return BitConverter.ToString(sha.ComputeHash(Encoding.UTF8.GetBytes(password))).Replace("-", "").ToLowerInvariant(); }
+    private static void TestBootstrap()
+    {
+        Assert(Convert.ToInt32(Sql("SELECT COUNT(*) FROM dbo.Users")) == 0, "fresh schema seeds no accounts or predictable credentials");
+        Assert(!UserRepository.Login("admin@iptwebsite.com", "admin123", out _, out _), "old default administrator credential cannot log in");
+        Assert(!AdministratorSetup.CreateFirst("Local", "Operator", "bootstrap@example.test", "short", out _), "bootstrap rejects short password");
+        Assert(AdministratorSetup.CreateFirst("Local", "Operator", "bootstrap@example.test", "Unique-test-password", out _), "operator can create first administrator with supplied credentials");
+        Assert(UserRepository.Login("bootstrap@example.test", "Unique-test-password", out var admin, out _) && admin.Role == "Admin" && admin.AuthenticationStamp.StartsWith("pbkdf2-sha256$"), "bootstrap administrator authenticates with a salted password hash");
+        Assert(!AdministratorSetup.CreateFirst("Other", "Operator", "second-bootstrap@example.test", "Unique-test-password", out _) && Convert.ToInt32(Sql("SELECT COUNT(*) FROM dbo.Users WHERE Role=N'Admin'")) == 1, "bootstrap cannot be reused after an administrator exists");
+    }
+    private static void TestSchemaRerun(string schema)
+    {
+        int owner = Convert.ToInt32(Sql("SELECT UserID FROM dbo.Users WHERE Email=N'owner@example.test'"));
+        Sql("INSERT dbo.Skills(UserID,SkillName) VALUES(" + owner + ",N'Preserved skill')");
+        string[] tables = { "Users", "UserProfiles", "Skills", "Educations", "Hobbies", "Affiliations", "SocialLinks" };
+        var counts = new Dictionary<string,int>();
+        foreach (var table in tables) counts[table] = Convert.ToInt32(Sql("SELECT COUNT(*) FROM dbo." + table));
+        RunBatches(schema);
+        foreach (var table in tables) Assert(Convert.ToInt32(Sql("SELECT COUNT(*) FROM dbo." + table)) == counts[table], "schema rerun preserves " + table + " rows");
+        Assert(Convert.ToString(Sql("SELECT SkillName FROM dbo.Skills WHERE UserID=" + owner)) == "Preserved skill", "schema rerun preserves existing content values");
+    }
+    private static void TestAdministrators()
+    {
+        int actor = Convert.ToInt32(Sql("SELECT UserID FROM dbo.Users WHERE Email=N'bootstrap@example.test'"));
+        string stamp = Convert.ToString(Sql("SELECT PasswordHash FROM dbo.Users WHERE UserID=" + actor));
+        Assert(UserRepository.AdminCreateUser("Backup", "Admin", "backup-admin@example.test", "Example-password", "Admin", true, out _), "backup administrator created for guard tests");
+        int backup = Convert.ToInt32(Sql("SELECT UserID FROM dbo.Users WHERE Email=N'backup-admin@example.test'"));
+        Context(actor, stamp);
+        Assert(!UserRepository.AdminUpdateUser(actor,"Changed","Operator","bootstrap@example.test","Admin",false,out var error) && error.Contains("own active session"), "account-settings repository path rejects self-deactivation even with another admin");
+        Assert(Convert.ToString(Sql("SELECT FirstName FROM dbo.UserProfiles WHERE UserID=" + actor)) == "Local", "rejected self-deactivation makes no partial account/profile change");
+        Assert(!UserRepository.ToggleUserStatus(actor,false,out _) && !UserRepository.DeleteUser(actor,out _), "other status/delete paths reject own active session");
+        Sql("UPDATE dbo.Users SET IsActive=0 WHERE UserID=" + backup);
+        Assert(!UserRepository.UpdateUserRole(actor,"User",out _) && !UserRepository.AdminUpdateUser(actor,"Local","Operator","bootstrap@example.test","User",true,out _), "all role-edit paths preserve last active administrator");
+        HttpContext.Current = null;
+        Assert(!UserRepository.ToggleUserStatus(actor,false,out _) && !UserRepository.DeleteUser(actor,out _), "last-admin guard also protects status and deletion without a web session");
+        Sql("UPDATE dbo.Users SET IsActive=1 WHERE UserID=" + backup);
+        bool first=false, second=false;
+        Task.WaitAll(Task.Run(() => { HttpContext.Current=null; first=UserRepository.UpdateUserRole(actor,"User",out _); }),
+            Task.Run(() => { HttpContext.Current=null; second=UserRepository.UpdateUserRole(backup,"User",out _); }));
+        Assert(first != second && Convert.ToInt32(Sql("SELECT COUNT(*) FROM dbo.Users WHERE Role=N'Admin' AND IsActive=1")) == 1, "concurrent admin demotions cannot remove both active administrators");
+        Sql("UPDATE dbo.Users SET Role=N'Admin' WHERE UserID=" + actor);
+        Sql("UPDATE dbo.Users SET Role=N'User' WHERE UserID=" + backup);
+        Assert(UserRepository.ToggleUserStatus(backup,false,out _) && UserRepository.ToggleUserStatus(backup,true,out _), "ordinary account activation/deactivation still works");
+    }
     private static void TestPasswords()
     {
         string first = PasswordSecurity.Hash("Example-password"), second = PasswordSecurity.Hash("Example-password");
@@ -94,6 +142,10 @@ internal static class RegressionTests
     }
     private static void TestSaves()
     {
+        foreach (var json in new[] { "{}", "{\"skills\":[]}", "null", "1", "\"text\"", "true", "[null]", "[1]", "[[]]" })
+            Reject(() => PortfolioSaveData.ParseSection<Skill>(json,"Skills"), "non-array or non-object section payload rejected: " + json);
+        Assert(PortfolioSaveData.ParseSection<Skill>(" \r\n [] ", "Skills").Count == 0, "explicit empty array remains valid");
+        Assert(PortfolioSaveData.ParseSection<Skill>("[{\"skillName\":\"C#\"}]", "Skills")[0].SkillName == "C#", "valid object array remains valid");
         Reject(() => PortfolioSaveData.ParseSection<Skill>("{bad", "Skills"), "malformed section rejected before writes");
         Reject(() => PortfolioSaveData.ParseSection<Skill>("[null]", "Skills"), "null section item rejected");
         Reject(() => PortfolioSaveData.ParseSection<Skill>("", "Skills"), "missing section rejected rather than cleared");
@@ -188,5 +240,67 @@ internal static class RegressionTests
             string saved=ProfileImages.Save(input,"portrait.jpg",input.Length,1,directory);
             Assert(saved.EndsWith(".png"),"JPEG decoded and re-encoded"); ProfileImages.Delete(saved,directory);
         }
+    }
+
+    private static void TestAccountValidation()
+    {
+        string tooLong=new string('L',51);
+        var account=new UserLogin {FirstName=tooLong,LastName="Boundary",Email="long-name@example.test",Password="Example-password"};
+        Assert(!UserRepository.Create(account,account.Password,out var error) && error.Contains("50 characters"), "signup rejects overlong first name rather than truncating");
+        account.FirstName="Valid"; account.LastName=tooLong;
+        Assert(!UserRepository.Create(account,account.Password,out _), "signup rejects overlong last name");
+        Assert(!UserRepository.AdminCreateUser(tooLong,"Boundary","long-admin@example.test","Example-password","User",true,out _), "admin create rejects overlong name");
+        int owner=Convert.ToInt32(Sql("SELECT UserID FROM dbo.Users WHERE Email=N'owner@example.test'"));
+        Assert(!UserRepository.AdminUpdateUser(owner,tooLong,"Boundary","owner@example.test","User",true,out _), "admin/account edit rejects overlong name");
+        var profile=new UserProfile {UserID=owner,FirstName=tooLong,LastName="Boundary"};
+        Assert(!UserProfileRepository.Create(profile,out _) && !UserProfileRepository.Update(profile,out _), "legacy profile write helpers also reject overlong names");
+        Assert(Convert.ToString(Sql("SELECT FirstName FROM dbo.UserProfiles WHERE UserID="+owner))=="Mira", "rejected overlong update preserves name");
+        Assert(!UserRepository.AdminUpdateUser(owner,"Changed","Boundary","owner@example.test","User",true,out _,"short"), "password validation precedes all account writes");
+        Assert(Convert.ToString(Sql("SELECT FirstName FROM dbo.UserProfiles WHERE UserID="+owner))=="Mira", "invalid password does not partially save account changes");
+        Assert(InputSafety.ValidateAccountFields(new string('L',50),new string('R',50),"boundary@example.test",out _), "exact 50-character names remain valid");
+        account.FirstName="Mira"; account.LastName="Reyes"; account.Email="owner@example.test";
+        Assert(!UserRepository.Create(account,account.Password,out error) && error.Contains("already exists"), "duplicate signup produces actionable account message");
+    }
+
+    private static void TestAdminPagingAndSummary()
+    {
+        var first=UserRepository.GetUsersPage(null,"","",1,12,out int total,out string error);
+        var second=UserRepository.GetUsersPage(null,"","",2,12,out _,out _);
+        Assert(error=="" && total>24 && first.Count==12 && second.Count==12, "admin SQL limits each directory page");
+        Assert(!first.Exists(x=>second.Exists(y=>y.UserID==x.UserID)), "admin pages do not overlap with deterministic ordering");
+        var search=UserRepository.GetUsersPage("p25@example.test","active","user",1,12,out total,out _);
+        Assert(search.Count==1 && total==1, "admin search/status/role filters apply across the whole database");
+        Assert(UserRepository.GetUsersPage("%","","",1,12,out total,out _).Count==0 && total==0, "admin search wildcard is literal");
+        Assert(UserRepository.GetUsersPage(null,"","",int.MaxValue,12,out total,out _).Count>0, "admin out-of-range page clamps safely");
+        int owner=Convert.ToInt32(Sql("SELECT UserID FROM dbo.Users WHERE Email=N'owner@example.test'"));
+        var summary=PortfolioReadRepository.LoadSummary(owner);
+        Assert(summary.User.Email=="owner@example.test" && summary.Portfolio.Profile.FirstName=="Mira" && summary.Portfolio.Educations.Count==1, "one summary batch returns account and all portfolio sections");
+        Assert(PortfolioReadRepository.LoadSummary(int.MaxValue)==null, "missing summary account returns no result");
+        Sql("EXEC sp_rename N'dbo.Affiliations', N'AuditMissingAffiliations'");
+        try {
+            bool failed=false; try {PortfolioReadRepository.LoadSummary(owner);} catch(SqlException) {failed=true;}
+            Assert(failed,"summary read failure is raised instead of converted to an empty section");
+        } finally {Sql("EXEC sp_rename N'dbo.AuditMissingAffiliations',N'Affiliations'");}
+    }
+
+    private static void TestImageDeletion()
+    {
+        string app=Path.Combine(root,"Tests/Temp/DeleteImages");
+        foreach (var folder in new[]{"App_Data/ProfileImages","Uploads/Profiles"}) {
+            Directory.CreateDirectory(Path.Combine(app,folder));
+            string name="delete-"+Guid.NewGuid().ToString("N")+".jpg",stored="~/"+folder+"/"+name,file=Path.Combine(app,folder,name);
+            File.WriteAllText(file,"synthetic image file");
+            int id=Convert.ToInt32(Sql("INSERT dbo.Users(Email,PasswordHash) VALUES(N'"+name+"@example.test',N'hash'); SELECT SCOPE_IDENTITY();"));
+            Sql("INSERT dbo.UserProfiles(UserID,FirstName,LastName,ProfileImagePath) VALUES("+id+",N'Deletion',N'Fixture',N'"+stored+"')");
+            Assert(UserRepository.DeleteUser(id,out string error,app) && error=="" && !File.Exists(file), "account deletion removes image from "+folder);
+        }
+        string shared="~/App_Data/ProfileImages/shared.jpg", sharedFile=Path.Combine(app,"App_Data/ProfileImages/shared.jpg"); File.WriteAllText(sharedFile,"shared");
+        int first=Convert.ToInt32(Sql("INSERT dbo.Users(Email,PasswordHash) VALUES(N'shared-one@example.test',N'hash'); SELECT SCOPE_IDENTITY();"));
+        int second=Convert.ToInt32(Sql("INSERT dbo.Users(Email,PasswordHash) VALUES(N'shared-two@example.test',N'hash'); SELECT SCOPE_IDENTITY();"));
+        Sql("INSERT dbo.UserProfiles(UserID,FirstName,LastName,ProfileImagePath) VALUES("+first+",N'Shared',N'One',N'"+shared+"'),("+second+",N'Shared',N'Two',N'"+shared+"')");
+        Assert(UserRepository.DeleteUser(first,out _,app) && File.Exists(sharedFile),"deletion preserves photo still used by another profile");
+        Assert(UserRepository.DeleteUser(second,out _,app) && !File.Exists(sharedFile),"final referencing account deletion removes shared photo");
+        string outside=Path.Combine(root,"Tests/Temp/outside-photo.jpg");File.WriteAllText(outside,"preserve");
+        Assert(!ProfileImages.TryDeleteStored("~/Uploads/Profiles/../../../outside-photo.jpg",app) && File.Exists(outside),"image cleanup rejects paths outside image storage");
     }
 }

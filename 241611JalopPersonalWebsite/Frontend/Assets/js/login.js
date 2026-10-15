@@ -59,19 +59,7 @@ function dismissToast(btn) {
     }
 }
 
-function handleLoginError() {
-    showLoadingScreen('Authenticating...', 'Verifying credentials with the database...');
-    setTimeout(function () {
-        hideLoadingScreen();
-        var errToast = document.querySelector('.toast-box.toast-error');
-        if (errToast) {
-            setTimeout(function () {
-                var btn = errToast.querySelector('.toast-close-btn');
-                if (btn) dismissToast(btn);
-            }, 5000);
-        }
-    }, 650);
-}
+function handleLoginError() { hideLoadingScreen(); }
 
 function autoDismissSuccessToast() {
     var successToast = document.querySelector('.toast-box.toast-success');

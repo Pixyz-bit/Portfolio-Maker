@@ -157,5 +157,6 @@ namespace _241611JalopPersonalWebsite.Frontend.User.Controls
         /// btnSaveUserAccount control.
         /// </summary>
         protected global::System.Web.UI.WebControls.Button btnSaveUserAccount;
+        protected global::System.Web.UI.HtmlControls.HtmlGenericControl menuVisibilityCard;
     }
 }

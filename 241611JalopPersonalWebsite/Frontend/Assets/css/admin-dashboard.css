@@ -477,6 +477,8 @@
         }
 
         .user-cell-btn {
+            min-width: 0;
+            max-width: 100%;
             display: flex;
             align-items: center;
             gap: 12px;
@@ -519,12 +521,12 @@
             font-weight: 700;
             color: var(--text-black);
             line-height: 1.25;
-            display: flex;
-            align-items: center;
-            gap: 6px;
+            display: block;
+            overflow-wrap: anywhere;
         }
 
         .user-email-cell {
+            overflow-wrap: anywhere;
             font-size: 0.82rem;
             color: var(--text-muted);
             line-height: 1.25;
@@ -974,4 +976,15 @@
             background-color: #000000;
             color: #ffffff;
             transform: translateY(-1px);
+        }
+
+        .user-cell-details { min-width: 0; flex: 1; }
+        .page-header > :last-child { max-width: 100%; flex-wrap: wrap; }
+        .user-name-cell svg { display: inline-block; vertical-align: middle; }
+        .summary-header-card > :last-child { min-width: 0; overflow-wrap: anywhere; }
+        @media (max-width: 768px) {
+            .data-table, .data-table tbody, .data-table tr, .data-table td { min-width: 0; max-width: 100%; }
+            .data-table td { overflow-wrap: anywhere; }
+            .actions-cell { flex-wrap: wrap !important; gap: 8px !important; }
+            .summary-stats-bar { grid-template-columns: repeat(auto-fit, minmax(80px, 1fr)); }
         }

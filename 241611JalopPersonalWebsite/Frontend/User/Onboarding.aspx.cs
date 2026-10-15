@@ -140,7 +140,7 @@ namespace _241611JalopPersonalWebsite.Frontend.User
 
                 if (!string.IsNullOrWhiteSpace(profile.ProfileImagePath))
                 {
-                    imgProfilePreview.ImageUrl = ResolveUrl(InputSafety.SafeImageUrl(profile.ProfileImagePath));
+                    imgProfilePreview.ImageUrl = ResolveUrl(ProfileImages.Url(profile.UserID, profile.ProfileImagePath));
                     hfExistingImagePath.Value = profile.ProfileImagePath;
                 }
 
@@ -237,7 +237,7 @@ namespace _241611JalopPersonalWebsite.Frontend.User
             if (!SessionSecurity.CanEdit(actor, userId)) { ShowError("Please sign in with permission to edit this portfolio."); return; }
             string uploadedImage = null;
             bool committed = false;
-            string uploadDirectory = Server.MapPath("~/Uploads/Profiles/");
+            string uploadDirectory = Server.MapPath("~/App_Data/ProfileImages/");
             try
             {
                 DateTime? birthday = null;
@@ -271,7 +271,7 @@ namespace _241611JalopPersonalWebsite.Frontend.User
                     ShowError(error); return;
                 }
                 committed = true;
-                if (uploadedImage != null && previousImage != uploadedImage) ProfileImages.Delete(previousImage, uploadDirectory);
+                if (uploadedImage != null && previousImage != uploadedImage) ProfileImages.DeleteStored(previousImage, Server);
                 if (actor.UserID == userId)
                 {
                     Session["FirstName"] = data.Profile.FirstName; Session["LastName"] = data.Profile.LastName;

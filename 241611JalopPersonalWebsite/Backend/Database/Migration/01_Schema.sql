@@ -1,27 +1,13 @@
--- ==========================================================
--- Master Migration Script: IPTPersonalWebsite
--- Runs all schema creation, constraints, indexes, and seeds
--- ==========================================================
+-- Base schema: run against the selected application database.
+-- Create the database separately, then use Tools/InitializeDatabase.ps1.
 
--- 1. Create Database if it does not already exist
-IF NOT EXISTS (SELECT name FROM sys.databases WHERE name = N'IPTPersonalWebsite')
-BEGIN
-    CREATE DATABASE IPTPersonalWebsite;
-END
-GO
-
-USE IPTPersonalWebsite;
-GO
-
--- 2. Drop existing tables in reverse dependency order (safe re-run)
-IF OBJECT_ID(N'dbo.Skills', N'U') IS NOT NULL DROP TABLE dbo.Skills;
-IF OBJECT_ID(N'dbo.Hobbies', N'U') IS NOT NULL DROP TABLE dbo.Hobbies;
-IF OBJECT_ID(N'dbo.Educations', N'U') IS NOT NULL DROP TABLE dbo.Educations;
-IF OBJECT_ID(N'dbo.UserProfiles', N'U') IS NOT NULL DROP TABLE dbo.UserProfiles;
-IF OBJECT_ID(N'dbo.Users', N'U') IS NOT NULL DROP TABLE dbo.Users;
-GO
+-- 2. Create missing objects without deleting existing data.
+-- Re-running this bootstrap preserves rows, constraints and application data.
+SET XACT_ABORT ON;
+BEGIN TRANSACTION;
 
 -- 3. Create Users Table (Authentication & Admin Controls)
+IF OBJECT_ID(N'dbo.Users', N'U') IS NULL
 CREATE TABLE dbo.Users (
     UserID INT IDENTITY(1,1) NOT NULL,
     Email NVARCHAR(255) NOT NULL,
@@ -33,9 +19,9 @@ CREATE TABLE dbo.Users (
     CONSTRAINT PK_Users PRIMARY KEY CLUSTERED (UserID ASC),
     CONSTRAINT UQ_Users_Email UNIQUE NONCLUSTERED (Email ASC)
 );
-GO
 
 -- 4. Create UserProfiles Table (1-to-1 with Users)
+IF OBJECT_ID(N'dbo.UserProfiles', N'U') IS NULL
 CREATE TABLE dbo.UserProfiles (
     ProfileID INT IDENTITY(1,1) NOT NULL,
     UserID INT NOT NULL,
@@ -53,9 +39,9 @@ CREATE TABLE dbo.UserProfiles (
         REFERENCES dbo.Users (UserID) 
         ON DELETE CASCADE
 );
-GO
 
 -- 5. Create Educations Table (1-to-Many with Users)
+IF OBJECT_ID(N'dbo.Educations', N'U') IS NULL
 CREATE TABLE dbo.Educations (
     EducationID INT IDENTITY(1,1) NOT NULL,
     UserID INT NOT NULL,
@@ -69,9 +55,9 @@ CREATE TABLE dbo.Educations (
         REFERENCES dbo.Users (UserID) 
         ON DELETE CASCADE
 );
-GO
 
 -- 6. Create Hobbies Table (1-to-Many with Users)
+IF OBJECT_ID(N'dbo.Hobbies', N'U') IS NULL
 CREATE TABLE dbo.Hobbies (
     HobbyID INT IDENTITY(1,1) NOT NULL,
     UserID INT NOT NULL,
@@ -83,9 +69,9 @@ CREATE TABLE dbo.Hobbies (
         REFERENCES dbo.Users (UserID) 
         ON DELETE CASCADE
 );
-GO
 
 -- 7. Create Skills Table (1-to-Many with Users)
+IF OBJECT_ID(N'dbo.Skills', N'U') IS NULL
 CREATE TABLE dbo.Skills (
     SkillID INT IDENTITY(1,1) NOT NULL,
     UserID INT NOT NULL,
@@ -97,18 +83,17 @@ CREATE TABLE dbo.Skills (
         REFERENCES dbo.Users (UserID) 
         ON DELETE CASCADE
 );
-GO
 
 -- 8. Create Indexes on Foreign Keys for Performance
+IF NOT EXISTS (SELECT 1 FROM sys.indexes WHERE object_id=OBJECT_ID(N'dbo.Educations') AND name=N'IX_Educations_UserID')
 CREATE NONCLUSTERED INDEX IX_Educations_UserID ON dbo.Educations (UserID ASC);
+IF NOT EXISTS (SELECT 1 FROM sys.indexes WHERE object_id=OBJECT_ID(N'dbo.Hobbies') AND name=N'IX_Hobbies_UserID')
 CREATE NONCLUSTERED INDEX IX_Hobbies_UserID ON dbo.Hobbies (UserID ASC);
+IF NOT EXISTS (SELECT 1 FROM sys.indexes WHERE object_id=OBJECT_ID(N'dbo.Skills') AND name=N'IX_Skills_UserID')
 CREATE NONCLUSTERED INDEX IX_Skills_UserID ON dbo.Skills (UserID ASC);
+
+COMMIT TRANSACTION;
 GO
 
--- 9. Seed an initial Admin user (SHA-256 for password 'admin123')
-IF NOT EXISTS (SELECT 1 FROM dbo.Users WHERE Email = N'admin@iptwebsite.com')
-BEGIN
-    INSERT INTO dbo.Users (Email, PasswordHash, Role, IsActive)
-    VALUES (N'admin@iptwebsite.com', N'240be518fabd2724ddb6f04eeb1da5967448d7e831c08c8fa822809f74c720a9', N'Admin', 1);
-END
-GO
+-- No administrator or password is seeded. After the remaining migrations,
+-- run Tools/InitializeAdministrator.ps1 from a trusted operator terminal.

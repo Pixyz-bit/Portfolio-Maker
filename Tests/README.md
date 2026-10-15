@@ -1,5 +1,7 @@
 # Regression checks
 
+The main suite now applies the actual ordered migration manifest without removing database-switch statements for tests; all scripts must retain the selected fixture database. It includes account-name boundaries, paged admin queries, complete summary/failure behavior and physical image deletion. With a fresh prepared localhost fixture, run `Tests/WorkflowFixHttpTests.ps1` for the baseline, priority and workflow checks; it runs prerequisite suites itself. `Tests/AccountEditHttpTests.ps1` adds short/mismatched-password recovery, forced password-write rollback and successful combined-edit checks. Use disposable fixtures for these scripts; never point them at real accounts.
+
 Run from the repository root with Visual Studio MSBuild and SQL Server LocalDB installed:
 
 ```powershell
@@ -21,6 +23,8 @@ Run `Tests/HttpRegressionTests.ps1` from a second terminal. HTTP tests intention
 Afterward, stop that IIS Express instance and run `Tests/CleanupWebFixture.ps1` to remove the retained database. All fixture files live beneath the ignored `Tests/Temp` directory.
 
 ## Final audit probes
+
+For the six high-priority fixes from 15 October, use a fresh `--prepare-web` fixture, run `node Tests/prepare-web.cjs`, start the disposable IIS Express site as above, then run `Tests/PriorityFixHttpTests.ps1` instead of the separate baseline HTTP suite. It runs the baseline itself and adds JSON data-preservation, self-deactivation, private/public/legacy image authorization, direct-path blocking, cache and traversal checks. `node Tests/visibility-regression.cjs` exercises actual production JavaScript with event bubbling, double-click protection and retry checks. The main C# suite also tests administrator bootstrap, concurrent demotions, every account-change path and schema rerun preservation.
 
 The final audit scripts are diagnostic probes: some deliberately demonstrate remaining bugs and report observations rather than failing assertions. Use a fresh disposable fixture for each audit run, never a production connection or site. `FinalAuditHttp.ps1` runs the baseline HTTP suite itself, so do not run the baseline separately first on the same fixture.
 

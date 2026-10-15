@@ -5,6 +5,7 @@ function getEl(id) {
 
 // Modal helpers
         function openAddModal() {
+            clearAccountFormErrors('addModal');
             document.getElementById('addModal').classList.add('active');
         }
 
@@ -13,6 +14,7 @@ function getEl(id) {
         }
 
         function openEditModal(userId, firstName, lastName, email, role, isActive) {
+            clearAccountFormErrors('editModal');
             getEl('hfEditUserId').value = userId;
             getEl('txtEditFirstName').value = firstName;
             getEl('txtEditLastName').value = lastName;
@@ -139,83 +141,16 @@ function getEl(id) {
             }
         }
 
-        // Instant Automatic Client-Side Filtering for User Management
-        function applyClientUserFilters() {
-            var searchInput = getEl('txtSearch') || document.getElementById('txtSearch');
-            var statusSelect = getEl('ddlStatusFilter') || document.getElementById('ddlStatusFilter');
-            var roleSelect = getEl('ddlRoleFilter') || document.getElementById('ddlRoleFilter');
-            var noUsersNotice = document.getElementById('clientNoUsers');
-
-            var query = (searchInput ? searchInput.value : '').trim().toLowerCase();
-            var statusVal = (statusSelect ? statusSelect.value : '').trim().toLowerCase();
-            var roleVal = (roleSelect ? roleSelect.value : '').trim().toLowerCase();
-
-            var rows = document.querySelectorAll('.data-table tbody tr.user-data-row');
-            var visibleCount = 0;
-
-            rows.forEach(function (row) {
-                var name = row.getAttribute('data-name') || '';
-                var email = row.getAttribute('data-email') || '';
-                var role = row.getAttribute('data-role') || '';
-                var status = row.getAttribute('data-status') || '';
-
-                var matchesQuery = !query || name.indexOf(query) !== -1 || email.indexOf(query) !== -1;
-                var matchesStatus = !statusVal || status === statusVal;
-                var matchesRole = !roleVal || role === roleVal;
-
-                if (matchesQuery && matchesStatus && matchesRole) {
-                    row.style.display = '';
-                    visibleCount++;
-                } else {
-                    row.style.display = 'none';
-                }
-            });
-
-            if (noUsersNotice) {
-                noUsersNotice.style.display = (visibleCount === 0 && rows.length > 0) ? 'block' : 'none';
-            }
-        }
-
-        function resetClientUserFilters() {
-            var searchInput = getEl('txtSearch') || document.getElementById('txtSearch');
-            var statusSelect = getEl('ddlStatusFilter') || document.getElementById('ddlStatusFilter');
-            var roleSelect = getEl('ddlRoleFilter') || document.getElementById('ddlRoleFilter');
-
-            if (searchInput) searchInput.value = '';
-            if (statusSelect) statusSelect.selectedIndex = 0;
-            if (roleSelect) roleSelect.selectedIndex = 0;
-
-            applyClientUserFilters();
-        }
-
-        // Auto-dismiss active toasts after 5 seconds and wire up automatic filtering
+        // Filters run on the server across the entire paginated directory.
         window.addEventListener('DOMContentLoaded', function () {
-            var activeToasts = document.querySelectorAll('.toast-box');
-            activeToasts.forEach(function (t) {
-                setTimeout(function () {
-                    var btn = t.querySelector('.toast-close-btn');
-                    if (btn) dismissToast(btn);
-                }, 5000);
+            var search = getEl('txtSearch');
+            if (search) search.addEventListener('keydown', function (event) {
+                if (event.key === 'Enter') { event.preventDefault(); getEl('btnSearchUsers').click(); }
             });
-
-            var searchInput = getEl('txtSearch') || document.getElementById('txtSearch');
-            var statusSelect = getEl('ddlStatusFilter') || document.getElementById('ddlStatusFilter');
-            var roleSelect = getEl('ddlRoleFilter') || document.getElementById('ddlRoleFilter');
-
-            if (searchInput) {
-                searchInput.addEventListener('input', applyClientUserFilters);
-                searchInput.addEventListener('keydown', function (e) {
-                    if (e.key === 'Enter') {
-                        e.preventDefault();
-                        applyClientUserFilters();
-                        return false;
-                    }
-                });
-            }
-            if (statusSelect) {
-                statusSelect.addEventListener('change', applyClientUserFilters);
-            }
-            if (roleSelect) {
-                roleSelect.addEventListener('change', applyClientUserFilters);
-            }
         });
+
+function clearAccountFormErrors(id) {
+    var form = document.getElementById(id);
+    form.querySelectorAll('[aria-invalid]').forEach(function (field) { field.removeAttribute('aria-invalid'); field.removeAttribute('aria-describedby'); });
+    form.querySelectorAll('.form-error').forEach(function (error) { error.style.display = 'none'; });
+}

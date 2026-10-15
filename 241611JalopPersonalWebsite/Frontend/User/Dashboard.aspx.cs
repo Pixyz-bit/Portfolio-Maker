@@ -33,7 +33,7 @@ namespace _241611JalopPersonalWebsite.Frontend.User
 
                     if (!string.IsNullOrWhiteSpace(profile.ProfileImagePath))
                     {
-                        imgAvatar.ImageUrl = ResolveUrl(InputSafety.SafeImageUrl(profile.ProfileImagePath));
+                        imgAvatar.ImageUrl = ResolveUrl(ProfileImages.Url(profile.UserID, profile.ProfileImagePath));
                     }
                 }
                 else if (Session["FullName"] != null)

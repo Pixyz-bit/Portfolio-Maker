@@ -13,7 +13,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>Portfolio not found</title>
     <link rel="stylesheet" href="<%= ResolveUrl("~/Frontend/Assets/css/public-dashboard.css") %>" />
-    <link rel="stylesheet" href="<%= ResolveUrl("~/Frontend/Assets/css/accessibility.css") %>" />
+    <link rel="stylesheet" href="<%= ResolveUrl("~/Frontend/Assets/css/accessibility.css") %>?v=20261015e" />
 </head>
 <body>
     <main class="main-content">

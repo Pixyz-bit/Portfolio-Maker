@@ -60,7 +60,7 @@ namespace _241611JalopPersonalWebsite.Frontend.User.Controls
                 // Profile Image
                 if (!string.IsNullOrWhiteSpace(profile.ProfileImagePath))
                 {
-                    imgAvatar.ImageUrl = ResolveUrl(InputSafety.SafeImageUrl(profile.ProfileImagePath));
+                    imgAvatar.ImageUrl = ResolveUrl(ProfileImages.Url(profile.UserID, profile.ProfileImagePath));
                 }
             }
             else

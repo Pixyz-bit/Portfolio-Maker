@@ -7,6 +7,38 @@ namespace _241611JalopPersonalWebsite.Backend.Common
 {
     public static class ProfileImages
     {
+        public static string Url(int userId, string storedPath)
+        {
+            if (userId <= 0 || string.IsNullOrEmpty(InputSafety.SafeImageUrl(storedPath))) return string.Empty;
+            return "~/Frontend/User/ProfileImage.ashx?userId=" + userId + "&file=" + HttpUtility.UrlEncode(Path.GetFileName(storedPath));
+        }
+
+        public static void DeleteStored(string storedPath, HttpServerUtility server)
+        {
+            if (string.IsNullOrEmpty(InputSafety.SafeImageUrl(storedPath))) return;
+            string directory = storedPath.Substring(0, storedPath.LastIndexOf('/') + 1);
+            Delete(storedPath, server.MapPath(directory));
+        }
+
+        public static bool TryDeleteStored(string storedPath, string applicationRoot)
+        {
+            if (string.IsNullOrWhiteSpace(storedPath)) return true;
+            if (string.IsNullOrEmpty(InputSafety.SafeImageUrl(storedPath)) || string.IsNullOrEmpty(applicationRoot)) return false;
+            try
+            {
+                string root = Path.GetFullPath(applicationRoot).TrimEnd(Path.DirectorySeparatorChar) + Path.DirectorySeparatorChar;
+                string target = Path.GetFullPath(Path.Combine(root, storedPath.Substring(2).Replace('/', Path.DirectorySeparatorChar)));
+                if (!target.StartsWith(root, StringComparison.OrdinalIgnoreCase)) return false;
+                if (File.Exists(target)) File.Delete(target);
+                return !File.Exists(target);
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Trace.TraceWarning("Deleted account image cleanup failed: {0}", ex);
+                return false;
+            }
+        }
+
         public static string Save(HttpPostedFile file, int userId, string uploadDirectory)
         {
             return Save(file.InputStream, file.FileName, file.ContentLength, userId, uploadDirectory);
@@ -42,7 +74,7 @@ namespace _241611JalopPersonalWebsite.Backend.Common
                     string name = "user_" + userId + "_" + Guid.NewGuid().ToString("N") + ".png";
                     savedFile = Path.Combine(uploadDirectory, name);
                     using (var output = File.Create(savedFile)) encoder.Save(output);
-                    return "~/Uploads/Profiles/" + name;
+                    return "~/App_Data/ProfileImages/" + name;
                 }
             }
             catch (ArgumentException) { if (savedFile != null) DeleteFile(savedFile); throw; }

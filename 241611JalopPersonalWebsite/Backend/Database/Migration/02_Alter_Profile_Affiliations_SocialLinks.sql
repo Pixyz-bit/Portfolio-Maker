@@ -5,8 +5,7 @@
 -- 3. Creates dbo.SocialLinks table and foreign key index
 -- ==========================================================
 
-USE IPTPersonalWebsite;
-GO
+-- Uses the selected connection database; see manifest.txt for execution order.
 
 -- 1. Add Description column to UserProfiles if it does not exist
 IF COL_LENGTH(N'dbo.UserProfiles', N'Description') IS NULL

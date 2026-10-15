@@ -19,7 +19,13 @@ namespace _241611JalopPersonalWebsite.Model
             if (string.IsNullOrWhiteSpace(json) || json.Length > 262144) throw new ArgumentException(name + " data is missing or too large. Reload the editor and try again.");
             try
             {
-                var items = new JavaScriptSerializer { MaxJsonLength = 262144 }.Deserialize<List<T>>(json);
+                var serializer = new JavaScriptSerializer { MaxJsonLength = 262144 };
+                // Deserialize<List<T>> also accepts {} as an empty list. Check the actual
+                // JSON shape first so only an explicit [] can clear a section.
+                if (!(serializer.DeserializeObject(json) is object[] rawItems) ||
+                    rawItems.Length > 100 || Array.Exists(rawItems, x => !(x is Dictionary<string, object>)))
+                    throw new ArgumentException();
+                var items = serializer.Deserialize<List<T>>(json);
                 if (items == null || items.Count > 100 || items.Exists(x => x == null)) throw new ArgumentException();
                 return items;
             }

@@ -1,14 +1,13 @@
 -- ==========================================================
 -- Migration Script: 03_StoredProcedures
--- Database: IPTPersonalWebsite / db69719
+-- Database: current connection; order is defined by manifest.txt
 -- Description: Master script creating all Stored Procedures 
 --              for Users, Profiles, Educations, Skills,
 --              Hobbies, Affiliations, SocialLinks & Analytics.
 -- Idempotent: Uses CREATE OR ALTER PROCEDURE
 -- ==========================================================
 
-USE db69719;
-GO
+-- Run against the same selected database as the other migrations.
 
 -- =========================================================================
 -- 1. AFFILIATIONS STORED PROCEDURES

@@ -12,8 +12,8 @@
     <link rel="stylesheet" href="../Assets/fonts/fonts.css" />
 
     <link rel="stylesheet" href="../Assets/css/onboarding.css" />
-    <link rel="stylesheet" href="<%= ResolveUrl("~/Frontend/Assets/css/accessibility.css") %>" />
-    <script src="<%= ResolveUrl("~/Frontend/Assets/js/accessibility.js") %>" defer></script>
+    <link rel="stylesheet" href="<%= ResolveUrl("~/Frontend/Assets/css/accessibility.css") %>?v=20261015e" />
+    <script src="<%= ResolveUrl("~/Frontend/Assets/js/accessibility.js") %>?v=20261015e" defer></script>
 </head>
 <body>
     <div class="onboarding-container">
@@ -37,32 +37,32 @@
                 </div>
 
                 <!-- 5-Step Progress Bar with Segmented Connectors -->
-                <div class="step-indicator">
-                    <button type="button" class="step-item active" id="indicator1" onclick="jumpToStep(1);">
+                <div class="step-indicator" role="group" aria-label="Portfolio setup steps">
+                    <button type="button" class="step-item active" id="indicator1" aria-label="Step 1 of 5: Profile" aria-current="step" onclick="jumpToStep(1);">
                         <div class="step-bubble">1</div>
                         <span class="step-label">Profile</span>
                     </button>
                     <div class="step-line" id="line1"></div>
 
-                    <button type="button" class="step-item" id="indicator2" onclick="jumpToStep(2);">
+                    <button type="button" class="step-item" id="indicator2" aria-label="Step 2 of 5: Education" onclick="jumpToStep(2);">
                         <div class="step-bubble">2</div>
                         <span class="step-label">Education</span>
                     </button>
                     <div class="step-line" id="line2"></div>
 
-                    <button type="button" class="step-item" id="indicator3" onclick="jumpToStep(3);">
+                    <button type="button" class="step-item" id="indicator3" aria-label="Step 3 of 5: Skills" onclick="jumpToStep(3);">
                         <div class="step-bubble">3</div>
                         <span class="step-label">Skills</span>
                     </button>
                     <div class="step-line" id="line3"></div>
 
-                    <button type="button" class="step-item" id="indicator4" onclick="jumpToStep(4);">
+                    <button type="button" class="step-item" id="indicator4" aria-label="Step 4 of 5: Affiliations and hobbies" onclick="jumpToStep(4);">
                         <div class="step-bubble">4</div>
                         <span class="step-label">Affiliations & Hobbies</span>
                     </button>
                     <div class="step-line" id="line4"></div>
 
-                    <button type="button" class="step-item" id="indicator5" onclick="jumpToStep(5);">
+                    <button type="button" class="step-item" id="indicator5" aria-label="Step 5 of 5: Social links" onclick="jumpToStep(5);">
                         <div class="step-bubble">5</div>
                         <span class="step-label">Social Links</span>
                     </button>
@@ -104,11 +104,11 @@
                         <div class="form-row-dual">
                             <div class="form-group">
                                 <label for="txtFirstName" class="form-label">First Name *</label>
-                                <asp:TextBox ID="txtFirstName" runat="server" CssClass="form-input" MaxLength="50" placeholder="e.g. John" />
+                                <asp:TextBox ID="txtFirstName" runat="server" aria-required="true" CssClass="form-input" MaxLength="50" placeholder="e.g. John" />
                             </div>
                             <div class="form-group">
                                 <label for="txtLastName" class="form-label">Last Name *</label>
-                                <asp:TextBox ID="txtLastName" runat="server" CssClass="form-input" MaxLength="50" placeholder="e.g. Doe" />
+                                <asp:TextBox ID="txtLastName" runat="server" aria-required="true" CssClass="form-input" MaxLength="50" placeholder="e.g. Doe" />
                             </div>
                         </div>
 
@@ -139,7 +139,8 @@
                         <!-- Description / Bio -->
                         <div class="form-group">
                             <label for="txtDescription" class="form-label">About Me / Bio</label>
-                            <asp:TextBox ID="txtDescription" runat="server" TextMode="MultiLine" Rows="4" CssClass="form-textarea" placeholder="Write a summary about yourself, your background, and your career aspirations..." />
+                            <asp:TextBox ID="txtDescription" runat="server" ValidateRequestMode="Disabled" TextMode="MultiLine" Rows="4" CssClass="form-textarea" aria-describedby="biographyHelp" placeholder="Write a summary about yourself, your background, and your career aspirations..." />
+                            <p id="biographyHelp" class="form-hint">Up to 20,000 characters. Text is displayed as written; HTML formatting is not applied.</p>
                         </div>
 
                         <!-- Portfolio Visibility Choice -->
@@ -310,7 +311,7 @@
 
                 <!-- Floating Lower-Right Toast Notifications -->
                 <div class="toast-container" id="toastContainer">
-                    <asp:Panel ID="pnlError" runat="server" Visible="false" CssClass="toast-box toast-error">
+                    <asp:Panel ID="pnlError" runat="server" role="alert" aria-live="assertive" aria-atomic="true" Visible="false" CssClass="toast-box toast-error">
                         <div class="toast-icon">
                             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="12"></line><line x1="12" y1="16" x2="12.01" y2="16"></line></svg>
                         </div>
@@ -318,10 +319,10 @@
                             <span class="toast-title">Notice</span>
                             <asp:Label ID="lblErrorMessage" runat="server" CssClass="toast-message" />
                         </div>
-                        <button type="button" class="toast-close-btn" onclick="dismissToast(this)">&times;</button>
+                        <button aria-label="Dismiss message" type="button" class="toast-close-btn" onclick="dismissToast(this)">&times;</button>
                     </asp:Panel>
 
-                    <asp:Panel ID="pnlSuccess" runat="server" Visible="false" CssClass="toast-box toast-success">
+                    <asp:Panel ID="pnlSuccess" runat="server" role="status" aria-live="polite" aria-atomic="true" Visible="false" CssClass="toast-box toast-success">
                         <div class="toast-icon">
                             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg>
                         </div>
@@ -329,7 +330,7 @@
                             <span class="toast-title">Success</span>
                             <asp:Label ID="lblSuccessMessage" runat="server" CssClass="toast-message" />
                         </div>
-                        <button type="button" class="toast-close-btn" onclick="dismissToast(this)">&times;</button>
+                        <button aria-label="Dismiss message" type="button" class="toast-close-btn" onclick="dismissToast(this)">&times;</button>
                     </asp:Panel>
                 </div>
             </form>
@@ -337,6 +338,6 @@
     </div>
 
     <!-- Wizard Navigation & Avatar Preview Script -->
-    <script src="../Assets/js/onboarding.js"></script>
+    <script src="../Assets/js/onboarding.js?v=20261015e"></script>
 </body>
 </html>

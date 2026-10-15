@@ -1,0 +1,50 @@
+PASS: login page renders without database diagnostics
+PASS: local administrator login succeeds
+PASS: account settings default to login email, not public contact email
+PASS: admin form renders associated label IDs
+PASS: stored HTML is rendered as text
+PASS: visibility menu reads target portfolio state instead of admin state
+PASS: malformed save reports validation error
+PASS: malformed HTTP save preserves existing section rows
+PASS: valid HTTP portfolio save reports committed success
+PASS: valid HTTP save persists replacements and retains other sections
+PASS: saving unrelated account settings preserves login email
+PASS: account settings test preserves the checked active-account state
+PASS: invalid explicit portfolio token returns not found
+PASS: nonexistent explicit user ID returns not found
+PASS: directory renders a bounded page with navigation
+PASS: public search finds skills outside initial result page
+PASS: logged-out postback replay cannot change visibility
+PASS: guest administrator route redirects to login
+PASS: 18 HTTP regression assertions.
+PASS: bad JSON preserves existing skills: {}
+PASS: bad JSON preserves existing skills: {"skills":[]}
+PASS: bad JSON preserves existing skills: null
+PASS: bad JSON preserves existing skills: 1
+PASS: bad JSON preserves existing skills: [null]
+PASS: bad JSON preserves existing skills: [1]
+PASS: bad JSON preserves existing skills: [[]]
+PASS: own active-account setting renders disabled
+PASS: omitted active checkbox cannot deactivate signed-in admin
+PASS: guest cannot read private avatar through handler
+PASS: new image storage blocks direct requests
+PASS: old static image URLs are blocked by IIS
+PASS: active administrator can read another private avatar
+PASS: private owner receives image with no-store caching
+PASS: unrelated standard account cannot read private avatar
+PASS: public avatar is readable anonymously through handler
+PASS: image filename must belong to the requested indexed owner
+PASS: image request without a valid owner is rejected
+PASS: making portfolio private revokes anonymous image access immediately
+PASS: legacy avatar also requires portfolio permission
+PASS: legacy owner avatar works without rewriting stored paths
+PASS: image traversal denied
+PASS: unknown image denied
+PASS: portfolio markup uses protected image URL
+PASS: 42 baseline and priority HTTP assertions.
+PASS: short-password edit preserves account and reopens inline error
+PASS: mismatched edit confirmation preserves original account
+PASS: password write failure rolls back account and profile changes together
+PASS: valid account/password edit commits together
+PASS: password from committed account edit authenticates successfully
+PASS: 47 baseline, priority and account-edit HTTP assertions.

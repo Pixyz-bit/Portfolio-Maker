@@ -14,9 +14,9 @@
 
     <link rel="stylesheet" href="../Assets/css/login.css" />
 
-    <script src="../Assets/js/login.js"></script>
-    <link rel="stylesheet" href="<%= ResolveUrl("~/Frontend/Assets/css/accessibility.css") %>" />
-    <script src="<%= ResolveUrl("~/Frontend/Assets/js/accessibility.js") %>" defer></script>
+    <script src="../Assets/js/login.js?v=20261015e"></script>
+    <link rel="stylesheet" href="<%= ResolveUrl("~/Frontend/Assets/css/accessibility.css") %>?v=20261015e" />
+    <script src="<%= ResolveUrl("~/Frontend/Assets/js/accessibility.js") %>?v=20261015e" defer></script>
 </head>
 <body>
     <div class="login-container">
@@ -35,7 +35,7 @@
                     <div class="form-group">
                         <label for="txtEmail" class="form-label">Email:</label>
                         <div class="input-container">
-                            <asp:TextBox ID="txtEmail" runat="server" TextMode="Email" CssClass="form-input" placeholder="" MaxLength="255" required="required" />
+                            <asp:TextBox ID="txtEmail" runat="server" aria-required="true" TextMode="Email" CssClass="form-input" placeholder="" MaxLength="255" required="required" />
                         </div>
                     </div>
 
@@ -69,7 +69,7 @@
 
                 <!-- Floating Lower-Right Toast Notifications -->
                 <div class="toast-container" id="toastContainer">
-                    <asp:Panel ID="pnlError" runat="server" Visible="false" CssClass="toast-box toast-error">
+                    <asp:Panel ID="pnlError" runat="server" role="alert" aria-live="assertive" aria-atomic="true" Visible="false" CssClass="toast-box toast-error">
                         <div class="toast-icon">
                             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="12"></line><line x1="12" y1="16" x2="12.01" y2="16"></line></svg>
                         </div>
@@ -77,10 +77,10 @@
                             <span class="toast-title">Authentication Failed</span>
                             <asp:Label ID="lblErrorMessage" runat="server" CssClass="toast-message" />
                         </div>
-                        <button type="button" class="toast-close-btn" onclick="dismissToast(this)">&times;</button>
+                        <button aria-label="Dismiss message" type="button" class="toast-close-btn" onclick="dismissToast(this)">&times;</button>
                     </asp:Panel>
 
-                    <asp:Panel ID="pnlSuccess" runat="server" Visible="false" CssClass="toast-box toast-success">
+                    <asp:Panel ID="pnlSuccess" runat="server" role="status" aria-live="polite" aria-atomic="true" Visible="false" CssClass="toast-box toast-success">
                         <div class="toast-icon">
                             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg>
                         </div>
@@ -88,7 +88,7 @@
                             <span class="toast-title">Success</span>
                             <asp:Label ID="lblSuccessMessage" runat="server" CssClass="toast-message" />
                         </div>
-                        <button type="button" class="toast-close-btn" onclick="dismissToast(this)">&times;</button>
+                        <button aria-label="Dismiss message" type="button" class="toast-close-btn" onclick="dismissToast(this)">&times;</button>
                     </asp:Panel>
                 </div>
             </form>

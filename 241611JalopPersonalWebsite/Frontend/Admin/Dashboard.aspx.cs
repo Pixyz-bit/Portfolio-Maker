@@ -11,6 +11,8 @@ namespace _241611JalopPersonalWebsite.Frontend.Admin
     public partial class Dashboard : SecurePage
     {
         protected override bool RequiresAdmin => true;
+        private const int UserPageSize = 12;
+        private int UserPage { get => (int?)ViewState["UserPage"] ?? 1; set => ViewState["UserPage"] = value; }
 
         protected void Page_Load(object sender, EventArgs e)
         {
@@ -60,7 +62,16 @@ namespace _241611JalopPersonalWebsite.Frontend.Admin
             string status = ddlStatusFilter.SelectedValue;
             string role = ddlRoleFilter.SelectedValue;
 
-            List<UserLogin> users = UserRepository.GetAllUsers(search, status, role, out string error);
+            List<UserLogin> users = UserRepository.GetUsersPage(search, status, role, UserPage, UserPageSize, out int total, out string error);
+            int pages = Math.Max(1, (total + UserPageSize - 1) / UserPageSize);
+            UserPage = Math.Max(1, Math.Min(UserPage, pages));
+            litUsersPage.Text = $"Page {UserPage} of {pages} · {total} accounts";
+            btnPreviousUsers.Enabled = UserPage > 1;
+            btnNextUsers.Enabled = UserPage < pages;
+            pnlUsersPagination.Visible = string.IsNullOrEmpty(error) && total > UserPageSize;
+            bool filtered = search.Length > 0 || status.Length > 0 || role.Length > 0;
+            litNoUsersTitle.Text = filtered ? "No accounts match your search" : "No user accounts yet";
+            litNoUsersDescription.Text = filtered ? "Try a different name or email, or reset the filters." : "Create an account to get started.";
 
             if (string.IsNullOrEmpty(error))
             {
@@ -74,13 +85,14 @@ namespace _241611JalopPersonalWebsite.Frontend.Admin
                 ShowError("Error loading user records: " + error);
                 rptUsers.DataSource = null;
                 rptUsers.DataBind();
-                pnlNoUsers.Visible = true;
+                pnlNoUsers.Visible = false;
             }
         }
 
         protected void btnApplyFilter_Click(object sender, EventArgs e)
         {
             ClearBanners();
+            UserPage = 1;
             LoadUsers();
         }
 
@@ -90,8 +102,12 @@ namespace _241611JalopPersonalWebsite.Frontend.Admin
             txtSearch.Text = string.Empty;
             ddlStatusFilter.SelectedIndex = 0;
             ddlRoleFilter.SelectedIndex = 0;
+            UserPage = 1;
             LoadUsers();
         }
+
+        protected void btnPreviousUsers_Click(object sender, EventArgs e) { ClearBanners(); UserPage=Math.Max(1,UserPage-1); LoadUsers(); }
+        protected void btnNextUsers_Click(object sender, EventArgs e) { ClearBanners(); UserPage++; LoadUsers(); }
 
         protected void rptUsers_ItemCommand(object source, RepeaterCommandEventArgs e)
         {
@@ -147,9 +163,10 @@ namespace _241611JalopPersonalWebsite.Frontend.Admin
                         return;
                     }
 
-                    if (UserRepository.DeleteUser(targetUserId, out string error))
+                    if (UserRepository.DeleteUser(targetUserId, out string error, Server.MapPath("~/")))
                     {
                         ShowSuccess("User account and related portfolio records were deleted successfully.");
+                        if (!string.IsNullOrEmpty(error)) ShowError(error);
                         if (pnlUserSummaryModal.Visible && hfSummaryUserId.Value == targetUserId.ToString())
                         {
                             pnlUserSummaryModal.Visible = false;
@@ -167,23 +184,24 @@ namespace _241611JalopPersonalWebsite.Frontend.Admin
 
         private void LoadUserSummary(int userId)
         {
-            // 1. Fetch user credentials & role
-            UserLogin user = UserRepository.GetUserById(userId, out string userErr);
-            if (user == null)
+            UserSummaryData summary;
+            try { summary = PortfolioReadRepository.LoadSummary(userId); }
+            catch (Exception ex)
             {
-                ShowError("Could not locate user #" + userId + ": " + userErr);
+                System.Diagnostics.Trace.TraceError("Account summary failed: {0}", ex);
+                pnlUserSummaryModal.Visible = false;
+                ShowError("The account summary could not be loaded. Select the account to try again.");
                 return;
             }
-
-            // 2. Fetch user profile
-            UserProfile profile = UserProfileRepository.GetByUserId(userId, out _);
-
-            // 3. Fetch related section models
-            List<Education> educations = EducationRepository.GetByUserId(userId, out _) ?? new List<Education>();
-            List<Skill> skills = SkillRepository.GetByUserId(userId, out _) ?? new List<Skill>();
-            List<Hobby> hobbies = HobbyRepository.GetByUserId(userId, out _) ?? new List<Hobby>();
-            List<Affiliation> affiliations = AffiliationRepository.GetByUserId(userId, out _) ?? new List<Affiliation>();
-            List<SocialLink> socialLinks = SocialLinkRepository.GetByUserId(userId, out _) ?? new List<SocialLink>();
+            if (summary == null)
+            { pnlUserSummaryModal.Visible=false; ShowError("This account no longer exists. Refresh the directory and try again."); return; }
+            UserLogin user = summary.User;
+            UserProfile profile = summary.Portfolio.Profile;
+            var educations = summary.Portfolio.Educations;
+            var skills = summary.Portfolio.Skills;
+            var hobbies = summary.Portfolio.Hobbies;
+            var affiliations = summary.Portfolio.Affiliations;
+            var socialLinks = summary.Portfolio.SocialLinks;
 
             // 4. Bind Header Details
             hfSummaryUserId.Value = userId.ToString();
@@ -324,9 +342,10 @@ namespace _241611JalopPersonalWebsite.Frontend.Admin
                     return;
                 }
 
-                if (UserRepository.DeleteUser(targetUserId, out string error))
+                if (UserRepository.DeleteUser(targetUserId, out string error, Server.MapPath("~/")))
                 {
                     ShowSuccess("User account and related portfolio records were deleted successfully.");
+                        if (!string.IsNullOrEmpty(error)) ShowError(error);
                     if (pnlUserSummaryModal.Visible && hfSummaryUserId.Value == targetUserId.ToString())
                     {
                         pnlUserSummaryModal.Visible = false;
@@ -372,7 +391,7 @@ namespace _241611JalopPersonalWebsite.Frontend.Admin
             }
             else
             {
-                ShowError("Failed to create user: " + error);
+                ShowAccountFormError(false, error);
             }
         }
 
@@ -382,7 +401,7 @@ namespace _241611JalopPersonalWebsite.Frontend.Admin
 
             if (!int.TryParse(hfEditUserId.Value, out int userId) || userId <= 0)
             {
-                ShowError("Invalid user selected for update.");
+                ShowAccountFormError(true, "Invalid user selected for update. Close this form and select the account again.");
                 return;
             }
 
@@ -395,51 +414,19 @@ namespace _241611JalopPersonalWebsite.Frontend.Admin
             int currentAdminId = Convert.ToInt32(Session["UserID"]);
             if (userId == currentAdminId && !isActive)
             {
-                ShowError("You cannot deactivate your own active session.");
+                ShowAccountFormError(true, "You cannot deactivate your own active session.");
                 return;
             }
 
-            if (!UserRepository.AdminUpdateUser(userId, firstName, lastName, email, role, isActive, out string error))
-            {
-                ShowError("Failed to update user: " + error);
-                return;
-            }
-
-            // Check if password change was requested in the same modal
             string newPassword = txtEditNewPassword.Text;
             string confirmPassword = txtEditConfirmPassword.Text;
-            bool passwordChanged = false;
-
-            if (!string.IsNullOrWhiteSpace(newPassword))
-            {
-                if (newPassword.Length < 6)
-                {
-                    ShowError($"User details were updated, but password was not changed: Password must be at least 6 characters long.");
-                    LoadAnalytics();
-                    LoadUsers();
-                    return;
-                }
-
-                if (newPassword != confirmPassword)
-                {
-                    ShowError($"User details were updated, but password was not changed: Passwords do not match.");
-                    LoadAnalytics();
-                    LoadUsers();
-                    return;
-                }
-
-                if (UserRepository.AdminResetPassword(userId, newPassword, out string pwdError))
-                {
-                    passwordChanged = true;
-                }
-                else
-                {
-                    ShowError($"User details were updated, but password could not be reset: {pwdError}");
-                    LoadAnalytics();
-                    LoadUsers();
-                    return;
-                }
-            }
+            bool passwordChanged = !string.IsNullOrEmpty(newPassword);
+            if (passwordChanged && newPassword.Length < 6)
+            { ShowAccountFormError(true, "New password must be at least 6 characters."); return; }
+            if (newPassword != confirmPassword)
+            { ShowAccountFormError(true, "New password and confirmation do not match."); return; }
+            if (!UserRepository.AdminUpdateUser(userId, firstName, lastName, email, role, isActive, out string error, newPassword))
+            { ShowAccountFormError(true, error); return; }
 
             string successMsg = passwordChanged
                 ? $"User #{userId} ({email}) and password updated successfully."
@@ -512,6 +499,26 @@ namespace _241611JalopPersonalWebsite.Frontend.Admin
         {
             pnlSuccess.Visible = false;
             pnlError.Visible = false;
+            pnlAddError.Visible = false;
+            pnlEditError.Visible = false;
+            foreach (TextBox field in new[] {txtAddFirstName,txtAddLastName,txtAddEmail,txtAddPassword,txtEditFirstName,txtEditLastName,txtEditEmail,txtEditNewPassword,txtEditConfirmPassword})
+            { field.Attributes.Remove("aria-invalid"); field.Attributes.Remove("aria-describedby"); }
+        }
+
+        private void ShowAccountFormError(bool editing, string message)
+        {
+            var panel = editing ? pnlEditError : pnlAddError;
+            var literal = editing ? litEditError : litAddError;
+            panel.Visible = true;
+            literal.Text = Server.HtmlEncode(message);
+            string compact = message.Replace(" ", "").ToLowerInvariant();
+            TextBox field = compact.Contains("firstname") ? (editing ? txtEditFirstName : txtAddFirstName) :
+                compact.Contains("lastname") ? (editing ? txtEditLastName : txtAddLastName) :
+                compact.Contains("email") ? (editing ? txtEditEmail : txtAddEmail) :
+                compact.Contains("password") ? (editing ? txtEditNewPassword : txtAddPassword) : null;
+            if (field != null) { field.Attributes["aria-invalid"]="true"; field.Attributes["aria-describedby"]=panel.ClientID; }
+            string script = "document.getElementById('" + (editing ? "editModal" : "addModal") + "').classList.add('active');";
+            ClientScript.RegisterStartupScript(GetType(), "RestoreAccountForm", script, true);
         }
 
         private static readonly TimeZoneInfo PhilippineTimeZone = GetPhilippineTimeZone();

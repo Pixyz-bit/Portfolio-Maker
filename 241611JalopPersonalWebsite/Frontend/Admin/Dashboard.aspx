@@ -12,10 +12,10 @@
     <!-- Local Offline Fonts: Plus Jakarta Sans & Inter -->
     <link rel="stylesheet" href="../Assets/fonts/fonts.css" />
 
-    <link rel="stylesheet" href="../Assets/css/admin-dashboard.css" />
+    <link rel="stylesheet" href="../Assets/css/admin-dashboard.css?v=20261015e" />
     <link rel="stylesheet" href="<%= Page.ResolveUrl("~/Frontend/Assets/css/user-menu.css") %>?v=20261013" />
-    <link rel="stylesheet" href="<%= ResolveUrl("~/Frontend/Assets/css/accessibility.css") %>" />
-    <script src="<%= ResolveUrl("~/Frontend/Assets/js/accessibility.js") %>" defer></script>
+    <link rel="stylesheet" href="<%= ResolveUrl("~/Frontend/Assets/css/accessibility.css") %>?v=20261015e" />
+    <script src="<%= ResolveUrl("~/Frontend/Assets/js/accessibility.js") %>?v=20261015e" defer></script>
 </head>
 <body>
     <form id="adminForm" runat="server">
@@ -55,7 +55,7 @@
             </div>
 
             <div class="toast-container" id="toastContainer">
-                <asp:Panel ID="pnlSuccess" runat="server" Visible="false" CssClass="toast-box toast-success">
+                <asp:Panel ID="pnlSuccess" runat="server" role="status" aria-live="polite" aria-atomic="true" Visible="false" CssClass="toast-box toast-success">
                     <div class="toast-icon">
                         <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg>
                     </div>
@@ -63,10 +63,10 @@
                         <span class="toast-title">Success</span>
                         <span class="toast-message"><asp:Literal ID="lblSuccessMessage" runat="server" /></span>
                     </div>
-                    <button type="button" class="toast-close-btn" onclick="dismissToast(this)">&times;</button>
+                    <button aria-label="Dismiss message" type="button" class="toast-close-btn" onclick="dismissToast(this)">&times;</button>
                 </asp:Panel>
 
-                <asp:Panel ID="pnlError" runat="server" Visible="false" CssClass="toast-box toast-error">
+                <asp:Panel ID="pnlError" runat="server" role="alert" aria-live="assertive" aria-atomic="true" Visible="false" CssClass="toast-box toast-error">
                     <div class="toast-icon">
                         <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="12"></line><line x1="12" y1="16" x2="12.01" y2="16"></line></svg>
                     </div>
@@ -74,7 +74,7 @@
                         <span class="toast-title">Error</span>
                         <span class="toast-message"><asp:Literal ID="lblErrorMessage" runat="server" /></span>
                     </div>
-                    <button type="button" class="toast-close-btn" onclick="dismissToast(this)">&times;</button>
+                    <button aria-label="Dismiss message" type="button" class="toast-close-btn" onclick="dismissToast(this)">&times;</button>
                 </asp:Panel>
             </div>
 
@@ -122,21 +122,22 @@
             <section class="content-card">
                 <div class="table-toolbar">
                     <div class="filter-group">
-                        <asp:TextBox aria-label="Search user accounts" ID="txtSearch" runat="server" CssClass="input-box search-input" placeholder="Search by name or email address..." autocomplete="off" />
+                        <asp:TextBox aria-label="Search user accounts" ID="txtSearch" runat="server" MaxLength="100" CssClass="input-box search-input" placeholder="Search by name or email address..." autocomplete="off" />
+                        <asp:Button ID="btnSearchUsers" runat="server" Text="Search" CssClass="btn btn-solid btn-sm" OnClick="btnApplyFilter_Click" />
 
-                        <asp:DropDownList aria-label="Filter by account status" ID="ddlStatusFilter" runat="server" CssClass="select-box">
+                        <asp:DropDownList aria-label="Filter by account status" ID="ddlStatusFilter" runat="server" CssClass="select-box" AutoPostBack="true" OnSelectedIndexChanged="btnApplyFilter_Click">
                             <asp:ListItem Value="" Text="All Statuses" />
                             <asp:ListItem Value="active" Text="Active Accounts" />
                             <asp:ListItem Value="inactive" Text="Deactivated Accounts" />
                         </asp:DropDownList>
 
-                        <asp:DropDownList aria-label="Filter by system role" ID="ddlRoleFilter" runat="server" CssClass="select-box">
+                        <asp:DropDownList aria-label="Filter by system role" ID="ddlRoleFilter" runat="server" CssClass="select-box" AutoPostBack="true" OnSelectedIndexChanged="btnApplyFilter_Click">
                             <asp:ListItem Value="" Text="All Roles" />
                             <asp:ListItem Value="admin" Text="Administrators" />
                             <asp:ListItem Value="user" Text="Standard Users" />
                         </asp:DropDownList>
 
-                        <asp:Button ID="btnResetFilter" runat="server" Text="Reset Filters" CssClass="btn btn-outline btn-sm" OnClientClick="resetClientUserFilters(); return false;" />
+                        <asp:Button ID="btnResetFilter" runat="server" Text="Reset Filters" CssClass="btn btn-outline btn-sm" OnClick="btnResetFilter_Click" />
                     </div>
                 </div>
 
@@ -170,7 +171,7 @@
                                         <div class="user-initials">
                                             <%#: GetInitials(Eval("FirstName")?.ToString(), Eval("LastName")?.ToString(), Eval("Email")?.ToString()) %>
                                         </div>
-                                        <div>
+                                        <div class="user-cell-details">
                                             <div class="user-name-cell">
                                                 <%#: Eval("FullName") %>
                                                 <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#64748b" stroke-width="2"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path><polyline points="15 3 21 3 21 9"></polyline><line x1="10" y1="14" x2="21" y2="3"></line></svg>
@@ -236,16 +237,21 @@
                         <div class="empty-icon">
                             <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="#94a3b8" stroke-width="1.5"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
                         </div>
-                        <h4 style="margin-bottom: 4px;">No users in database</h4>
-                        <p>No user records are currently registered.</p>
+                        <h4 style="margin-bottom: 4px;"><asp:Literal ID="litNoUsersTitle" runat="server" /></h4>
+                        <p><asp:Literal ID="litNoUsersDescription" runat="server" /></p>
                     </asp:Panel>
                 </div>
+                <asp:Panel ID="pnlUsersPagination" runat="server" CssClass="directory-pagination">
+                    <asp:Button ID="btnPreviousUsers" runat="server" Text="Previous" CssClass="btn btn-outline btn-sm" OnClick="btnPreviousUsers_Click" />
+                    <span role="status" aria-live="polite" aria-atomic="true"><asp:Literal ID="litUsersPage" runat="server" /></span>
+                    <asp:Button ID="btnNextUsers" runat="server" Text="Next" CssClass="btn btn-outline btn-sm" OnClick="btnNextUsers_Click" />
+                </asp:Panel>
             </section>
         </main>
 
         <asp:Panel ID="pnlUserSummaryModal" runat="server" Visible="false" CssClass="modal-overlay active">
             <div class="modal-box modal-box-lg">
-                <asp:LinkButton ID="btnCloseSummaryX" runat="server" CssClass="close-modal-btn" OnClick="btnCloseSummary_Click">&times;</asp:LinkButton>
+                <asp:LinkButton ID="btnCloseSummaryX" runat="server" aria-label="Close account summary" CssClass="close-modal-btn" OnClick="btnCloseSummary_Click">&times;</asp:LinkButton>
 
                 <h3 class="modal-title">User Account Summary</h3>
                 <p class="modal-desc">Detailed profile information, activity statistics, and administrative controls.</p>
@@ -495,27 +501,28 @@
             <div class="modal-box">
                 <button type="button" class="close-modal-btn" aria-label="Close dialog" onclick="closeAddModal()">&times;</button>
                 <h3 class="modal-title">Create User Account</h3>
-                <p class="modal-desc">Provision a new account with specified administrative privileges.</p>
+                <asp:Panel ID="pnlAddError" runat="server" Visible="false" CssClass="form-error" role="alert" aria-atomic="true"><asp:Literal ID="litAddError" runat="server" /></asp:Panel>
+                <p class="modal-desc">First name, last name, email and password are required.</p>
 
                 <div class="form-row">
                     <div>
                         <label class="form-label" for="<%= txtAddFirstName.ClientID %>">First Name</label>
-                        <asp:TextBox ID="txtAddFirstName" runat="server" CssClass="form-control" placeholder="Jane" />
+                        <asp:TextBox ID="txtAddFirstName" runat="server" aria-required="true" MaxLength="50" CssClass="form-control" placeholder="Jane" />
                     </div>
                     <div>
                         <label class="form-label" for="<%= txtAddLastName.ClientID %>">Last Name</label>
-                        <asp:TextBox ID="txtAddLastName" runat="server" CssClass="form-control" placeholder="Doe" />
+                        <asp:TextBox ID="txtAddLastName" runat="server" aria-required="true" MaxLength="50" CssClass="form-control" placeholder="Doe" />
                     </div>
                 </div>
 
                 <div class="form-group">
                     <label class="form-label" for="<%= txtAddEmail.ClientID %>">Email Address</label>
-                    <asp:TextBox ID="txtAddEmail" runat="server" TextMode="Email" CssClass="form-control" placeholder="jane.doe@example.com" />
+                    <asp:TextBox ID="txtAddEmail" runat="server" aria-required="true" MaxLength="255" TextMode="Email" CssClass="form-control" placeholder="jane.doe@example.com" />
                 </div>
 
                 <div class="form-group">
                     <label class="form-label" for="<%= txtAddPassword.ClientID %>">Initial Password</label>
-                    <asp:TextBox ID="txtAddPassword" runat="server" TextMode="Password" CssClass="form-control" placeholder="Min. 6 characters" />
+                    <asp:TextBox ID="txtAddPassword" runat="server" aria-required="true" TextMode="Password" CssClass="form-control" placeholder="Min. 6 characters" />
                 </div>
 
                 <div class="form-group">
@@ -542,24 +549,25 @@
             <div class="modal-box">
                 <button type="button" class="close-modal-btn" aria-label="Close dialog" onclick="closeEditModal()">&times;</button>
                 <h3 class="modal-title">Edit User Account</h3>
-                <p class="modal-desc">Update credentials, system role, and access status.</p>
+                <asp:Panel ID="pnlEditError" runat="server" Visible="false" CssClass="form-error" role="alert" aria-atomic="true"><asp:Literal ID="litEditError" runat="server" /></asp:Panel>
+                <p class="modal-desc">First name, last name and email are required. Leave the password fields empty to keep the current password.</p>
 
                 <asp:HiddenField ID="hfEditUserId" runat="server" />
 
                 <div class="form-row">
                     <div>
                         <label class="form-label" for="<%= txtEditFirstName.ClientID %>">First Name</label>
-                        <asp:TextBox ID="txtEditFirstName" runat="server" CssClass="form-control" />
+                        <asp:TextBox ID="txtEditFirstName" runat="server" aria-required="true" MaxLength="50" CssClass="form-control" />
                     </div>
                     <div>
                         <label class="form-label" for="<%= txtEditLastName.ClientID %>">Last Name</label>
-                        <asp:TextBox ID="txtEditLastName" runat="server" CssClass="form-control" />
+                        <asp:TextBox ID="txtEditLastName" runat="server" aria-required="true" MaxLength="50" CssClass="form-control" />
                     </div>
                 </div>
 
                 <div class="form-group">
                     <label class="form-label" for="<%= txtEditEmail.ClientID %>">Email Address</label>
-                    <asp:TextBox ID="txtEditEmail" runat="server" TextMode="Email" CssClass="form-control" />
+                    <asp:TextBox ID="txtEditEmail" runat="server" aria-required="true" MaxLength="255" TextMode="Email" CssClass="form-control" />
                 </div>
 
                 <div class="form-group">
@@ -598,6 +606,6 @@
         </div>
     </form>
 
-    <script src="../Assets/js/admin-dashboard.js"></script>
+    <script src="../Assets/js/admin-dashboard.js?v=20261015e"></script>
 </body>
 </html>

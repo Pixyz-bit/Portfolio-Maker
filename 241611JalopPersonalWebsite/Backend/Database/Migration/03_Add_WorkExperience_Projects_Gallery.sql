@@ -7,9 +7,7 @@
 -- Safe to re-run (idempotent checks with OBJECT_ID)
 -- ==========================================================
 
--- Select target database if running locally; if running on remote hosted DB, ensure current connection is selected.
--- USE IPTPersonalWebsite;
--- GO
+-- Uses the selected connection database; see manifest.txt for execution order.
 
 -- ==========================================================
 -- 1. Create WorkExperiences Table

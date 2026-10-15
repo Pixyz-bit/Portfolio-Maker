@@ -105,40 +105,12 @@ erDiagram
 
 ---
 
-## 3. How to Apply the Migration to Your Database
+## 3. Apply the ordered migration manifest
 
-Choose any of the three methods below that matches your preferred workflow:
+Create or select the intended application database using your database host's tools. Configure its connection in the operator process through SQLCONNSTR_DefaultConnection, then run Tools/InitializeDatabase.ps1 from the repository root. Keep credentials out of committed documentation and command examples.
 
-### Method 1: Using Visual Studio (Quickest & Built-In)
-1. In Visual Studio, open **View** $\to$ **SQL Server Object Explorer** (or **Server Explorer**).
-2. Right-click on your connected database (`db69719` or `IPTPersonalWebsite`) and choose **New Query**.
-3. Open or copy the script from [`Backend/Database/Migration/03_Add_WorkExperience_Projects_Gallery.sql`](file:///c:/Martin%20Archive/Programming/ASP%20NET/241611JalopPersonalWebsite/241611JalopPersonalWebsite/Backend/Database/Migration/03_Add_WorkExperience_Projects_Gallery.sql).
-4. Paste it into the query window and click the green **Execute** button (or press `Ctrl + Shift + E`).
-5. Confirm in the Output window:
-   - `Table dbo.WorkExperiences and index IX_WorkExperiences_UserID created successfully.`
-   - `Table dbo.AcademicProjects and index IX_AcademicProjects_UserID created successfully.`
-   - `Table dbo.GalleryImages and index IX_GalleryImages_UserID created successfully.`
+The single manifest at 241611JalopPersonalWebsite/Backend/Database/Migration/manifest.txt defines the supported order: base schema, profile/section additions, visibility column, stored procedures, then work experience/projects/gallery tables. Legacy numeric filename prefixes alone do not define execution order.
 
----
+Every script uses the selected connection database; none creates or switches to a hardcoded database. The installer refuses system databases and wraps the manifest in a transaction. Existing rows are preserved on rerun; back up existing data before applying schema changes.
 
-### Method 2: Using SQL Server Management Studio (SSMS)
-1. Open **SSMS** and connect to your database instance:
-   - **For Remote Database**: `db69719.public.databaseasp.net` with user `db69719`.
-   - **For Local Database**: `.` or `(localdb)\MSSQLLocalDB` using Windows Authentication.
-2. Ensure you have the target database selected in the top-left dropdown (e.g., `db69719` or `IPTPersonalWebsite`).
-3. Drag & drop [`03_Add_WorkExperience_Projects_Gallery.sql`](file:///c:/Martin%20Archive/Programming/ASP%20NET/241611JalopPersonalWebsite/241611JalopPersonalWebsite/Backend/Database/Migration/03_Add_WorkExperience_Projects_Gallery.sql) into SSMS.
-4. Click **Execute** (or press `F5`).
-
----
-
-### Method 3: Using Command Line (`sqlcmd`)
-
-#### For Remote Hosted Database (`databaseasp.net`):
-```powershell
-sqlcmd -S "db69719.public.databaseasp.net" -d "db69719" -U "db69719" -P "aE#29sR_n!4C" -i "c:\Martin Archive\Programming\ASP NET\241611JalopPersonalWebsite\241611JalopPersonalWebsite\Backend\Database\Migration\03_Add_WorkExperience_Projects_Gallery.sql"
-```
-
-#### For Local Database (`IPTPersonalWebsite`):
-```powershell
-sqlcmd -S "." -d "IPTPersonalWebsite" -E -i "c:\Martin Archive\Programming\ASP NET\241611JalopPersonalWebsite\241611JalopPersonalWebsite\Backend\Database\Migration\03_Add_WorkExperience_Projects_Gallery.sql"
-```
+After a fresh installation, use Tools/InitializeAdministrator.ps1 to supply the first administrator's credentials. Existing installations keep their current accounts and do not run first-admin setup. See the repository README for the current setup and deployment instructions.

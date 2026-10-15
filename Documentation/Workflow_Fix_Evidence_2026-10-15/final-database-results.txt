@@ -1,0 +1,103 @@
+PASS: migration keeps selected database: 01_Schema.sql
+PASS: migration keeps selected database: 02_Alter_Profile_Affiliations_SocialLinks.sql
+PASS: migration keeps selected database: 04_Add_IsPublic_To_UserProfiles.sql
+PASS: migration keeps selected database: 03_StoredProcedures.sql
+PASS: migration keeps selected database: 03_Add_WorkExperience_Projects_Gallery.sql
+PASS: fresh schema seeds no accounts or predictable credentials
+PASS: old default administrator credential cannot log in
+PASS: bootstrap rejects short password
+PASS: operator can create first administrator with supplied credentials
+PASS: bootstrap administrator authenticates with a salted password hash
+PASS: bootstrap cannot be reused after an administrator exists
+PASS: identical passwords receive unique salts
+PASS: new password verification
+PASS: stored hash and wrong password rejected
+PASS: legacy SHA-256 password accepted for migration
+PASS: legacy pass-the-hash and plaintext rejected
+PASS: successful legacy login upgrades stored hash
+PASS: upgraded credential stamp matches database
+PASS: non-array or non-object section payload rejected: {}
+PASS: non-array or non-object section payload rejected: {"skills":[]}
+PASS: non-array or non-object section payload rejected: null
+PASS: non-array or non-object section payload rejected: 1
+PASS: non-array or non-object section payload rejected: "text"
+PASS: non-array or non-object section payload rejected: true
+PASS: non-array or non-object section payload rejected: [null]
+PASS: non-array or non-object section payload rejected: [1]
+PASS: non-array or non-object section payload rejected: [[]]
+PASS: explicit empty array remains valid
+PASS: valid object array remains valid
+PASS: malformed section rejected before writes
+PASS: null section item rejected
+PASS: missing section rejected rather than cleared
+PASS: existing lowercase JSON maps to model properties
+PASS: complete portfolio save: 
+PASS: all sections persisted
+PASS: unsafe URL rejected and existing rows preserved
+PASS: incomplete education rejects entire save
+PASS: unauthorized actor rejected
+PASS: client-provided external image path rejected
+PASS: database insert failure returns failure
+PASS: transaction rolls back profile and deleted section rows
+PASS: explicit empty array intentionally clears a section
+PASS: URL output is scheme checked and attribute encoded
+PASS: credential URLs and traversing image paths rejected
+PASS: schema rerun preserves Users rows
+PASS: schema rerun preserves UserProfiles rows
+PASS: schema rerun preserves Skills rows
+PASS: schema rerun preserves Educations rows
+PASS: schema rerun preserves Hobbies rows
+PASS: schema rerun preserves Affiliations rows
+PASS: schema rerun preserves SocialLinks rows
+PASS: schema rerun preserves existing content values
+PASS: backup administrator created for guard tests
+PASS: account-settings repository path rejects self-deactivation even with another admin
+PASS: rejected self-deactivation makes no partial account/profile change
+PASS: other status/delete paths reject own active session
+PASS: all role-edit paths preserve last active administrator
+PASS: last-admin guard also protects status and deletion without a web session
+PASS: concurrent admin demotions cannot remove both active administrators
+PASS: ordinary account activation/deactivation still works
+PASS: SQL pagination limits rows and reports total
+PASS: adjacent directory pages do not overlap
+PASS: server search includes skills across all pages
+PASS: private portfolio excluded from search
+PASS: search wildcard characters treated literally
+PASS: out-of-range page safely clamps to last page
+PASS: missing scalar result does not execute write twice
+PASS: text command uses one native nonquery execution
+PASS: text mutation executed once
+PASS: active administrator can edit another portfolio
+PASS: demotion removes administrator access on next request
+PASS: deactivated session rejected
+PASS: password reset invalidates old credential stamp
+PASS: anonymous mutation denied
+PASS: renamed nonimage rejected
+PASS: WebP decoded and re-encoded as PNG
+PASS: unused image cleanup stays inside upload directory
+PASS: JPEG decoded and re-encoded
+PASS: signup rejects overlong first name rather than truncating
+PASS: signup rejects overlong last name
+PASS: admin create rejects overlong name
+PASS: admin/account edit rejects overlong name
+PASS: legacy profile write helpers also reject overlong names
+PASS: rejected overlong update preserves name
+PASS: password validation precedes all account writes
+PASS: invalid password does not partially save account changes
+PASS: exact 50-character names remain valid
+PASS: duplicate signup produces actionable account message
+PASS: admin SQL limits each directory page
+PASS: admin pages do not overlap with deterministic ordering
+PASS: admin search/status/role filters apply across the whole database
+PASS: admin search wildcard is literal
+PASS: admin out-of-range page clamps safely
+PASS: one summary batch returns account and all portfolio sections
+PASS: missing summary account returns no result
+PASS: summary read failure is raised instead of converted to an empty section
+PASS: account deletion removes image from App_Data/ProfileImages
+PASS: account deletion removes image from Uploads/Profiles
+PASS: deletion preserves photo still used by another profile
+PASS: final referencing account deletion removes shared photo
+PASS: image cleanup rejects paths outside image storage
+PASS: batched portfolio reader returns profile and sections
+PASS: 102 regression assertions.

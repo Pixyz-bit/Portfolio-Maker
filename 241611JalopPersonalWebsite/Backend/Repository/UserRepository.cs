@@ -27,29 +27,7 @@ namespace _241611JalopPersonalWebsite.Repository
                 return false;
             }
 
-            if (string.IsNullOrWhiteSpace(user.FirstName))
-            {
-                errorMessage = "First Name is required.";
-                return false;
-            }
-
-            if (string.IsNullOrWhiteSpace(user.LastName))
-            {
-                errorMessage = "Last Name is required.";
-                return false;
-            }
-
-            if (string.IsNullOrWhiteSpace(user.Email))
-            {
-                errorMessage = "Email is required.";
-                return false;
-            }
-
-            if (!Regex.IsMatch(user.Email.Trim(), @"^[^@\s]+@[^@\s]+\.[^@\s]+$"))
-            {
-                errorMessage = "Please enter a valid email address.";
-                return false;
-            }
+            if (!InputSafety.ValidateAccountFields(user.FirstName, user.LastName, user.Email, out errorMessage)) return false;
 
             if (string.IsNullOrWhiteSpace(user.Password))
             {
@@ -102,7 +80,7 @@ namespace _241611JalopPersonalWebsite.Repository
             catch (Exception ex)
             {
                 System.Diagnostics.Trace.TraceError("Database operation failed: {0}", ex);
-                errorMessage = "The database operation could not be completed. Please try again.";
+                errorMessage = AccountWriteError(ex);
                 return false;
             }
         }
@@ -362,6 +340,61 @@ namespace _241611JalopPersonalWebsite.Repository
         // ADMIN METHODS
         // =========================================================================
 
+        public static List<UserLogin> GetUsersPage(string search, string status, string role,
+            int page, int pageSize, out int total, out string error)
+        {
+            total = 0;
+            error = string.Empty;
+            var users = new List<UserLogin>();
+            search = search?.Trim();
+            if ((search?.Length ?? 0) > 100) { error = "Search must be 100 characters or fewer."; return users; }
+            pageSize = Math.Max(1, Math.Min(pageSize, 100));
+            string filter = @" FROM dbo.Users u LEFT JOIN dbo.UserProfiles p ON p.UserID=u.UserID
+                WHERE (@Search IS NULL OR u.Email LIKE @Search ESCAPE '~' OR
+                    p.FirstName LIKE @Search ESCAPE '~' OR p.LastName LIKE @Search ESCAPE '~' OR
+                    (p.FirstName+N' '+p.LastName) LIKE @Search ESCAPE '~')
+                  AND (@Status='' OR (@Status='active' AND u.IsActive=1) OR (@Status='inactive' AND u.IsActive=0))
+                  AND (@Role='' OR u.Role=@Role)";
+            try
+            {
+                using (var conn = DatabaseConnection.GetConnection())
+                using (var cmd = new SqlCommand(@"DECLARE @Total int=(SELECT COUNT(*)" + filter + @");
+                    DECLARE @Pages int=CASE WHEN @Total=0 THEN 1 ELSE ((@Total-1)/@Size)+1 END;
+                    DECLARE @SafePage int=CASE WHEN @Page<1 THEN 1 WHEN @Page>@Pages THEN @Pages ELSE @Page END;
+                    SELECT @Total;
+                    SELECT u.UserID,u.Email,u.Role,u.IsActive,u.CreatedAt,
+                        COALESCE(p.FirstName,N'') FirstName,COALESCE(p.LastName,N'') LastName" + filter + @"
+                    ORDER BY u.CreatedAt DESC,u.UserID DESC
+                    OFFSET CONVERT(bigint,@SafePage-1)*@Size ROWS FETCH NEXT @Size ROWS ONLY;", conn))
+                {
+                    string pattern = string.IsNullOrEmpty(search) ? null : "%" + search.Replace("~", "~~").Replace("%", "~%").Replace("_", "~_").Replace("[", "~[") + "%";
+                    cmd.Parameters.Add("@Search", SqlDbType.NVarChar, 210).Value = (object)pattern ?? DBNull.Value;
+                    cmd.Parameters.Add("@Status", SqlDbType.NVarChar, 20).Value = status ?? "";
+                    cmd.Parameters.Add("@Role", SqlDbType.NVarChar, 20).Value = string.IsNullOrEmpty(role) ? "" : string.Equals(role,"admin",StringComparison.OrdinalIgnoreCase) ? "Admin" : "User";
+                    cmd.Parameters.Add("@Page", SqlDbType.Int).Value = page;
+                    cmd.Parameters.Add("@Size", SqlDbType.Int).Value = pageSize;
+                    conn.Open();
+                    using (var reader = cmd.ExecuteReader())
+                    {
+                        if (!reader.Read()) throw new InvalidOperationException("Missing user count.");
+                        total = reader.GetInt32(0);
+                        if (!reader.NextResult()) throw new InvalidOperationException("Missing user page.");
+                        while (reader.Read()) users.Add(new UserLogin {
+                            UserID=reader.GetInt32(0), Email=reader.GetString(1), Role=reader.GetString(2),
+                            IsActive=reader.GetBoolean(3), CreatedAt=reader.GetDateTime(4),
+                            FirstName=reader.GetString(5), LastName=reader.GetString(6) });
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Trace.TraceError("User directory read failed: {0}", ex);
+                users.Clear(); total=0;
+                error = "User accounts could not be loaded. Try searching again or reset the filters.";
+            }
+            return users;
+        }
+
         public static List<UserLogin> GetAllUsers(
             string searchKeyword, 
             string statusFilter, 
@@ -478,37 +511,16 @@ namespace _241611JalopPersonalWebsite.Repository
                 return false;
             }
 
-            try
+            return ChangeAccount(userId, null, isActive, false, (conn, transaction) =>
             {
-                using (SqlConnection conn = DatabaseConnection.GetConnection())
+                using (var cmd = new SqlCommand("dbo.sp_ToggleUserStatus", conn, transaction))
                 {
-                    conn.Open();
-
-                    using (SqlCommand cmd = new SqlCommand("dbo.sp_ToggleUserStatus", conn))
-                    {
-                        cmd.CommandType = CommandType.StoredProcedure;
-                        cmd.Parameters.Add("@UserID", SqlDbType.Int).Value = userId;
-                        cmd.Parameters.Add("@IsActive", SqlDbType.Bit).Value = isActive;
-
-                        int rows = DatabaseConnection.ExecuteNonQueryCount(cmd);
-                        if (rows > 0)
-                        {
-                            return true;
-                        }
-                        else
-                        {
-                            errorMessage = "User record not found.";
-                            return false;
-                        }
-                    }
+                    cmd.CommandType = CommandType.StoredProcedure;
+                    cmd.Parameters.Add("@UserID", SqlDbType.Int).Value = userId;
+                    cmd.Parameters.Add("@IsActive", SqlDbType.Bit).Value = isActive;
+                    return DatabaseConnection.ExecuteNonQueryCount(cmd) > 0;
                 }
-            }
-            catch (Exception ex)
-            {
-                System.Diagnostics.Trace.TraceError("Database operation failed: {0}", ex);
-                errorMessage = "The database operation could not be completed. Please try again.";
-                return false;
-            }
+            }, out errorMessage);
         }
 
         public static bool UpdateUserRole(int userId, string newRole, out string errorMessage)
@@ -527,29 +539,16 @@ namespace _241611JalopPersonalWebsite.Repository
                 return false;
             }
 
-            try
+            return ChangeAccount(userId, newRole, null, false, (conn, transaction) =>
             {
-                using (SqlConnection conn = DatabaseConnection.GetConnection())
+                using (var cmd = new SqlCommand("dbo.sp_UpdateUserRole", conn, transaction))
                 {
-                    conn.Open();
-
-                    using (SqlCommand cmd = new SqlCommand("dbo.sp_UpdateUserRole", conn))
-                    {
-                        cmd.CommandType = CommandType.StoredProcedure;
-                        cmd.Parameters.Add("@UserID", SqlDbType.Int).Value = userId;
-                        cmd.Parameters.Add("@Role", SqlDbType.NVarChar, 20).Value = newRole;
-
-                        int rows = DatabaseConnection.ExecuteNonQueryCount(cmd);
-                        return rows > 0;
-                    }
+                    cmd.CommandType = CommandType.StoredProcedure;
+                    cmd.Parameters.Add("@UserID", SqlDbType.Int).Value = userId;
+                    cmd.Parameters.Add("@Role", SqlDbType.NVarChar, 20).Value = newRole;
+                    return DatabaseConnection.ExecuteNonQueryCount(cmd) > 0;
                 }
-            }
-            catch (Exception ex)
-            {
-                System.Diagnostics.Trace.TraceError("Database operation failed: {0}", ex);
-                errorMessage = "The database operation could not be completed. Please try again.";
-                return false;
-            }
+            }, out errorMessage);
         }
 
         public static bool AdminCreateUser(
@@ -563,23 +562,7 @@ namespace _241611JalopPersonalWebsite.Repository
         {
             errorMessage = string.Empty;
 
-            if (string.IsNullOrWhiteSpace(firstName))
-            {
-                errorMessage = "First Name is required.";
-                return false;
-            }
-
-            if (string.IsNullOrWhiteSpace(lastName))
-            {
-                errorMessage = "Last Name is required.";
-                return false;
-            }
-
-            if (string.IsNullOrWhiteSpace(email) || !Regex.IsMatch(email.Trim(), @"^[^@\s]+@[^@\s]+\.[^@\s]+$"))
-            {
-                errorMessage = "Please enter a valid email address.";
-                return false;
-            }
+            if (!InputSafety.ValidateAccountFields(firstName, lastName, email, out errorMessage)) return false;
 
             if (string.IsNullOrWhiteSpace(password) || password.Length < 6)
             {
@@ -621,7 +604,7 @@ namespace _241611JalopPersonalWebsite.Repository
             catch (Exception ex)
             {
                 System.Diagnostics.Trace.TraceError("Database operation failed: {0}", ex);
-                errorMessage = "The database operation could not be completed. Please try again.";
+                errorMessage = AccountWriteError(ex);
                 return false;
             }
         }
@@ -633,7 +616,7 @@ namespace _241611JalopPersonalWebsite.Repository
             string email,
             string role,
             bool isActive,
-            out string errorMessage)
+            out string errorMessage, string newPassword = null)
         {
             errorMessage = string.Empty;
 
@@ -643,53 +626,37 @@ namespace _241611JalopPersonalWebsite.Repository
                 return false;
             }
 
-            if (string.IsNullOrWhiteSpace(firstName))
-            {
-                errorMessage = "First Name is required.";
-                return false;
-            }
-
-            if (string.IsNullOrWhiteSpace(lastName))
-            {
-                errorMessage = "Last Name is required.";
-                return false;
-            }
-
-            if (string.IsNullOrWhiteSpace(email) || !Regex.IsMatch(email.Trim(), @"^[^@\s]+@[^@\s]+\.[^@\s]+$"))
-            {
-                errorMessage = "Please enter a valid email address.";
-                return false;
-            }
+            if (!InputSafety.ValidateAccountFields(firstName, lastName, email, out errorMessage)) return false;
 
             string targetRole = string.Equals(role, "Admin", StringComparison.OrdinalIgnoreCase) ? "Admin" : "User";
 
-            try
+            if (!string.IsNullOrEmpty(newPassword) && newPassword.Length < 6)
+            { errorMessage = "New password must be at least 6 characters."; return false; }
+            string newHash = string.IsNullOrEmpty(newPassword) ? null : HashPassword(newPassword);
+
+            return ChangeAccount(userId, targetRole, isActive, false, (conn, transaction) =>
             {
-                using (SqlConnection conn = DatabaseConnection.GetConnection())
+                using (var cmd = new SqlCommand("dbo.sp_AdminUpdateUser", conn, transaction))
                 {
-                    conn.Open();
-
-                    using (SqlCommand cmd = new SqlCommand("dbo.sp_AdminUpdateUser", conn))
-                    {
-                        cmd.CommandType = CommandType.StoredProcedure;
-                        cmd.Parameters.Add("@UserID", SqlDbType.Int).Value = userId;
-                        cmd.Parameters.Add("@Email", SqlDbType.NVarChar, 255).Value = email.Trim();
-                        cmd.Parameters.Add("@Role", SqlDbType.NVarChar, 20).Value = targetRole;
-                        cmd.Parameters.Add("@IsActive", SqlDbType.Bit).Value = isActive;
-                        cmd.Parameters.Add("@FirstName", SqlDbType.NVarChar, 50).Value = firstName.Trim();
-                        cmd.Parameters.Add("@LastName", SqlDbType.NVarChar, 50).Value = lastName.Trim();
-
-                        cmd.ExecuteNonQuery();
-                        return true;
-                    }
+                    cmd.CommandType = CommandType.StoredProcedure;
+                    cmd.Parameters.Add("@UserID", SqlDbType.Int).Value = userId;
+                    cmd.Parameters.Add("@Email", SqlDbType.NVarChar, 255).Value = email.Trim();
+                    cmd.Parameters.Add("@Role", SqlDbType.NVarChar, 20).Value = targetRole;
+                    cmd.Parameters.Add("@IsActive", SqlDbType.Bit).Value = isActive;
+                    cmd.Parameters.Add("@FirstName", SqlDbType.NVarChar, 50).Value = firstName.Trim();
+                    cmd.Parameters.Add("@LastName", SqlDbType.NVarChar, 50).Value = lastName.Trim();
+                    if (DatabaseConnection.ExecuteNonQueryCount(cmd) <= 0) return false;
                 }
-            }
-            catch (Exception ex)
-            {
-                System.Diagnostics.Trace.TraceError("Database operation failed: {0}", ex);
-                errorMessage = "The database operation could not be completed. Please try again.";
-                return false;
-            }
+                if (newHash != null)
+                    using (var password = new SqlCommand("dbo.sp_AdminResetPassword", conn, transaction))
+                    {
+                        password.CommandType=CommandType.StoredProcedure;
+                        password.Parameters.Add("@UserID",SqlDbType.Int).Value=userId;
+                        password.Parameters.Add("@NewPasswordHash",SqlDbType.NVarChar,255).Value=newHash;
+                        if (DatabaseConnection.ExecuteNonQueryCount(password) <= 0) return false;
+                    }
+                return true;
+            }, out errorMessage);
         }
 
         public static bool AdminResetPassword(int userId, string newPassword, out string errorMessage)
@@ -741,7 +708,7 @@ namespace _241611JalopPersonalWebsite.Repository
             }
         }
 
-        public static bool DeleteUser(int userId, out string errorMessage)
+        public static bool DeleteUser(int userId, out string errorMessage, string applicationRoot = null)
         {
             errorMessage = string.Empty;
 
@@ -751,36 +718,108 @@ namespace _241611JalopPersonalWebsite.Repository
                 return false;
             }
 
+            string imagePath = null;
+            bool deleted = ChangeAccount(userId, null, null, true, (conn, transaction) =>
+            {
+                using (var image = new SqlCommand("SELECT ProfileImagePath FROM dbo.UserProfiles WITH (UPDLOCK,HOLDLOCK) WHERE UserID=@ID", conn, transaction))
+                {
+                    image.Parameters.Add("@ID", SqlDbType.Int).Value = userId;
+                    imagePath = image.ExecuteScalar() as string;
+                }
+                using (var cmd = new SqlCommand("dbo.sp_DeleteUser", conn, transaction))
+                {
+                    cmd.CommandType = CommandType.StoredProcedure;
+                    cmd.Parameters.Add("@UserID", SqlDbType.Int).Value = userId;
+                    return DatabaseConnection.ExecuteNonQueryCount(cmd) > 0;
+                }
+            }, out errorMessage);
+            if (deleted && !string.IsNullOrWhiteSpace(imagePath))
+            {
+                try
+                {
+                    // Never remove a file still referenced by another profile. Only
+                    // clean disk after the database transaction has committed.
+                    using (var conn = DatabaseConnection.GetConnection())
+                    using (var references = new SqlCommand("SELECT COUNT(*) FROM dbo.UserProfiles WHERE ProfileImagePath=@Path", conn))
+                    {
+                        references.Parameters.Add("@Path", SqlDbType.NVarChar, 500).Value = imagePath;
+                        conn.Open();
+                        if (Convert.ToInt32(references.ExecuteScalar()) > 0) return true;
+                    }
+                    string root = applicationRoot ?? System.Web.Hosting.HostingEnvironment.ApplicationPhysicalPath;
+                    if (!ProfileImages.TryDeleteStored(imagePath, root))
+                        errorMessage = "Account deleted, but its photo could not be removed from storage. Ask the server administrator to run the orphaned-image cleanup tool.";
+                }
+                catch (Exception ex)
+                {
+                    System.Diagnostics.Trace.TraceError("Deleted image reference check failed: {0}", ex);
+                    errorMessage = "Account deleted, but photo cleanup could not be completed. Ask the server administrator to run the orphaned-image cleanup tool.";
+                }
+            }
+            return deleted;
+        }
+
+        // All application paths that can remove an active administrator use the
+        // same locked transaction, including account settings and separate role/status actions.
+        private static bool ChangeAccount(int userId, string nextRole, bool? nextActive, bool deleting,
+            Func<SqlConnection, SqlTransaction, bool> change, out string errorMessage)
+        {
+            errorMessage = string.Empty;
+            int actorId = SessionSecurity.CurrentUser()?.UserID ?? 0;
             try
             {
-                using (SqlConnection conn = DatabaseConnection.GetConnection())
+                using (var conn = DatabaseConnection.GetConnection())
                 {
                     conn.Open();
-
-                    using (SqlCommand cmd = new SqlCommand("dbo.sp_DeleteUser", conn))
+                    using (var transaction = conn.BeginTransaction(IsolationLevel.Serializable))
                     {
-                        cmd.CommandType = CommandType.StoredProcedure;
-                        cmd.Parameters.Add("@UserID", SqlDbType.Int).Value = userId;
-
-                        int rows = DatabaseConnection.ExecuteNonQueryCount(cmd);
-                        if (rows > 0)
+                        // Lock the admin set before individual rows, in the same order
+                        // for every operation. Concurrent demotions cannot both pass.
+                        int adminCount = 0;
+                        using (var admins = new SqlCommand("SELECT UserID FROM dbo.Users WITH (UPDLOCK,HOLDLOCK) WHERE Role=N'Admin' AND IsActive=1 ORDER BY UserID", conn, transaction))
+                        using (var reader = admins.ExecuteReader()) while (reader.Read()) adminCount++;
+                        string oldRole;
+                        bool oldActive;
+                        using (var target = new SqlCommand("SELECT Role,IsActive FROM dbo.Users WITH (UPDLOCK,HOLDLOCK) WHERE UserID=@ID", conn, transaction))
                         {
-                            return true;
+                            target.Parameters.Add("@ID", SqlDbType.Int).Value = userId;
+                            using (var reader = target.ExecuteReader())
+                            {
+                                if (!reader.Read()) { errorMessage = "User record not found."; return false; }
+                                oldRole = Convert.ToString(reader["Role"]);
+                                oldActive = Convert.ToBoolean(reader["IsActive"]);
+                            }
                         }
-                        else
-                        {
-                            errorMessage = "User not found or already deleted.";
-                            return false;
-                        }
+                        if (actorId == userId && (deleting || nextActive == false))
+                        { errorMessage = "You cannot deactivate or delete your own active session."; return false; }
+                        bool removesAdmin = deleting || !(nextActive ?? oldActive) ||
+                            !string.Equals(nextRole ?? oldRole, "Admin", StringComparison.OrdinalIgnoreCase);
+                        if (oldActive && string.Equals(oldRole, "Admin", StringComparison.OrdinalIgnoreCase) && removesAdmin && adminCount <= 1)
+                        { errorMessage = "Keep at least one active administrator. Assign another administrator before making this change."; return false; }
+                        if (!change(conn, transaction)) { errorMessage = "User record not found."; return false; }
+                        transaction.Commit();
+                        return true;
                     }
                 }
             }
             catch (Exception ex)
             {
-                System.Diagnostics.Trace.TraceError("Database operation failed: {0}", ex);
-                errorMessage = "The database operation could not be completed. Please try again.";
+                System.Diagnostics.Trace.TraceError("Protected account change failed: {0}", ex);
+                errorMessage = AccountWriteError(ex);
                 return false;
             }
+        }
+
+        private static string AccountWriteError(Exception error)
+        {
+            var sql = error as SqlException;
+            if (sql != null)
+                foreach (SqlError item in sql.Errors)
+                    if (item.Number == 2601 || item.Number == 2627 ||
+                        (item.Number == 50000 && item.Message.IndexOf("email", StringComparison.OrdinalIgnoreCase) >= 0 &&
+                         (item.Message.IndexOf("already", StringComparison.OrdinalIgnoreCase) >= 0 || item.Message.IndexOf("exists", StringComparison.OrdinalIgnoreCase) >= 0)))
+                        return "An account with this email already exists. Sign in or use another email address.";
+            return "Account details could not be saved. Please try again.";
         }
 
         public static string HashPassword(string plainTextPassword) => PasswordSecurity.Hash(plainTextPassword);

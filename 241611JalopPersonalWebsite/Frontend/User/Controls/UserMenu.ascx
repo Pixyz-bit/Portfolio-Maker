@@ -4,7 +4,7 @@
 
 <div class="user-menu-wrapper" id="userMenuWrapper">
     <!-- 2nd Photo Icon Button -->
-    <button type="button" class="user-menu-btn" id="btnUserMenuToggle" aria-label="Open User Menu" title="User Menu">
+    <button type="button" class="user-menu-btn" id="btnUserMenuToggle" aria-label="Open User Menu" aria-expanded="false" aria-controls="userMenuDropdown" title="User Menu">
         <svg width="40" height="40" viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg">
             <circle cx="20" cy="20" r="20" fill="black"/>
             <circle cx="20" cy="15" r="5.2" fill="white"/>
@@ -13,7 +13,7 @@
     </button>
 
     <!-- Compact Organized Dropdown Menu -->
-    <div class="user-menu-dropdown" id="userMenuDropdown">
+    <div class="user-menu-dropdown" id="userMenuDropdown" aria-hidden="true" inert="inert">
         <!-- User Identity Header (Horizontal & Compact) -->
         <div class="menu-header">
             <div class="menu-avatar-wrap">
@@ -29,7 +29,7 @@
         </div>
 
         <!-- Portfolio Visibility Quick Toggle (Neo-Brutalist Compact Card) -->
-        <div class="menu-visibility-card" id="menuVisibilityCard" title="Click to toggle portfolio visibility">
+        <div class="menu-visibility-card" id="menuVisibilityCard" runat="server" ClientIDMode="Static" title="Click to toggle portfolio visibility">
             <span id="dotVisibility" runat="server" class="status-indicator-dot dot-public" style="display: none;"></span>
             <div class="visibility-card-text">
                 <span class="visibility-micro-label">Status</span>
@@ -108,17 +108,17 @@
         <div class="user-account-form-row">
             <div class="user-account-form-group">
                 <label class="user-account-label" for="<%= txtAccountFirstName.ClientID %>">First Name</label>
-                <asp:TextBox ID="txtAccountFirstName" runat="server" CssClass="user-account-input" placeholder="First Name" />
+                <asp:TextBox ID="txtAccountFirstName" runat="server" aria-required="true" MaxLength="50" CssClass="user-account-input" placeholder="First Name" />
             </div>
             <div class="user-account-form-group">
                 <label class="user-account-label" for="<%= txtAccountLastName.ClientID %>">Last Name</label>
-                <asp:TextBox ID="txtAccountLastName" runat="server" CssClass="user-account-input" placeholder="Last Name" />
+                <asp:TextBox ID="txtAccountLastName" runat="server" aria-required="true" MaxLength="50" CssClass="user-account-input" placeholder="Last Name" />
             </div>
         </div>
 
         <div class="user-account-form-group" style="margin-bottom: 16px;">
             <label class="user-account-label" for="<%= txtAccountEmail.ClientID %>">Email Address</label>
-            <asp:TextBox ID="txtAccountEmail" runat="server" TextMode="Email" CssClass="user-account-input" placeholder="email@example.com" />
+            <asp:TextBox ID="txtAccountEmail" runat="server" aria-required="true" MaxLength="255" TextMode="Email" CssClass="user-account-input" placeholder="email@example.com" />
         </div>
 
         <asp:PlaceHolder ID="phAdminOnlyAccountFields" runat="server">
@@ -175,4 +175,4 @@
     </asp:Panel>
 </div>
 
-<script src="<%= Page.ResolveUrl("~/Frontend/Assets/js/user-menu.js") %>"></script>
+<script src="<%= Page.ResolveUrl("~/Frontend/Assets/js/user-menu.js") %>?v=20261015e"></script>
